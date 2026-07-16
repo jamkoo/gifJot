@@ -71,8 +71,7 @@ private final class RegionSelectionWindow: NSWindow {
             contentRect: screen.frame,
             styleMask: [.borderless],
             backing: .buffered,
-            defer: false,
-            screen: screen
+            defer: false
         )
 
         level = .screenSaver
