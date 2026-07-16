@@ -6,7 +6,7 @@
 
 ## Status
 
-GifJot is in early development. The repository currently contains the native menu-bar shell, first-run Screen Recording permission guidance, typed recording preferences, and the recording lifecycle state machine. Region selection, screen capture, and GIF encoding are not implemented yet.
+GifJot is in early development. The repository currently contains the native menu-bar shell, first-run Screen Recording permission guidance, typed recording preferences, the recording lifecycle state machine, and a development-only five-second ScreenCaptureKit diagnostic that inspects frame metadata without saving captured pixels. Region selection, production capture, and GIF encoding are not implemented yet.
 
 ## Product boundaries
 

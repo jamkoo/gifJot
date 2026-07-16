@@ -26,5 +26,7 @@
 	<string>Copyright 2026 GifJot contributors.</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
+	<key>NSScreenCaptureUsageDescription</key>
+	<string>GifJot needs screen access to record only the region you choose as a local GIF.</string>
 </dict>
 </plist>

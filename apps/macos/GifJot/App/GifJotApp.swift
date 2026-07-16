@@ -27,6 +27,16 @@ struct GifJotApp: App {
                 appDelegate.showPermissionWindow()
             }
 
+#if DEBUG
+            Divider()
+
+            DiagnosticCaptureMenu(
+                permissionService: appDelegate.permissionService,
+                diagnosticService: appDelegate.diagnosticCaptureService,
+                settings: settings
+            )
+#endif
+
             Divider()
 
             SettingsLink {
@@ -62,6 +72,68 @@ struct GifJotApp: App {
         NSApplication.shared.activate(ignoringOtherApps: true)
     }
 }
+
+#if DEBUG
+@MainActor
+private struct DiagnosticCaptureMenu: View {
+    @ObservedObject var permissionService: CapturePermissionService
+    @ObservedObject var diagnosticService: ScreenCaptureDiagnosticService
+    @ObservedObject var settings: SettingsStore
+
+    var body: some View {
+        Button(buttonTitle) {
+            Task {
+                await diagnosticService.runFiveSecondCapture(
+                    framesPerSecond: settings.framesPerSecond.rawValue,
+                    includeCursor: settings.includeCursor
+                )
+            }
+        }
+        .disabled(
+            diagnosticService.state.isCapturing
+                || permissionService.status != .authorized
+        )
+
+        if permissionService.status != .authorized {
+            Text("Grant Screen Recording access to run the capture test.")
+        }
+
+        switch diagnosticService.state {
+        case .idle, .capturing:
+            EmptyView()
+
+        case let .completed(report):
+            Text(
+                "Frames: \(report.completeFrames) complete / \(report.receivedFrames) received"
+            )
+            Text(
+                "Estimated dropped: \(report.estimatedDroppedFrames) / Non-complete: \(report.nonCompleteFrames)"
+            )
+            Text("Invalid: \(report.invalidFrames)")
+            Text(
+                "Observed size: \(report.observedWidth ?? 0) x \(report.observedHeight ?? 0)"
+            )
+            Text(
+                "Timestamp span: \(formattedSpan(report.timestampSpanSeconds))"
+            )
+
+        case let .failed(message):
+            Text("Capture test failed: \(message)")
+        }
+    }
+
+    private var buttonTitle: String {
+        diagnosticService.state.isCapturing
+            ? "Capturing for 5 Seconds..."
+            : "Run 5-Second Capture Test"
+    }
+
+    private func formattedSpan(_ seconds: Double?) -> String {
+        guard let seconds else { return "Unavailable" }
+        return String(format: "%.3f seconds", seconds)
+    }
+}
+#endif
 
 @MainActor
 private struct PermissionStatusMenuLabel: View {

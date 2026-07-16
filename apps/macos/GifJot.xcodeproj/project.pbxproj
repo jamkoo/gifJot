@@ -19,6 +19,10 @@
 		C0000000000000000000001A /* CapturePermissionWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0000000000000000000001A /* CapturePermissionWindowController.swift */; };
 		C0000000000000000000001B /* CapturePermissionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0000000000000000000001B /* CapturePermissionService.swift */; };
 		C0000000000000000000001C /* CapturePermissionServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0000000000000000000001C /* CapturePermissionServiceTests.swift */; };
+		C0000000000000000000001D /* CaptureDiagnosticModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0000000000000000000001D /* CaptureDiagnosticModels.swift */; };
+		C0000000000000000000001E /* ScreenCaptureDiagnosticSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0000000000000000000001E /* ScreenCaptureDiagnosticSession.swift */; };
+		C0000000000000000000001F /* ScreenCaptureDiagnosticService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0000000000000000000001F /* ScreenCaptureDiagnosticService.swift */; };
+		C00000000000000000000020 /* CaptureDiagnosticAccumulatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000020 /* CaptureDiagnosticAccumulatorTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -47,6 +51,10 @@
 		B0000000000000000000001A /* CapturePermissionWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CapturePermissionWindowController.swift; sourceTree = "<group>"; };
 		B0000000000000000000001B /* CapturePermissionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CapturePermissionService.swift; sourceTree = "<group>"; };
 		B0000000000000000000001C /* CapturePermissionServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CapturePermissionServiceTests.swift; sourceTree = "<group>"; };
+		B0000000000000000000001D /* CaptureDiagnosticModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureDiagnosticModels.swift; sourceTree = "<group>"; };
+		B0000000000000000000001E /* ScreenCaptureDiagnosticSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenCaptureDiagnosticSession.swift; sourceTree = "<group>"; };
+		B0000000000000000000001F /* ScreenCaptureDiagnosticService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenCaptureDiagnosticService.swift; sourceTree = "<group>"; };
+		B00000000000000000000020 /* CaptureDiagnosticAccumulatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureDiagnosticAccumulatorTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -129,6 +137,7 @@
 		A00000000000000000000008 /* GifJotTests */ = {
 			isa = PBXGroup;
 			children = (
+				B00000000000000000000020 /* CaptureDiagnosticAccumulatorTests.swift */,
 				B0000000000000000000001C /* CapturePermissionServiceTests.swift */,
 				B00000000000000000000016 /* RecordingStateMachineTests.swift */,
 				B00000000000000000000017 /* SettingsStoreTests.swift */,
@@ -139,7 +148,10 @@
 		A00000000000000000000009 /* Capture */ = {
 			isa = PBXGroup;
 			children = (
+				B0000000000000000000001D /* CaptureDiagnosticModels.swift */,
 				B0000000000000000000001B /* CapturePermissionService.swift */,
+				B0000000000000000000001E /* ScreenCaptureDiagnosticSession.swift */,
+				B0000000000000000000001F /* ScreenCaptureDiagnosticService.swift */,
 			);
 			path = Capture;
 			sourceTree = "<group>";
@@ -247,6 +259,9 @@
 				C00000000000000000000019 /* CapturePermissionView.swift in Sources */,
 				C0000000000000000000001A /* CapturePermissionWindowController.swift in Sources */,
 				C0000000000000000000001B /* CapturePermissionService.swift in Sources */,
+				C0000000000000000000001D /* CaptureDiagnosticModels.swift in Sources */,
+				C0000000000000000000001E /* ScreenCaptureDiagnosticSession.swift in Sources */,
+				C0000000000000000000001F /* ScreenCaptureDiagnosticService.swift in Sources */,
 				C00000000000000000000012 /* RecordingStateMachine.swift in Sources */,
 				C00000000000000000000013 /* RecordingSettings.swift in Sources */,
 				C00000000000000000000014 /* SettingsStore.swift in Sources */,
@@ -258,6 +273,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C00000000000000000000020 /* CaptureDiagnosticAccumulatorTests.swift in Sources */,
 				C0000000000000000000001C /* CapturePermissionServiceTests.swift in Sources */,
 				C00000000000000000000016 /* RecordingStateMachineTests.swift in Sources */,
 				C00000000000000000000017 /* SettingsStoreTests.swift in Sources */,
