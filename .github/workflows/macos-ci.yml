@@ -4,6 +4,7 @@ on:
   push:
     branches: [main]
   pull_request:
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -54,3 +55,86 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             test
+
+  package-test-build:
+    name: Package downloadable test build
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
+    needs: build-and-test
+    runs-on: macos-15
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Build release app without distribution signing
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -project apps/macos/GifJot.xcodeproj \
+            -scheme GifJot \
+            -configuration Release \
+            -destination 'platform=macOS' \
+            -derivedDataPath "$RUNNER_TEMP/GifJotRelease" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            build
+
+      - name: Ad-hoc sign and verify app bundle
+        env:
+          APP_PATH: ${{ runner.temp }}/GifJotRelease/Build/Products/Release/GifJot.app
+        run: |
+          test -d "$APP_PATH"
+          codesign \
+            --force \
+            --sign - \
+            --options runtime \
+            "$APP_PATH"
+          codesign --verify --strict --verbose=2 "$APP_PATH"
+          codesign --display --verbose=2 "$APP_PATH"
+
+      - name: Create test app archive and disk image
+        env:
+          APP_PATH: ${{ runner.temp }}/GifJotRelease/Build/Products/Release/GifJot.app
+          DIST_DIR: ${{ runner.temp }}/GifJotDistribution
+          STAGE_DIR: ${{ runner.temp }}/GifJotDMG
+        run: |
+          rm -rf "$DIST_DIR" "$STAGE_DIR"
+          mkdir -p "$DIST_DIR" "$STAGE_DIR"
+
+          ditto "$APP_PATH" "$STAGE_DIR/GifJot.app"
+          ln -s /Applications "$STAGE_DIR/Applications"
+
+          ditto \
+            -c \
+            -k \
+            --sequesterRsrc \
+            --keepParent \
+            "$APP_PATH" \
+            "$DIST_DIR/GifJot-Test.app.zip"
+
+          hdiutil create \
+            -volname "GifJot Test Build" \
+            -srcfolder "$STAGE_DIR" \
+            -ov \
+            -format UDZO \
+            "$DIST_DIR/GifJot-Test.dmg"
+
+          cd "$DIST_DIR"
+          shasum -a 256 \
+            GifJot-Test.dmg \
+            GifJot-Test.app.zip \
+            > SHA256SUMS.txt
+          ls -lh
+
+      - name: Upload downloadable test build
+        uses: actions/upload-artifact@v4
+        with:
+          name: GifJot-macOS-Test-${{ github.run_number }}
+          path: |
+            ${{ runner.temp }}/GifJotDistribution/GifJot-Test.dmg
+            ${{ runner.temp }}/GifJotDistribution/GifJot-Test.app.zip
+            ${{ runner.temp }}/GifJotDistribution/SHA256SUMS.txt
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 30

@@ -8,7 +8,7 @@ GifJot is a free, open-source, native macOS menu-bar utility for turning a selec
 
 ## Project status
 
-GifJot is an early, unreleased prototype. The end-to-end workflow is implemented in source, but there is no signed or notarized public build yet. Xcode compilation, ScreenCaptureKit behavior, clipboard compatibility, performance, and multi-display geometry still require verification on real Macs before a release is declared ready.
+GifJot is an early, unreleased prototype. The end-to-end workflow is implemented in source, and successful `main` builds provide an ad-hoc-signed test app and DMG. There is no Developer ID-signed or notarized public release yet. ScreenCaptureKit behavior, clipboard compatibility, performance, and multi-display geometry still require verification on real Macs before a release is declared ready.
 
 The current implementation uses Apple Image I/O for GIF encoding and has no third-party runtime or package dependency.
 
@@ -39,7 +39,26 @@ The macOS MVP is intentionally narrow:
 - No Accessibility permission.
 - Windows work starts only after the macOS workflow is stable.
 
-## Requirements
+## Test a build without Xcode
+
+Testers need macOS 14 or later and do not need Xcode.
+
+1. Open the [macOS CI workflow](https://github.com/jamkoo/gifJot/actions/workflows/macos-ci.yml).
+2. Choose the newest successful run for `main`.
+3. Download the `GifJot-macOS-Test-*` artifact from the run's **Artifacts** section and unzip the download.
+4. Open `GifJot-Test.dmg`, then drag **GifJot** to **Applications**.
+5. On first launch, Control-click **GifJot** in Applications and choose **Open**. If macOS still blocks it, open **System Settings > Privacy & Security** and choose **Open Anyway** for GifJot.
+6. Grant Screen Recording access when requested, then quit and reopen GifJot if macOS requires it.
+
+These test builds are ad-hoc signed for bundle integrity but are not signed with an Apple Developer ID or notarized. Only download them from this repository. Do not disable Gatekeeper. A future public release will be Developer ID-signed and notarized so it opens through the normal double-click flow.
+
+Each artifact also contains `GifJot-Test.app.zip` and `SHA256SUMS.txt`. The DMG is the simplest installation path; the ZIP is provided as a fallback.
+
+## User requirements
+
+- macOS 14 or later
+
+## Developer requirements
 
 - macOS 14 or later
 - Xcode 15 or later
@@ -78,7 +97,7 @@ xcodebuild \
 
 Development builds require no repository secrets, signing certificates, or network service.
 
-## First test run
+## First source test run
 
 1. Build and run the **GifJot** scheme in Xcode.
 2. Grant Screen Recording access when macOS asks.
@@ -93,7 +112,7 @@ Debug builds also provide isolated region-selection and five-second frame-delive
 ## Known limitations
 
 - The global shortcut is fixed to `Option-Command-G` and is not configurable yet.
-- No signed, notarized, packaged release is available yet.
+- Downloadable test builds are ad-hoc signed and packaged, but no Developer ID-signed and notarized release is available yet.
 - Image I/O output quality and file size have not completed the planned encoder benchmark.
 - Physical testing is still required for Retina and external displays, negative display origins, permission changes, repeated recording, disk failures, and clipboard failures.
 - The temporary bundle identifier must be confirmed before distribution.

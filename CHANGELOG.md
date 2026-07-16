@@ -21,6 +21,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Deterministic unit and integration tests for core recording logic.
 - Public privacy, contribution, conduct, security, and change-log policies.
 - Structured GitHub issue forms, pull-request template, and unsigned macOS CI.
+- Automatic ad-hoc-signed `.app` and `.dmg` test packages from successful `main` builds.
 
 ### Changed
 
