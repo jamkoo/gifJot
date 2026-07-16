@@ -17,8 +17,20 @@ final class ImageIOGIFEncoderTests: XCTestCase {
             maximumFrameCount: 2
         )
         try store.beginSession()
-        try store.append(image: makeImage(red: 1, green: 0), presentationTime: 1)
-        try store.append(image: makeImage(red: 0, green: 1), presentationTime: 1.1)
+        XCTAssertEqual(
+            try store.append(
+                image: makeImage(red: 1, green: 0),
+                presentationTime: 1
+            ),
+            .stored
+        )
+        XCTAssertEqual(
+            try store.append(
+                image: makeImage(red: 0, green: 1),
+                presentationTime: 1.1
+            ),
+            .stored
+        )
 
         let frames = GIFFrameTiming.makeFrames(
             from: store.frames,
@@ -51,11 +63,13 @@ final class ImageIOGIFEncoderTests: XCTestCase {
         try store.beginSession()
         let sessionDirectory = try XCTUnwrap(store.sessionDirectory)
 
-        XCTAssertTrue(
-            try store.append(image: makeImage(red: 1, green: 0), presentationTime: 1)
+        XCTAssertEqual(
+            try store.append(image: makeImage(red: 1, green: 0), presentationTime: 1),
+            .stored
         )
-        XCTAssertFalse(
-            try store.append(image: makeImage(red: 0, green: 1), presentationTime: 2)
+        XCTAssertEqual(
+            try store.append(image: makeImage(red: 0, green: 1), presentationTime: 2),
+            .capacityReached
         )
         XCTAssertEqual(store.frames.count, 1)
 
@@ -63,6 +77,75 @@ final class ImageIOGIFEncoderTests: XCTestCase {
 
         XCTAssertFalse(FileManager.default.fileExists(atPath: sessionDirectory.path))
         XCTAssertTrue(store.frames.isEmpty)
+    }
+
+    func testTemporaryStoreCoalescesOnlyConsecutiveExactDuplicates() throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(
+            "GifJotTests-\(UUID().uuidString)",
+            isDirectory: true
+        )
+        defer { try? FileManager.default.removeItem(at: root) }
+
+        let store = TemporaryRecordingStore(
+            baseDirectory: root,
+            maximumFrameCount: 4
+        )
+        try store.beginSession()
+
+        XCTAssertEqual(
+            try store.append(image: makeImage(red: 1, green: 0), presentationTime: 1),
+            .stored
+        )
+        XCTAssertEqual(
+            try store.append(image: makeImage(red: 1, green: 0), presentationTime: 1.1),
+            .duplicate
+        )
+        XCTAssertEqual(
+            try store.append(image: makeImage(red: 0, green: 1), presentationTime: 1.2),
+            .stored
+        )
+        XCTAssertEqual(
+            try store.append(image: makeImage(red: 1, green: 0), presentationTime: 1.3),
+            .stored
+        )
+
+        XCTAssertEqual(store.frames.count, 3)
+        XCTAssertEqual(store.duplicateFrameCount, 1)
+        XCTAssertEqual(store.frames.map(\.presentationTime), [1, 1.2, 1.3])
+    }
+
+    func testDuplicateFramesExtendThePreviousFrameTiming() throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(
+            "GifJotTests-\(UUID().uuidString)",
+            isDirectory: true
+        )
+        defer { try? FileManager.default.removeItem(at: root) }
+
+        let store = TemporaryRecordingStore(baseDirectory: root)
+        try store.beginSession()
+        let stillFrame = makeImage(red: 1, green: 0)
+
+        XCTAssertEqual(
+            try store.append(image: stillFrame, presentationTime: 5),
+            .stored
+        )
+        XCTAssertEqual(
+            try store.append(image: stillFrame, presentationTime: 5.1),
+            .duplicate
+        )
+        XCTAssertEqual(
+            try store.append(image: stillFrame, presentationTime: 5.2),
+            .duplicate
+        )
+
+        let frames = GIFFrameTiming.makeFrames(
+            from: store.frames,
+            defaultDelay: 0.1,
+            endingPresentationTime: 5.3
+        )
+
+        XCTAssertEqual(frames.count, 1)
+        XCTAssertEqual(frames[0].delay, 0.3, accuracy: 0.000_001)
     }
 
     private func makeImage(red: CGFloat, green: CGFloat) -> CGImage {

@@ -7,46 +7,52 @@ struct CapturePermissionView: View {
     let onDismiss: () -> Void
 
     var body: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: 24) {
             Image(systemName: iconName)
-                .font(.system(size: 42, weight: .medium))
+                .font(.system(size: 38, weight: .medium))
                 .foregroundStyle(iconColor)
+                .symbolRenderingMode(.hierarchical)
                 .accessibilityHidden(true)
 
-            VStack(spacing: 8) {
+            VStack(spacing: 7) {
                 Text(title)
-                    .font(.title2.weight(.semibold))
+                    .font(.system(size: 22, weight: .semibold))
 
                 Text(message)
+                    .font(.system(size: 13))
                     .multilineTextAlignment(.center)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
 
-            GroupBox {
-                Label {
-                    Text(
-                        "GifJot records only when you start a capture. Recordings stay on this Mac, and GifJot does not request Accessibility access."
-                    )
-                    .font(.callout)
+            HStack(alignment: .top, spacing: 11) {
+                Image(systemName: "lock.shield")
+                    .font(.system(size: 15, weight: .semibold))
                     .foregroundStyle(.secondary)
-                } icon: {
-                    Image(systemName: "lock.shield")
-                }
-                .padding(4)
+                    .frame(width: 20)
+
+                Text("GifJot records only when you start a capture. Everything stays on this Mac, and Accessibility access is never requested.")
+                    .font(.system(size: 12))
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                Spacer(minLength: 0)
             }
+            .padding(13)
+            .gifJotGroupSurface()
 
             actionButtons
         }
         .padding(28)
-        .frame(width: 500)
+        .frame(width: 470)
+        .background(Color(nsColor: .windowBackgroundColor))
     }
 
-    @ViewBuilder
     private var actionButtons: some View {
-        HStack {
+        HStack(spacing: 10) {
             if permissionService.status != .authorized {
                 Button("Not Now", action: onDismiss)
+                    .buttonStyle(GifJotQuietButtonStyle())
             }
 
             Spacer()
@@ -56,22 +62,26 @@ struct CapturePermissionView: View {
                 Button("Allow Screen Recording") {
                     permissionService.requestAccess()
                 }
+                .buttonStyle(GifJotPrimaryButtonStyle())
                 .keyboardShortcut(.defaultAction)
 
             case .denied:
                 Button("Open System Settings") {
                     permissionService.openSystemSettings()
                 }
+                .buttonStyle(GifJotPrimaryButtonStyle())
                 .keyboardShortcut(.defaultAction)
 
             case .authorized:
                 if permissionService.restartRecommended {
-                    Button("Quit GifJot") {
+                    Button("Quit and Reopen GifJot") {
                         NSApplication.shared.terminate(nil)
                     }
+                    .buttonStyle(GifJotPrimaryButtonStyle())
                     .keyboardShortcut(.defaultAction)
                 } else {
-                    Button("Done", action: onDismiss)
+                    Button("Start Recording", action: onDismiss)
+                        .buttonStyle(GifJotPrimaryButtonStyle())
                         .keyboardShortcut(.defaultAction)
                 }
             }
@@ -87,20 +97,20 @@ struct CapturePermissionView: View {
         case .authorized:
             permissionService.restartRecommended
                 ? "Restart GifJot to Finish"
-                : "Screen Recording Is Ready"
+                : "Ready to Record"
         }
     }
 
     private var message: String {
         switch permissionService.status {
         case .notDetermined:
-            "GifJot needs macOS Screen Recording permission to capture only the region you select."
+            "macOS requires permission before GifJot can capture the area you select."
         case .denied:
-            "Enable GifJot in System Settings > Privacy & Security > Screen & System Audio Recording, then return to GifJot."
+            "Enable GifJot in System Settings › Privacy & Security › Screen & System Audio Recording."
         case .authorized:
             permissionService.restartRecommended
-                ? "Screen Recording permission is enabled. Quit and reopen GifJot before starting the first capture."
-                : "Screen Recording permission is enabled. You can close this window."
+                ? "Permission is enabled. Reopen GifJot once so macOS can finish applying it."
+                : "Screen Recording access is enabled. Your GIFs are ready to stay local."
         }
     }
 
@@ -111,18 +121,24 @@ struct CapturePermissionView: View {
         case .denied:
             "exclamationmark.triangle"
         case .authorized:
-            "checkmark.circle"
+            permissionService.restartRecommended
+                ? "arrow.clockwise"
+                : "checkmark.circle"
         }
     }
 
     private var iconColor: Color {
+        if permissionService.restartRecommended {
+            return .orange
+        }
+
         switch permissionService.status {
         case .notDetermined:
-            .accentColor
+            return GifJotDesign.signal
         case .denied:
-            .orange
+            return .orange
         case .authorized:
-            .green
+            return .green
         }
     }
 }

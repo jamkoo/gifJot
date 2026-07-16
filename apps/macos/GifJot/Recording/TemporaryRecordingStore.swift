@@ -20,6 +20,48 @@ enum TemporaryRecordingStoreError: Error, LocalizedError, Sendable {
     }
 }
 
+enum FrameStorageOutcome: Equatable, Sendable {
+    case stored
+    case duplicate
+    case capacityReached
+}
+
+private struct ExactFrameSnapshot {
+    let width: Int
+    let height: Int
+    let bitsPerComponent: Int
+    let bitsPerPixel: Int
+    let bytesPerRow: Int
+    let bitmapInfo: UInt32
+    let bytes: Data
+    let digest: Int
+
+    init?(image: CGImage) {
+        guard let providerData = image.dataProvider?.data else { return nil }
+
+        let bytes = providerData as Data
+        width = image.width
+        height = image.height
+        bitsPerComponent = image.bitsPerComponent
+        bitsPerPixel = image.bitsPerPixel
+        bytesPerRow = image.bytesPerRow
+        bitmapInfo = image.bitmapInfo.rawValue
+        self.bytes = bytes
+        digest = bytes.hashValue
+    }
+
+    func isIdentical(to other: ExactFrameSnapshot) -> Bool {
+        width == other.width
+            && height == other.height
+            && bitsPerComponent == other.bitsPerComponent
+            && bitsPerPixel == other.bitsPerPixel
+            && bytesPerRow == other.bytesPerRow
+            && bitmapInfo == other.bitmapInfo
+            && digest == other.digest
+            && bytes == other.bytes
+    }
+}
+
 final class TemporaryRecordingStore {
     static let directoryName = "GifJot"
 
@@ -29,6 +71,8 @@ final class TemporaryRecordingStore {
 
     private(set) var sessionDirectory: URL?
     private(set) var frames: [StoredCaptureFrame] = []
+    private(set) var duplicateFrameCount = 0
+    private var lastFrameSnapshot: ExactFrameSnapshot?
 
     init(
         baseDirectory: URL? = nil,
@@ -62,16 +106,30 @@ final class TemporaryRecordingStore {
 
         self.sessionDirectory = sessionDirectory
         frames = []
+        duplicateFrameCount = 0
+        lastFrameSnapshot = nil
     }
 
-    @discardableResult
     func append(
         image: CGImage,
         presentationTime: TimeInterval
-    ) throws -> Bool {
-        guard frames.count < maximumFrameCount else { return false }
+    ) throws -> FrameStorageOutcome {
         guard let sessionDirectory else {
             throw TemporaryRecordingStoreError.sessionNotStarted
+        }
+
+        let snapshot = ExactFrameSnapshot(image: image)
+        if let snapshot,
+           let lastFrameSnapshot,
+           snapshot.isIdentical(to: lastFrameSnapshot)
+        {
+            duplicateFrameCount += 1
+            return .duplicate
+        }
+
+        guard frames.count < maximumFrameCount else {
+            lastFrameSnapshot = nil
+            return .capacityReached
         }
 
         let fileURL = sessionDirectory.appendingPathComponent(
@@ -98,13 +156,16 @@ final class TemporaryRecordingStore {
                 presentationTime: presentationTime
             )
         )
-        return true
+        lastFrameSnapshot = snapshot
+        return .stored
     }
 
     func cleanup() {
         let directory = sessionDirectory
         sessionDirectory = nil
         frames = []
+        duplicateFrameCount = 0
+        lastFrameSnapshot = nil
 
         if let directory {
             try? fileManager.removeItem(at: directory)

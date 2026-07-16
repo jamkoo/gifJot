@@ -197,7 +197,7 @@ private final class RegionSelectionView: NSView {
             dimPath.windingRule = .evenOdd
         }
 
-        NSColor.black.withAlphaComponent(0.38).setFill()
+        NSColor.black.withAlphaComponent(0.42).setFill()
         dimPath.fill()
 
         guard let selectionRect else {
@@ -205,9 +205,20 @@ private final class RegionSelectionView: NSView {
             return
         }
 
-        NSColor.systemYellow.setStroke()
-        let border = NSBezierPath(rect: selectionRect.insetBy(dx: 0.5, dy: 0.5))
-        border.lineWidth = 2
+        let lineWidth = 1.0 / max(displayScale, 1)
+        NSColor(
+            red: 217.0 / 255.0,
+            green: 74.0 / 255.0,
+            blue: 54.0 / 255.0,
+            alpha: 1
+        ).setStroke()
+        let border = NSBezierPath(
+            rect: selectionRect.insetBy(
+                dx: lineWidth / 2,
+                dy: lineWidth / 2
+            )
+        )
+        border.lineWidth = lineWidth
         border.stroke()
 
         drawSizeLabel(for: selectionRect)
@@ -221,21 +232,38 @@ private final class RegionSelectionView: NSView {
     }
 
     private func drawInstruction() {
-        let text = "Drag to record a region  •  Esc to cancel"
-        drawBadge(text, centeredAt: CGPoint(x: bounds.midX, y: bounds.midY))
+        let text = "Drag to record an area  •  Esc to cancel"
+        drawBadge(
+            text,
+            centeredAt: CGPoint(x: bounds.midX, y: bounds.midY),
+            font: .systemFont(ofSize: 13, weight: .medium)
+        )
     }
 
     private func drawSizeLabel(for rect: CGRect) {
         let pixelWidth = Int((rect.width * displayScale).rounded())
         let pixelHeight = Int((rect.height * displayScale).rounded())
         let center = CGPoint(x: rect.midX, y: max(rect.minY - 24, 18))
-        drawBadge("\(pixelWidth) × \(pixelHeight)", centeredAt: center)
+        drawBadge(
+            "\(pixelWidth) × \(pixelHeight)",
+            centeredAt: center,
+            font: .monospacedSystemFont(ofSize: 12, weight: .medium)
+        )
     }
 
-    private func drawBadge(_ text: String, centeredAt center: CGPoint) {
+    private func drawBadge(
+        _ text: String,
+        centeredAt center: CGPoint,
+        font: NSFont
+    ) {
         let attributes: [NSAttributedString.Key: Any] = [
-            .font: NSFont.monospacedSystemFont(ofSize: 13, weight: .medium),
-            .foregroundColor: NSColor.white,
+            .font: font,
+            .foregroundColor: NSColor(
+                red: 251.0 / 255.0,
+                green: 250.0 / 255.0,
+                blue: 247.0 / 255.0,
+                alpha: 1
+            ),
         ]
         let attributed = NSAttributedString(string: text, attributes: attributes)
         let textSize = attributed.size()
@@ -246,8 +274,13 @@ private final class RegionSelectionView: NSView {
             height: textSize.height + 12
         )
 
-        NSColor.black.withAlphaComponent(0.78).setFill()
-        NSBezierPath(roundedRect: badgeRect, xRadius: 7, yRadius: 7).fill()
+        NSColor(
+            red: 34.0 / 255.0,
+            green: 34.0 / 255.0,
+            blue: 32.0 / 255.0,
+            alpha: 0.94
+        ).setFill()
+        NSBezierPath(roundedRect: badgeRect, xRadius: 6, yRadius: 6).fill()
         attributed.draw(at: CGPoint(
             x: badgeRect.minX + 10,
             y: badgeRect.minY + 6

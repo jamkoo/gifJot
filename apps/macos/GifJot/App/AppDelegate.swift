@@ -5,6 +5,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     let permissionService: CapturePermissionService
     let regionSelectionService: RegionSelectionService
     let recordingCoordinator: RecordingCoordinator
+    let settings: SettingsStore
 #if DEBUG
     let diagnosticCaptureService: ScreenCaptureDiagnosticService
 #endif
@@ -12,12 +13,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private lazy var permissionWindowController = CapturePermissionWindowController(
         permissionService: permissionService
     )
+    private lazy var recordingHUDController = RecordingHUDController(
+        coordinator: recordingCoordinator
+    )
+    private let globalShortcutService = GlobalShortcutService()
 
     override init() {
         let permissionService = CapturePermissionService()
         let regionSelectionService = RegionSelectionService()
+        let settings = SettingsStore()
         self.permissionService = permissionService
         self.regionSelectionService = regionSelectionService
+        self.settings = settings
         recordingCoordinator = RecordingCoordinator(
             permissionService: permissionService,
             regionSelectionService: regionSelectionService
@@ -32,6 +39,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         TemporaryRecordingStore.removeAbandonedSessions()
+        recordingHUDController.start()
+        let shortcutRegistered = globalShortcutService.start { [weak self] in
+            self?.performRecordingShortcut()
+        }
+        if !shortcutRegistered {
+            NSLog("GifJot could not register the %@ shortcut.", GlobalShortcutService.displayName)
+        }
 
         if permissionService.refreshStatus() != .authorized {
             permissionWindowController.present()
@@ -43,10 +57,27 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func applicationWillTerminate(_ notification: Notification) {
+        globalShortcutService.stop()
+        recordingHUDController.stop()
         recordingCoordinator.applicationWillTerminate()
     }
 
     func showPermissionWindow() {
         permissionWindowController.present()
+    }
+
+    private func performRecordingShortcut() {
+        let isStarting = !recordingCoordinator.isBusy
+        if isStarting && (
+            permissionService.refreshStatus() != .authorized
+                || permissionService.restartRecommended
+        ) {
+            showPermissionWindow()
+            return
+        }
+
+        recordingCoordinator.performPrimaryAction(
+            configuration: settings.recordingConfiguration()
+        )
     }
 }

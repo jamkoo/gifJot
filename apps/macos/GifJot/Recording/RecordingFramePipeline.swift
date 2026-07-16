@@ -20,6 +20,7 @@ enum RecordingFramePipelineError: Error, LocalizedError, Sendable {
 struct RecordingFramePipelineResult: Equatable, Sendable {
     let frames: [GIFFrame]
     let droppedFrames: Int
+    let duplicateFrames: Int
 }
 
 struct BoundedFrameAdmission: Equatable, Sendable {
@@ -127,6 +128,7 @@ final class RecordingFramePipeline: @unchecked Sendable {
                 stateLock.lock()
                 let error = processingError
                 let droppedFrames = admission.droppedCount
+                let duplicateFrames = store.duplicateFrameCount
                 let endingPresentationTime = latestPresentationTime
                 stateLock.unlock()
 
@@ -150,7 +152,8 @@ final class RecordingFramePipeline: @unchecked Sendable {
                 continuation.resume(
                     returning: RecordingFramePipelineResult(
                         frames: frames,
-                        droppedFrames: droppedFrames
+                        droppedFrames: droppedFrames,
+                        duplicateFrames: duplicateFrames
                     )
                 )
             }
@@ -181,7 +184,7 @@ final class RecordingFramePipeline: @unchecked Sendable {
         }
 
         do {
-            let didStore: Bool = try autoreleasepool {
+            let outcome: FrameStorageOutcome = try autoreleasepool {
                 guard let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer)
                 else {
                     throw RecordingFramePipelineError.couldNotCreateImage
@@ -201,7 +204,7 @@ final class RecordingFramePipeline: @unchecked Sendable {
                 )
             }
 
-            if !didStore {
+            if outcome == .capacityReached {
                 stateLock.lock()
                 admission.recordDrop()
                 stateLock.unlock()

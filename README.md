@@ -4,7 +4,7 @@
 
 GifJot is a free, open-source, native macOS menu-bar utility for turning a selected screen region into a local, paste-ready GIF.
 
-> Record GIF -> select one-display region -> record -> stop -> save and copy
+> Record Area -> select one-display region -> record -> stop -> save and copy
 
 ## Project status
 
@@ -19,8 +19,10 @@ The current implementation uses Apple Image I/O for GIF encoding and has no thir
 - One overlay per display with crosshair region selection and Escape cancellation.
 - Single-display capture through ScreenCaptureKit.
 - Configurable output width, frame rate, countdown, cursor visibility, and copy behavior.
-- Menu-bar Record and Stop controls with a two-minute recording guardrail.
+- Menu-bar controls plus a global `Option-Command-G` shortcut that does not require Accessibility permission.
+- A non-captured recording border and detached countdown, elapsed-time, Stop, processing, and completion HUD.
 - Protocol-backed Image I/O GIF encoding with presentation-time-based frame delays.
+- Automatic exact-frame coalescing that turns unchanged screen periods into longer frame delays instead of redundant GIF frames.
 - Bounded capture and processing queues that drop and report frames instead of growing memory without limit.
 - Collision-safe saves to `~/Downloads/GifJot`.
 - Optional clipboard copy as a GIF file URL.
@@ -81,16 +83,16 @@ Development builds require no repository secrets, signing certificates, or netwo
 1. Build and run the **GifJot** scheme in Xcode.
 2. Grant Screen Recording access when macOS asks.
 3. Quit and reopen GifJot if the permission panel says a restart is required.
-4. Choose **Record GIF** from the menu-bar menu.
+4. Choose **Record Area** from the menu-bar panel or press `Option-Command-G`.
 5. Drag a region entirely within one display. Press Escape to cancel selection.
-6. Choose **Stop Recording** from the menu-bar menu.
+6. Stop from the detached recording HUD, the menu-bar panel, or `Option-Command-G`.
 7. Confirm the GIF appears in `~/Downloads/GifJot`, loops at the expected speed, and pastes into another application.
 
 Debug builds also provide isolated region-selection and five-second frame-delivery diagnostics in the menu.
 
 ## Known limitations
 
-- No global keyboard shortcut is implemented yet.
+- The global shortcut is fixed to `Option-Command-G` and is not configurable yet.
 - No signed, notarized, packaged release is available yet.
 - Image I/O output quality and file size have not completed the planned encoder benchmark.
 - Physical testing is still required for Retina and external displays, negative display origins, permission changes, repeated recording, disk failures, and clipboard failures.

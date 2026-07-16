@@ -24,7 +24,9 @@ final class RecordingCoordinator: ObservableObject {
     @Published private(set) var elapsedSeconds = 0
     @Published private(set) var outputDimensions: OutputDimensions?
     @Published private(set) var droppedFrames = 0
+    @Published private(set) var optimizedFrameCount = 0
     @Published private(set) var lastOutputURL: URL?
+    @Published private(set) var activeRegion: CaptureRegion?
     @Published private(set) var errorMessage: String?
     @Published private(set) var warningMessage: String?
 
@@ -90,7 +92,7 @@ final class RecordingCoordinator: ObservableObject {
         case .exporting:
             "Saving GIF..."
         default:
-            "Record GIF"
+            "Record Area"
         }
     }
 
@@ -110,7 +112,7 @@ final class RecordingCoordinator: ObservableObject {
         case .requestingPermission:
             "Checking Screen Recording access..."
         case .selectingRegion:
-            "Drag over one display - Esc to cancel"
+            "Drag over one display — Esc to cancel"
         case .countdown:
             "Recording in \(countdownSecondsRemaining ?? 0)..."
         case .recording:
@@ -209,6 +211,7 @@ final class RecordingCoordinator: ObservableObject {
                 workflowTask = nil
                 return
             }
+            activeRegion = region
             try Task.checkCancellation()
 
             if configuration.countdownSeconds > 0 {
@@ -270,6 +273,7 @@ final class RecordingCoordinator: ObservableObject {
         do {
             let capture = try await session.stop()
             droppedFrames = capture.droppedFrames
+            optimizedFrameCount = capture.duplicateFrames
             try transition(to: .encoding)
 
             let createdExporter = try exporterFactory()
@@ -392,9 +396,11 @@ final class RecordingCoordinator: ObservableObject {
         elapsedSeconds = 0
         outputDimensions = nil
         droppedFrames = 0
+        optimizedFrameCount = 0
         errorMessage = nil
         warningMessage = nil
         lastOutputURL = nil
+        activeRegion = nil
     }
 
     private var recordingStatusText: String {
