@@ -92,9 +92,12 @@ private struct DiagnosticCaptureMenu: View {
         .disabled(
             diagnosticService.state.isCapturing
                 || permissionService.status != .authorized
+                || permissionService.restartRecommended
         )
 
-        if permissionService.status != .authorized {
+        if permissionService.restartRecommended {
+            Text("Quit and reopen GifJot before running the capture test.")
+        } else if permissionService.status != .authorized {
             Text("Grant Screen Recording access to run the capture test.")
         }
 
@@ -146,7 +149,11 @@ private struct PermissionStatusMenuLabel: View {
         case .denied:
             Label("Screen Recording: Off", systemImage: "exclamationmark.triangle")
         case .authorized:
-            Label("Screen Recording: Allowed", systemImage: "checkmark.circle")
+            if permissionService.restartRecommended {
+                Label("Screen Recording: Restart Required", systemImage: "arrow.clockwise")
+            } else {
+                Label("Screen Recording: Allowed", systemImage: "checkmark.circle")
+            }
         }
     }
 }

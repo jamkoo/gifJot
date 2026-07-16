@@ -1,3 +1,4 @@
+import AppKit
 import SwiftUI
 
 @MainActor
@@ -64,8 +65,15 @@ struct CapturePermissionView: View {
                 .keyboardShortcut(.defaultAction)
 
             case .authorized:
-                Button("Done", action: onDismiss)
+                if permissionService.restartRecommended {
+                    Button("Quit GifJot") {
+                        NSApplication.shared.terminate(nil)
+                    }
                     .keyboardShortcut(.defaultAction)
+                } else {
+                    Button("Done", action: onDismiss)
+                        .keyboardShortcut(.defaultAction)
+                }
             }
         }
     }
@@ -77,7 +85,9 @@ struct CapturePermissionView: View {
         case .denied:
             "Screen Recording Is Off"
         case .authorized:
-            "Screen Recording Is Ready"
+            permissionService.restartRecommended
+                ? "Restart GifJot to Finish"
+                : "Screen Recording Is Ready"
         }
     }
 
@@ -88,7 +98,9 @@ struct CapturePermissionView: View {
         case .denied:
             "Enable GifJot in System Settings > Privacy & Security > Screen & System Audio Recording, then return to GifJot."
         case .authorized:
-            "Screen Recording permission is enabled. You can close this window."
+            permissionService.restartRecommended
+                ? "Screen Recording permission is enabled. Quit and reopen GifJot before starting the first capture."
+                : "Screen Recording permission is enabled. You can close this window."
         }
     }
 

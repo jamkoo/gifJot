@@ -38,6 +38,10 @@ final class ScreenCaptureDiagnosticService: ObservableObject {
             state = .failed("Screen Recording permission is required.")
             return
         }
+        guard !permissionService.restartRecommended else {
+            state = .failed("Quit and reopen GifJot before starting capture.")
+            return
+        }
 
         let session = ScreenCaptureDiagnosticSession()
         activeSession = session

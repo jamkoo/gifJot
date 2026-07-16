@@ -13,6 +13,7 @@ final class CapturePermissionServiceTests: XCTestCase {
             )
 
             XCTAssertEqual(service.status, .authorized)
+            XCTAssertFalse(service.restartRecommended)
         }
     }
 
@@ -56,6 +57,24 @@ final class CapturePermissionServiceTests: XCTestCase {
             )
 
             XCTAssertEqual(service.requestAccess(), .authorized)
+            XCTAssertTrue(service.restartRecommended)
+        }
+    }
+
+    func testRefreshRecommendsRestartWhenSettingsGrantAccess() {
+        withIsolatedDefaults { defaults in
+            var isAuthorized = false
+            let service = CapturePermissionService(
+                defaults: defaults,
+                authorizationCheck: { isAuthorized },
+                authorizationRequest: { false }
+            )
+            XCTAssertEqual(service.status, .notDetermined)
+
+            isAuthorized = true
+
+            XCTAssertEqual(service.refreshStatus(), .authorized)
+            XCTAssertTrue(service.restartRecommended)
         }
     }
 
@@ -72,6 +91,7 @@ final class CapturePermissionServiceTests: XCTestCase {
             isAuthorized = false
 
             XCTAssertEqual(service.refreshStatus(), .denied)
+            XCTAssertFalse(service.restartRecommended)
         }
     }
 

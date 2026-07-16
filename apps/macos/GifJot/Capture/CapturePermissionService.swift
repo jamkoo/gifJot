@@ -20,6 +20,7 @@ final class CapturePermissionService: ObservableObject {
     }
 
     @Published private(set) var status: CapturePermissionStatus
+    @Published private(set) var restartRecommended = false
 
     private let defaults: UserDefaults
     private let authorizationCheck: AuthorizationCheck
@@ -54,27 +55,41 @@ final class CapturePermissionService: ObservableObject {
 
     @discardableResult
     func refreshStatus() -> CapturePermissionStatus {
+        let previousStatus = status
         let isAuthorized = authorizationCheck()
         if isAuthorized {
             defaults.set(true, forKey: Key.hasRequestedAccess)
         }
-        status = Self.resolveStatus(
+        let refreshedStatus = Self.resolveStatus(
             isAuthorized: isAuthorized,
             hasRequestedAccess: isAuthorized
                 || defaults.bool(forKey: Key.hasRequestedAccess)
         )
+        if refreshedStatus != .authorized {
+            restartRecommended = false
+        } else if previousStatus != .authorized {
+            restartRecommended = true
+        }
+        status = refreshedStatus
         return status
     }
 
     @discardableResult
     func requestAccess() -> CapturePermissionStatus {
+        let previousStatus = status
         let requestReportedAccess = authorizationRequest()
         defaults.set(true, forKey: Key.hasRequestedAccess)
 
-        status = Self.resolveStatus(
+        let requestedStatus = Self.resolveStatus(
             isAuthorized: requestReportedAccess || authorizationCheck(),
             hasRequestedAccess: true
         )
+        if requestedStatus != .authorized {
+            restartRecommended = false
+        } else if previousStatus != .authorized {
+            restartRecommended = true
+        }
+        status = requestedStatus
         return status
     }
 
