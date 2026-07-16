@@ -12,11 +12,12 @@ struct GIFFrame: Equatable, Sendable {
 
 enum GIFFrameTiming {
     static let minimumDelay: TimeInterval = 0.02
-    static let maximumDelay: TimeInterval = 60
+    static let maximumDelay: TimeInterval = 120
 
     static func makeFrames(
         from storedFrames: [StoredCaptureFrame],
-        defaultDelay: TimeInterval
+        defaultDelay: TimeInterval,
+        endingPresentationTime: TimeInterval? = nil
     ) -> [GIFFrame] {
         guard !storedFrames.isEmpty else { return [] }
 
@@ -30,7 +31,15 @@ enum GIFFrameTiming {
                     ? clamped(measured)
                     : fallback
             } else {
-                delay = fallback
+                if let endingPresentationTime {
+                    let measured = endingPresentationTime
+                        - frame.presentationTime
+                    delay = measured.isFinite && measured > 0
+                        ? clamped(measured)
+                        : fallback
+                } else {
+                    delay = fallback
+                }
             }
 
             return GIFFrame(fileURL: frame.fileURL, delay: delay)

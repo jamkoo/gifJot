@@ -62,6 +62,7 @@ final class RecordingFramePipeline: @unchecked Sendable {
     private var admission: BoundedFrameAdmission
     private var acceptingFrames = false
     private var processingError: Error?
+    private var latestPresentationTime: TimeInterval?
 
     init(
         store: TemporaryRecordingStore = TemporaryRecordingStore(),
@@ -88,13 +89,16 @@ final class RecordingFramePipeline: @unchecked Sendable {
     }
 
     func submit(_ sampleBuffer: CMSampleBuffer) {
-        guard let presentationTime = Self.presentationTime(
-            forCompleteFrame: sampleBuffer
-        ) else {
+        guard let observation = Self.observation(for: sampleBuffer) else {
             return
         }
 
         stateLock.lock()
+        latestPresentationTime = observation.presentationTime
+        guard observation.isComplete else {
+            stateLock.unlock()
+            return
+        }
         guard acceptingFrames else {
             stateLock.unlock()
             return
@@ -105,7 +109,10 @@ final class RecordingFramePipeline: @unchecked Sendable {
         }
 
         processingQueue.async { [self] in
-            process(sampleBuffer, presentationTime: presentationTime)
+            process(
+                sampleBuffer,
+                presentationTime: observation.presentationTime
+            )
         }
         stateLock.unlock()
     }
@@ -120,6 +127,7 @@ final class RecordingFramePipeline: @unchecked Sendable {
                 stateLock.lock()
                 let error = processingError
                 let droppedFrames = admission.droppedCount
+                let endingPresentationTime = latestPresentationTime
                 stateLock.unlock()
 
                 if let error {
@@ -129,7 +137,8 @@ final class RecordingFramePipeline: @unchecked Sendable {
 
                 let frames = GIFFrameTiming.makeFrames(
                     from: store.frames,
-                    defaultDelay: defaultFrameDelay
+                    defaultDelay: defaultFrameDelay,
+                    endingPresentationTime: endingPresentationTime
                 )
                 guard !frames.isEmpty else {
                     continuation.resume(
@@ -206,9 +215,9 @@ final class RecordingFramePipeline: @unchecked Sendable {
         }
     }
 
-    private static func presentationTime(
-        forCompleteFrame sampleBuffer: CMSampleBuffer
-    ) -> TimeInterval? {
+    private static func observation(
+        for sampleBuffer: CMSampleBuffer
+    ) -> (isComplete: Bool, presentationTime: TimeInterval)? {
         guard CMSampleBufferIsValid(sampleBuffer),
               CMSampleBufferDataIsReady(sampleBuffer),
               CMSampleBufferGetImageBuffer(sampleBuffer) != nil,
@@ -218,7 +227,7 @@ final class RecordingFramePipeline: @unchecked Sendable {
               ) as? [[SCStreamFrameInfo: Any]],
               let attachments = attachmentArrays.first,
               let statusRawValue = attachments[.status] as? Int,
-              SCFrameStatus(rawValue: statusRawValue) == .complete
+              let status = SCFrameStatus(rawValue: statusRawValue)
         else {
             return nil
         }
@@ -226,6 +235,7 @@ final class RecordingFramePipeline: @unchecked Sendable {
         let time = CMTimeGetSeconds(
             CMSampleBufferGetPresentationTimeStamp(sampleBuffer)
         )
-        return time.isFinite ? time : nil
+        guard time.isFinite else { return nil }
+        return (status == .complete, time)
     }
 }

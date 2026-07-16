@@ -59,6 +59,25 @@ final class SettingsStoreTests: XCTestCase {
         }
     }
 
+    func testBuildsImmutableRecordingConfiguration() {
+        withIsolatedDefaults { defaults in
+            let store = SettingsStore(defaults: defaults)
+            store.maximumOutputWidth = .width640
+            store.framesPerSecond = .fps10
+            store.includeCursor = false
+            store.countdown = .threeSeconds
+            store.copyAfterRecording = false
+
+            let configuration = store.recordingConfiguration()
+
+            XCTAssertEqual(configuration.maximumOutputWidth, 640)
+            XCTAssertEqual(configuration.framesPerSecond, 10)
+            XCTAssertFalse(configuration.includeCursor)
+            XCTAssertEqual(configuration.countdownSeconds, 3)
+            XCTAssertFalse(configuration.copyAfterRecording)
+        }
+    }
+
     private func withIsolatedDefaults(_ body: (UserDefaults) -> Void) {
         let suiteName = "GifJotTests.\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: suiteName)!

@@ -6,7 +6,11 @@
 
 ## Status
 
-GifJot is in early development. The repository currently contains the native menu-bar shell, first-run Screen Recording permission guidance, typed recording preferences, the recording lifecycle state machine, and a development-only five-second ScreenCaptureKit diagnostic that inspects frame metadata without saving captured pixels. Region selection, production capture, and GIF encoding are not implemented yet.
+GifJot now contains an end-to-end macOS prototype: choose **Record GIF** from the menu bar, drag a region on one display, wait for the optional countdown, record, choose **Stop Recording**, and receive a looping GIF in `Downloads/GifJot`. The finished file is also copied to the clipboard when that setting is enabled.
+
+The implementation is ready for its first macOS build and runtime pass, but that pass has not been completed yet. The code was prepared on Windows, where Xcode, ScreenCaptureKit behavior, signing, and physical multi-display behavior cannot be verified.
+
+The prototype currently uses Apple's Image I/O encoder. That keeps the app dependency-free while GIF quality and file-size tradeoffs are measured before the final encoder and source license are selected.
 
 ## Product boundaries
 
@@ -39,6 +43,19 @@ xcodebuild \
 ```
 
 The repository does not require secrets, signing certificates, or network services for development builds.
+
+## First test run
+
+1. Build and run the **GifJot** scheme in Xcode.
+2. Grant Screen Recording access when macOS asks, then quit and reopen GifJot if the app says a restart is required.
+3. Choose **Record GIF** from the menu-bar menu.
+4. Drag a region entirely on one display. Press Escape to cancel selection.
+5. Choose **Stop Recording** from the menu-bar menu.
+6. Confirm the GIF appears in `Downloads/GifJot`, loops at the expected speed, and pastes into another app.
+
+Recordings automatically stop after two minutes. Frame processing uses a bounded queue; when the encoder cannot keep up, GifJot drops and reports frames instead of allowing capture memory to grow without limit. Temporary frame data is removed after success, cancellation, or failure, and abandoned sessions are removed on the next launch.
+
+Debug builds also include isolated region-selection and five-second capture diagnostics in the menu. These are intended to make first-run permission, display-coordinate, and frame-delivery problems easier to separate from GIF encoding problems.
 
 ## Privacy
 

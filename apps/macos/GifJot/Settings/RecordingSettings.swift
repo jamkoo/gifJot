@@ -64,3 +64,11 @@ enum RecordingCountdown: Int, CaseIterable, Identifiable, Sendable {
         }
     }
 }
+
+struct RecordingConfiguration: Equatable, Sendable {
+    let maximumOutputWidth: Int?
+    let framesPerSecond: Int
+    let includeCursor: Bool
+    let countdownSeconds: Int
+    let copyAfterRecording: Bool
+}

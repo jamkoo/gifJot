@@ -44,6 +44,24 @@ final class RecordingStateMachineTests: XCTestCase {
         }
     }
 
+    func testActiveStatesCanCancel() throws {
+        let activeStates: [RecordingState] = [
+            .requestingPermission,
+            .selectingRegion,
+            .countdown,
+            .recording,
+            .finishingCapture,
+            .encoding,
+            .exporting,
+        ]
+
+        for state in activeStates {
+            var machine = RecordingStateMachine(initialState: state)
+            try machine.transition(to: .canceled)
+            XCTAssertEqual(machine.state, .canceled)
+        }
+    }
+
     func testInvalidTransitionLeavesStateUnchanged() {
         var machine = RecordingStateMachine()
 

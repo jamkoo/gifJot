@@ -87,6 +87,16 @@ final class SettingsStore: ObservableObject {
         copyAfterRecording = true
     }
 
+    func recordingConfiguration() -> RecordingConfiguration {
+        RecordingConfiguration(
+            maximumOutputWidth: maximumOutputWidth.pixels,
+            framesPerSecond: framesPerSecond.rawValue,
+            includeCursor: includeCursor,
+            countdownSeconds: countdown.rawValue,
+            copyAfterRecording: copyAfterRecording
+        )
+    }
+
     private static func integerValue(
         forKey key: String,
         defaultValue: Int,

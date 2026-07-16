@@ -4,6 +4,7 @@ import AppKit
 final class AppDelegate: NSObject, NSApplicationDelegate {
     let permissionService: CapturePermissionService
     let regionSelectionService: RegionSelectionService
+    let recordingCoordinator: RecordingCoordinator
 #if DEBUG
     let diagnosticCaptureService: ScreenCaptureDiagnosticService
 #endif
@@ -14,8 +15,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     override init() {
         let permissionService = CapturePermissionService()
+        let regionSelectionService = RegionSelectionService()
         self.permissionService = permissionService
-        regionSelectionService = RegionSelectionService()
+        self.regionSelectionService = regionSelectionService
+        recordingCoordinator = RecordingCoordinator(
+            permissionService: permissionService,
+            regionSelectionService: regionSelectionService
+        )
 #if DEBUG
         diagnosticCaptureService = ScreenCaptureDiagnosticService(
             permissionService: permissionService
@@ -25,6 +31,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        TemporaryRecordingStore.removeAbandonedSessions()
+
         if permissionService.refreshStatus() != .authorized {
             permissionWindowController.present()
         }
@@ -32,6 +40,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidBecomeActive(_ notification: Notification) {
         permissionService.refreshStatus()
+    }
+
+    func applicationWillTerminate(_ notification: Notification) {
+        recordingCoordinator.applicationWillTerminate()
     }
 
     func showPermissionWindow() {

@@ -30,6 +30,16 @@ final class GIFFrameTimingTests: XCTestCase {
         XCTAssertEqual(frames[0].delay, 0.05)
     }
 
+    func testLastFrameUsesRecordingEndTimestamp() {
+        let frames = GIFFrameTiming.makeFrames(
+            from: [storedFrame(index: 0, time: 10)],
+            defaultDelay: 0.05,
+            endingPresentationTime: 12.5
+        )
+
+        XCTAssertEqual(frames[0].delay, 2.5)
+    }
+
     func testClampsVeryShortDelaysForGifPlayback() {
         let frames = GIFFrameTiming.makeFrames(
             from: [

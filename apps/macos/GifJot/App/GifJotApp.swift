@@ -12,10 +12,13 @@ struct GifJotApp: App {
     }
 
     var body: some Scene {
-        MenuBarExtra("GifJot", systemImage: "record.circle") {
-            Button("Record GIF") {}
-                .disabled(true)
-                .help("Screen capture is not implemented yet.")
+        MenuBarExtra {
+            RecordingControlsMenu(
+                coordinator: appDelegate.recordingCoordinator,
+                permissionService: appDelegate.permissionService,
+                settings: settings,
+                showPermissionWindow: appDelegate.showPermissionWindow
+            )
 
             Divider()
 
@@ -38,11 +41,13 @@ struct GifJotApp: App {
                     showSelectedRegion(region)
                 }
             }
+            .disabled(appDelegate.recordingCoordinator.isBusy)
 
             DiagnosticCaptureMenu(
                 permissionService: appDelegate.permissionService,
                 diagnosticService: appDelegate.diagnosticCaptureService,
-                settings: settings
+                settings: settings,
+                recordingIsBusy: appDelegate.recordingCoordinator.isBusy
             )
 #endif
 
@@ -62,6 +67,10 @@ struct GifJotApp: App {
                 NSApplication.shared.terminate(nil)
             }
             .keyboardShortcut("q")
+        } label: {
+            RecordingMenuBarLabel(
+                coordinator: appDelegate.recordingCoordinator
+            )
         }
         .menuBarExtraStyle(.menu)
 
@@ -85,11 +94,67 @@ struct GifJotApp: App {
     private func showSelectedRegion(_ region: CaptureRegion) {
         let alert = NSAlert()
         alert.messageText = "Region selected"
-        alert.informativeText = "Display \(region.displayID)\nSource: \(Int(region.sourceRect.minX)), \(Int(region.sourceRect.minY)) · \(Int(region.sourceRect.width)) × \(Int(region.sourceRect.height)) points\nScale: \(region.displayScale)×"
+        alert.informativeText = "Display \(region.displayID)\nSource: \(Int(region.sourceRect.minX)), \(Int(region.sourceRect.minY)) - \(Int(region.sourceRect.width)) x \(Int(region.sourceRect.height)) points\nScale: \(region.displayScale)x"
         alert.addButton(withTitle: "OK")
         alert.runModal()
     }
 #endif
+}
+
+@MainActor
+private struct RecordingMenuBarLabel: View {
+    @ObservedObject var coordinator: RecordingCoordinator
+
+    var body: some View {
+        Label(
+            "GifJot",
+            systemImage: coordinator.state == .recording
+                ? "record.circle.fill"
+                : "record.circle"
+        )
+    }
+}
+
+@MainActor
+private struct RecordingControlsMenu: View {
+    @ObservedObject var coordinator: RecordingCoordinator
+    @ObservedObject var permissionService: CapturePermissionService
+    @ObservedObject var settings: SettingsStore
+    let showPermissionWindow: () -> Void
+
+    var body: some View {
+        Button(coordinator.primaryActionTitle) {
+            performPrimaryAction()
+        }
+        .disabled(!coordinator.primaryActionEnabled)
+
+        Text(coordinator.statusText)
+
+        if coordinator.droppedFrames > 0 {
+            Text("Dropped \(coordinator.droppedFrames) frames while processing")
+        }
+
+        if let outputURL = coordinator.lastOutputURL {
+            Button("Show Last GIF in Finder") {
+                NSWorkspace.shared.activateFileViewerSelecting([outputURL])
+            }
+        }
+    }
+
+    private func performPrimaryAction() {
+        let isStarting = !coordinator.isBusy
+        if isStarting && (
+            permissionService.refreshStatus() != .authorized
+                || permissionService.restartRecommended
+        ) {
+            showPermissionWindow()
+            return
+        }
+
+        coordinator.performPrimaryAction(
+            configuration: settings.recordingConfiguration()
+        )
+    }
 }
 
 #if DEBUG
@@ -98,6 +163,7 @@ private struct DiagnosticCaptureMenu: View {
     @ObservedObject var permissionService: CapturePermissionService
     @ObservedObject var diagnosticService: ScreenCaptureDiagnosticService
     @ObservedObject var settings: SettingsStore
+    let recordingIsBusy: Bool
 
     var body: some View {
         Button(buttonTitle) {
@@ -110,6 +176,7 @@ private struct DiagnosticCaptureMenu: View {
         }
         .disabled(
             diagnosticService.state.isCapturing
+                || recordingIsBusy
                 || permissionService.status != .authorized
                 || permissionService.restartRecommended
         )
