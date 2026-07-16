@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		8DF57803D9F32B8A888B9D26 /* RegionSelectionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40BB56298842725F3E017389 /* RegionSelectionService.swift */; };
+		A0D12F570FE44843FE1459D6 /* RegionSelectionGeometryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC5C51DF1D9196242783FF4D /* RegionSelectionGeometryTests.swift */; };
 		C00000000000000000000011 /* GifJotApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000011 /* GifJotApp.swift */; };
 		C00000000000000000000012 /* RecordingStateMachine.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000012 /* RecordingStateMachine.swift */; };
 		C00000000000000000000013 /* RecordingSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000013 /* RecordingSettings.swift */; };
@@ -23,6 +25,7 @@
 		C0000000000000000000001E /* ScreenCaptureDiagnosticSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0000000000000000000001E /* ScreenCaptureDiagnosticSession.swift */; };
 		C0000000000000000000001F /* ScreenCaptureDiagnosticService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0000000000000000000001F /* ScreenCaptureDiagnosticService.swift */; };
 		C00000000000000000000020 /* CaptureDiagnosticAccumulatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000020 /* CaptureDiagnosticAccumulatorTests.swift */; };
+		DFB54B12136FEA1B6CBD8CB6 /* RegionSelectionGeometry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92E0EA6C4061226F68BDD6C8 /* RegionSelectionGeometry.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -36,6 +39,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		40BB56298842725F3E017389 /* RegionSelectionService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RegionSelectionService.swift; sourceTree = "<group>"; };
+		92E0EA6C4061226F68BDD6C8 /* RegionSelectionGeometry.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RegionSelectionGeometry.swift; sourceTree = "<group>"; };
 		B00000000000000000000001 /* GifJot.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GifJot.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B00000000000000000000002 /* GifJotTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = GifJotTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B00000000000000000000010 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -55,6 +60,7 @@
 		B0000000000000000000001E /* ScreenCaptureDiagnosticSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenCaptureDiagnosticSession.swift; sourceTree = "<group>"; };
 		B0000000000000000000001F /* ScreenCaptureDiagnosticService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenCaptureDiagnosticService.swift; sourceTree = "<group>"; };
 		B00000000000000000000020 /* CaptureDiagnosticAccumulatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureDiagnosticAccumulatorTests.swift; sourceTree = "<group>"; };
+		DC5C51DF1D9196242783FF4D /* RegionSelectionGeometryTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RegionSelectionGeometryTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -141,6 +147,7 @@
 				B0000000000000000000001C /* CapturePermissionServiceTests.swift */,
 				B00000000000000000000016 /* RecordingStateMachineTests.swift */,
 				B00000000000000000000017 /* SettingsStoreTests.swift */,
+				DC5C51DF1D9196242783FF4D /* RegionSelectionGeometryTests.swift */,
 			);
 			path = GifJotTests;
 			sourceTree = "<group>";
@@ -152,6 +159,8 @@
 				B0000000000000000000001B /* CapturePermissionService.swift */,
 				B0000000000000000000001E /* ScreenCaptureDiagnosticSession.swift */,
 				B0000000000000000000001F /* ScreenCaptureDiagnosticService.swift */,
+				92E0EA6C4061226F68BDD6C8 /* RegionSelectionGeometry.swift */,
+				40BB56298842725F3E017389 /* RegionSelectionService.swift */,
 			);
 			path = Capture;
 			sourceTree = "<group>";
@@ -266,6 +275,8 @@
 				C00000000000000000000013 /* RecordingSettings.swift in Sources */,
 				C00000000000000000000014 /* SettingsStore.swift in Sources */,
 				C00000000000000000000015 /* SettingsView.swift in Sources */,
+				DFB54B12136FEA1B6CBD8CB6 /* RegionSelectionGeometry.swift in Sources */,
+				8DF57803D9F32B8A888B9D26 /* RegionSelectionService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -277,6 +288,7 @@
 				C0000000000000000000001C /* CapturePermissionServiceTests.swift in Sources */,
 				C00000000000000000000016 /* RecordingStateMachineTests.swift in Sources */,
 				C00000000000000000000017 /* SettingsStoreTests.swift in Sources */,
+				A0D12F570FE44843FE1459D6 /* RegionSelectionGeometryTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

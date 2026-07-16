@@ -30,6 +30,15 @@ struct GifJotApp: App {
 #if DEBUG
             Divider()
 
+            Button("Test Region Selector") {
+                Task {
+                    guard let region = await appDelegate.regionSelectionService.selectRegion()
+                    else { return }
+
+                    showSelectedRegion(region)
+                }
+            }
+
             DiagnosticCaptureMenu(
                 permissionService: appDelegate.permissionService,
                 diagnosticService: appDelegate.diagnosticCaptureService,
@@ -71,6 +80,16 @@ struct GifJotApp: App {
         ])
         NSApplication.shared.activate(ignoringOtherApps: true)
     }
+
+#if DEBUG
+    private func showSelectedRegion(_ region: CaptureRegion) {
+        let alert = NSAlert()
+        alert.messageText = "Region selected"
+        alert.informativeText = "Display \(region.displayID)\nSource: \(Int(region.sourceRect.minX)), \(Int(region.sourceRect.minY)) · \(Int(region.sourceRect.width)) × \(Int(region.sourceRect.height)) points\nScale: \(region.displayScale)×"
+        alert.addButton(withTitle: "OK")
+        alert.runModal()
+    }
+#endif
 }
 
 #if DEBUG

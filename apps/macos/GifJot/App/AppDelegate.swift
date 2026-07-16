@@ -3,6 +3,7 @@ import AppKit
 @MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate {
     let permissionService: CapturePermissionService
+    let regionSelectionService: RegionSelectionService
 #if DEBUG
     let diagnosticCaptureService: ScreenCaptureDiagnosticService
 #endif
@@ -14,6 +15,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     override init() {
         let permissionService = CapturePermissionService()
         self.permissionService = permissionService
+        regionSelectionService = RegionSelectionService()
 #if DEBUG
         diagnosticCaptureService = ScreenCaptureDiagnosticService(
             permissionService: permissionService
