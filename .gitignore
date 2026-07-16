@@ -1,11 +1,29 @@
-# macOS
+# macOS metadata
 .DS_Store
+.AppleDouble
+.LSOverride
 
-# Xcode user and build output
+# Xcode per-user state
+xcuserdata/
+*.xcuserstate
+*.xccheckout
+*.xcscmblueprint
+*.moved-aside
+
+# Xcode and Swift build output
+build/
 DerivedData/
 .build/
-*.xcuserstate
-xcuserdata/
+*.xcresult
+*.xcarchive
+*.dSYM
+*.dSYM.zip
+*.profdata
+*.gcda
+*.gcno
+
+# Swift Package Manager per-user Xcode state
+.swiftpm/xcode/xcuserdata/
 
 # Local configuration and secrets
 .env
@@ -20,3 +38,6 @@ Config/Local.xcconfig
 *.cer
 *.mobileprovision
 *.provisionprofile
+
+# Intentionally tracked: *.xcodeproj, *.xcworkspace, shared schemes,
+# Package.resolved, source files, and required assets.

@@ -8,10 +8,14 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build-and-test:
     runs-on: macos-15
-    timeout-minutes: 15
+    timeout-minutes: 20
 
     steps:
       - name: Check out repository
@@ -22,13 +26,31 @@ jobs:
           xcodebuild -version
           swift --version
 
-      - name: Build and test
+      - name: Verify project and shared scheme
+        run: xcodebuild -list -project apps/macos/GifJot.xcodeproj
+
+      - name: Build without code signing
         run: |
           set -o pipefail
           xcodebuild \
             -project apps/macos/GifJot.xcodeproj \
             -scheme GifJot \
             -configuration Debug \
-            -destination 'platform=macOS,arch=arm64' \
+            -destination 'platform=macOS' \
+            -derivedDataPath "$RUNNER_TEMP/GifJotDerivedData" \
             CODE_SIGNING_ALLOWED=NO \
-            clean test
+            CODE_SIGNING_REQUIRED=NO \
+            build
+
+      - name: Run tests without code signing
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -project apps/macos/GifJot.xcodeproj \
+            -scheme GifJot \
+            -configuration Debug \
+            -destination 'platform=macOS' \
+            -derivedDataPath "$RUNNER_TEMP/GifJotDerivedData" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            test

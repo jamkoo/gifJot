@@ -1,0 +1,70 @@
+name: Feature request
+description: Propose a focused improvement to GifJot's core workflow
+title: "[Feature]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        GifJot is intentionally focused on a fast, local, native macOS region-to-GIF workflow. Please explain the problem before the solution and avoid sharing sensitive content.
+
+  - type: checkboxes
+    id: preflight
+    attributes:
+      label: Before submitting
+      options:
+        - label: I searched existing issues and did not find this request.
+          required: true
+        - label: This request fits the documented product scope or clearly explains why that scope should change.
+          required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What user problem or workflow friction does this address?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed change
+      description: Describe the smallest useful behavior change.
+    validations:
+      required: true
+
+  - type: textarea
+    id: core_workflow
+    attributes:
+      label: Effect on the core workflow
+      description: How does this improve trigger-to-clipboard speed, output usefulness, or reliability?
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Describe workarounds or narrower options you considered.
+
+  - type: textarea
+    id: privacy_permissions
+    attributes:
+      label: Privacy, permissions, and dependencies
+      description: Note any network access, data retention, permission, third-party dependency, binary-size, maintenance, or license impact. Write "None" when there is no impact.
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Add privacy-safe mockups or examples only when they materially clarify the request.
+
+  - type: checkboxes
+    id: conduct
+    attributes:
+      label: Code of Conduct
+      options:
+        - label: I agree to follow this project's Code of Conduct.
+          required: true
