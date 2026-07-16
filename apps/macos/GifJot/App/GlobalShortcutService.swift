@@ -8,7 +8,7 @@ private func handleGifJotHotKey(
     _ event: EventRef?,
     _ userData: UnsafeMutableRawPointer?
 ) -> OSStatus {
-    guard let userData else { return eventNotHandledErr }
+    guard let userData else { return OSStatus(eventNotHandledErr) }
 
     let service = Unmanaged<GlobalShortcutService>
         .fromOpaque(userData)

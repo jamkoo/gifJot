@@ -8,17 +8,25 @@ struct GifJotApp: App {
 
     var body: some Scene {
         MenuBarExtra {
+#if DEBUG
+            RecordingPanel(
+                coordinator: appDelegate.recordingCoordinator,
+                permissionService: appDelegate.permissionService,
+                settings: appDelegate.settings,
+                showPermissionWindow: appDelegate.showPermissionWindow,
+                showAboutPanel: showAboutPanel,
+                regionSelectionService: appDelegate.regionSelectionService,
+                diagnosticService: appDelegate.diagnosticCaptureService
+            )
+#else
             RecordingPanel(
                 coordinator: appDelegate.recordingCoordinator,
                 permissionService: appDelegate.permissionService,
                 settings: appDelegate.settings,
                 showPermissionWindow: appDelegate.showPermissionWindow,
                 showAboutPanel: showAboutPanel
-#if DEBUG
-                , regionSelectionService: appDelegate.regionSelectionService,
-                diagnosticService: appDelegate.diagnosticCaptureService
-#endif
             )
+#endif
         } label: {
             RecordingMenuBarLabel(
                 coordinator: appDelegate.recordingCoordinator
