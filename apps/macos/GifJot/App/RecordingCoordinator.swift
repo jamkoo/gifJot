@@ -32,7 +32,9 @@ final class RecordingCoordinator: ObservableObject {
     private let regionSelectionService: RegionSelectionService
     private let encodingWorker: GIFEncodingWorker
     private let clipboardWriter: FileClipboardWriting
-    private let sessionFactory: () -> ScreenCaptureRecordingSession
+    private let sessionFactory: (
+        @escaping @Sendable (Error) -> Void
+    ) -> ScreenCaptureRecordingSession
     private let exporterFactory: () throws -> GIFFileExporter
 
     private var stateMachine = RecordingStateMachine()
@@ -47,8 +49,10 @@ final class RecordingCoordinator: ObservableObject {
         regionSelectionService: RegionSelectionService,
         encodingWorker: GIFEncodingWorker? = nil,
         clipboardWriter: FileClipboardWriting? = nil,
-        sessionFactory: @escaping () -> ScreenCaptureRecordingSession = {
-            ScreenCaptureRecordingSession()
+        sessionFactory: @escaping (
+            @escaping @Sendable (Error) -> Void
+        ) -> ScreenCaptureRecordingSession = { handler in
+            ScreenCaptureRecordingSession(unexpectedStopHandler: handler)
         },
         exporterFactory: @escaping () throws -> GIFFileExporter = {
             try GIFFileExporter()
@@ -221,7 +225,11 @@ final class RecordingCoordinator: ObservableObject {
             }
 
             try Task.checkCancellation()
-            let session = sessionFactory()
+            let session = sessionFactory { [weak self] error in
+                Task { @MainActor [weak self] in
+                    self?.handleUnexpectedStop(error)
+                }
+            }
             activeSession = session
             let output = try await session.start(
                 region: region,
@@ -335,6 +343,19 @@ final class RecordingCoordinator: ObservableObject {
         automaticStopTask?.cancel()
         elapsedTask = nil
         automaticStopTask = nil
+    }
+
+    private func handleUnexpectedStop(_ error: Error) {
+        guard state == .recording, let activeSession else { return }
+
+        stopRecordingTimers()
+        errorMessage = "Screen capture stopped unexpectedly: \(error.localizedDescription)"
+        try? transition(to: .failed)
+        self.activeSession = nil
+
+        Task {
+            await activeSession.cancel()
+        }
     }
 
     private func cancelStateIfPossible() {

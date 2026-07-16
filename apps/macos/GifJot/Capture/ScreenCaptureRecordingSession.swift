@@ -33,12 +33,17 @@ final class ScreenCaptureRecordingSession: NSObject, @unchecked Sendable {
     )
     private let pipeline: RecordingFramePipeline
     private let streamState = RecordingStreamState()
+    private let unexpectedStopHandler: (@Sendable (Error) -> Void)?
 
     private var stream: SCStream?
     private var defaultFrameDelay: TimeInterval = 1.0 / 15.0
 
-    init(pipeline: RecordingFramePipeline = RecordingFramePipeline()) {
+    init(
+        pipeline: RecordingFramePipeline = RecordingFramePipeline(),
+        unexpectedStopHandler: (@Sendable (Error) -> Void)? = nil
+    ) {
         self.pipeline = pipeline
+        self.unexpectedStopHandler = unexpectedStopHandler
     }
 
     func start(
@@ -166,11 +171,13 @@ extension ScreenCaptureRecordingSession: SCStreamOutput {
 
 extension ScreenCaptureRecordingSession: SCStreamDelegate {
     func stream(_ stream: SCStream, didStopWithError error: Error) {
-        streamState.recordUnexpectedStop(error)
+        if streamState.recordUnexpectedStop(error) {
+            unexpectedStopHandler?(error)
+        }
     }
 }
 
-private final class RecordingStreamState: @unchecked Sendable {
+final class RecordingStreamState: @unchecked Sendable {
     private let lock = NSLock()
     private var isStopping = false
     private var unexpectedError: Error?
@@ -181,12 +188,16 @@ private final class RecordingStreamState: @unchecked Sendable {
         lock.unlock()
     }
 
-    func recordUnexpectedStop(_ error: Error) {
+    @discardableResult
+    func recordUnexpectedStop(_ error: Error) -> Bool {
         lock.lock()
+        defer { lock.unlock() }
+
         if !isStopping, unexpectedError == nil {
             unexpectedError = error
+            return true
         }
-        lock.unlock()
+        return false
     }
 
     func unexpectedErrorDescription() -> String? {
