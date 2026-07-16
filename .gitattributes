@@ -1,0 +1,12 @@
+* text=auto
+
+.gitattributes text eol=lf
+.gitignore text eol=lf
+*.swift text eol=lf
+*.md text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.plist text eol=lf
+*.pbxproj text eol=lf
+*.xcscheme text eol=lf
+*.sh text eol=lf

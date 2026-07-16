@@ -1,0 +1,22 @@
+# macOS
+.DS_Store
+
+# Xcode user and build output
+DerivedData/
+.build/
+*.xcuserstate
+xcuserdata/
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+Config/Local.xcconfig
+*.secret.xcconfig
+*.key
+*.pem
+*.p8
+*.p12
+*.cer
+*.mobileprovision
+*.provisionprofile
