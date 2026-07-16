@@ -2,7 +2,9 @@ import AppKit
 import SwiftUI
 
 @main
+@MainActor
 struct GifJotApp: App {
+    @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @StateObject private var settings: SettingsStore
 
     init() {
@@ -17,7 +19,13 @@ struct GifJotApp: App {
 
             Divider()
 
-            Text("Ready")
+            PermissionStatusMenuLabel(
+                permissionService: appDelegate.permissionService
+            )
+
+            Button("Screen Recording Access...") {
+                appDelegate.showPermissionWindow()
+            }
 
             Divider()
 
@@ -52,5 +60,21 @@ struct GifJotApp: App {
             ),
         ])
         NSApplication.shared.activate(ignoringOtherApps: true)
+    }
+}
+
+@MainActor
+private struct PermissionStatusMenuLabel: View {
+    @ObservedObject var permissionService: CapturePermissionService
+
+    var body: some View {
+        switch permissionService.status {
+        case .notDetermined:
+            Label("Screen Recording: Not Set Up", systemImage: "circle.dashed")
+        case .denied:
+            Label("Screen Recording: Off", systemImage: "exclamationmark.triangle")
+        case .authorized:
+            Label("Screen Recording: Allowed", systemImage: "checkmark.circle")
+        }
     }
 }

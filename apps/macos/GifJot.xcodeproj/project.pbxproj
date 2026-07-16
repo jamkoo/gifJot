@@ -14,6 +14,11 @@
 		C00000000000000000000015 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000015 /* SettingsView.swift */; };
 		C00000000000000000000016 /* RecordingStateMachineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000016 /* RecordingStateMachineTests.swift */; };
 		C00000000000000000000017 /* SettingsStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000017 /* SettingsStoreTests.swift */; };
+		C00000000000000000000018 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000018 /* AppDelegate.swift */; };
+		C00000000000000000000019 /* CapturePermissionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000019 /* CapturePermissionView.swift */; };
+		C0000000000000000000001A /* CapturePermissionWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0000000000000000000001A /* CapturePermissionWindowController.swift */; };
+		C0000000000000000000001B /* CapturePermissionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0000000000000000000001B /* CapturePermissionService.swift */; };
+		C0000000000000000000001C /* CapturePermissionServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0000000000000000000001C /* CapturePermissionServiceTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -37,6 +42,11 @@
 		B00000000000000000000015 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		B00000000000000000000016 /* RecordingStateMachineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingStateMachineTests.swift; sourceTree = "<group>"; };
 		B00000000000000000000017 /* SettingsStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsStoreTests.swift; sourceTree = "<group>"; };
+		B00000000000000000000018 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		B00000000000000000000019 /* CapturePermissionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CapturePermissionView.swift; sourceTree = "<group>"; };
+		B0000000000000000000001A /* CapturePermissionWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CapturePermissionWindowController.swift; sourceTree = "<group>"; };
+		B0000000000000000000001B /* CapturePermissionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CapturePermissionService.swift; sourceTree = "<group>"; };
+		B0000000000000000000001C /* CapturePermissionServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CapturePermissionServiceTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -79,6 +89,7 @@
 			isa = PBXGroup;
 			children = (
 				A00000000000000000000005 /* App */,
+				A00000000000000000000009 /* Capture */,
 				A00000000000000000000006 /* Recording */,
 				A00000000000000000000007 /* Settings */,
 				B00000000000000000000010 /* Info.plist */,
@@ -90,6 +101,9 @@
 			isa = PBXGroup;
 			children = (
 				B00000000000000000000011 /* GifJotApp.swift */,
+				B00000000000000000000018 /* AppDelegate.swift */,
+				B00000000000000000000019 /* CapturePermissionView.swift */,
+				B0000000000000000000001A /* CapturePermissionWindowController.swift */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -115,10 +129,19 @@
 		A00000000000000000000008 /* GifJotTests */ = {
 			isa = PBXGroup;
 			children = (
+				B0000000000000000000001C /* CapturePermissionServiceTests.swift */,
 				B00000000000000000000016 /* RecordingStateMachineTests.swift */,
 				B00000000000000000000017 /* SettingsStoreTests.swift */,
 			);
 			path = GifJotTests;
+			sourceTree = "<group>";
+		};
+		A00000000000000000000009 /* Capture */ = {
+			isa = PBXGroup;
+			children = (
+				B0000000000000000000001B /* CapturePermissionService.swift */,
+			);
+			path = Capture;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -220,6 +243,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				C00000000000000000000011 /* GifJotApp.swift in Sources */,
+				C00000000000000000000018 /* AppDelegate.swift in Sources */,
+				C00000000000000000000019 /* CapturePermissionView.swift in Sources */,
+				C0000000000000000000001A /* CapturePermissionWindowController.swift in Sources */,
+				C0000000000000000000001B /* CapturePermissionService.swift in Sources */,
 				C00000000000000000000012 /* RecordingStateMachine.swift in Sources */,
 				C00000000000000000000013 /* RecordingSettings.swift in Sources */,
 				C00000000000000000000014 /* SettingsStore.swift in Sources */,
@@ -231,6 +258,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C0000000000000000000001C /* CapturePermissionServiceTests.swift in Sources */,
 				C00000000000000000000016 /* RecordingStateMachineTests.swift in Sources */,
 				C00000000000000000000017 /* SettingsStoreTests.swift in Sources */,
 			);
