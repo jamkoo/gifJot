@@ -208,7 +208,7 @@ enum RegionSelectionGeometry {
             )
         }
 
-        return sourceRect(
+        return Self.sourceRect(
             fromLocalAppKitRect: appKitRect,
             displaySize: displaySize
         ) ?? sourceRect
