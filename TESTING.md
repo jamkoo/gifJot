@@ -34,7 +34,7 @@ Every pull request runs two independent workflows:
 - **Windows Checks** runs the PowerShell preflight and shared Swift package tests on Windows.
 - **macOS CI** runs the shared Swift package tests, lists the Xcode project, builds the unsigned application, and runs the complete Xcode test target on macOS.
 
-Pushes to `main` run the same checks. A successful `main` macOS run also creates the downloadable test application, DMG, and checksums. Both workflows support manual dispatch for any pushed branch.
+Pushes to `main` run the same checks. A successful `main` macOS run also creates the downloadable universal test application, DMG, checksums, and build information for Apple silicon and Intel Macs. CI fails packaging unless the executable contains both `arm64` and `x86_64` slices and declares macOS 14.0 as its minimum version. Both workflows support manual dispatch for any pushed branch.
 
 macOS CI is the compile and unit-test authority for AppKit, SwiftUI, Carbon, Core Graphics, Image I/O, and ScreenCaptureKit code. CI still cannot prove physical display, permission, clipboard, or Gatekeeper behavior.
 
@@ -84,6 +84,7 @@ Record the Mac model, processor, macOS version, GifJot commit, display arrangeme
 ### Installation and release artifact
 
 - Download the artifact from a clean browser session and verify `SHA256SUMS.txt`.
+- Confirm `BUILD-INFO.txt` lists both `arm64` and `x86_64`, and `lipo -archs /Applications/GifJot.app/Contents/MacOS/GifJot` reports both architectures after installation.
 - Install from the DMG on a Mac without Xcode.
 - Confirm the documented Control-click Open or Open Anyway path for the current ad-hoc-signed build.
 - Confirm the app launches from `/Applications`, requests only Screen Recording, records, saves, and copies.

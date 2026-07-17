@@ -9,7 +9,7 @@ GifJot is a free, open-source, native macOS menu-bar utility for turning a selec
 
 ## Project status
 
-GifJot is an early, unreleased prototype. The end-to-end workflow is implemented in source, and successful `main` builds provide an ad-hoc-signed test app and DMG. There is no Developer ID-signed or notarized public release yet. ScreenCaptureKit behavior, clipboard compatibility, performance, and multi-display geometry still require verification on real Macs before a release is declared ready.
+GifJot is an early, unreleased prototype. The end-to-end workflow is implemented in source, and successful `main` builds provide an ad-hoc-signed universal test app and DMG for Apple silicon and Intel Macs. There is no Developer ID-signed or notarized public release yet. ScreenCaptureKit behavior, clipboard compatibility, performance, and multi-display geometry still require verification on real Macs before a release is declared ready.
 
 The current implementation uses Apple Image I/O for GIF encoding and has no third-party runtime or package dependency.
 
@@ -57,7 +57,7 @@ Testers need macOS 14 or later and do not need Xcode.
 
 These test builds are ad-hoc signed for bundle integrity but are not signed with an Apple Developer ID or notarized. Only download them from this repository. Do not disable Gatekeeper. A future public release will be Developer ID-signed and notarized so it opens through the normal double-click flow.
 
-Each artifact also contains `GifJot-Test.app.zip` and `SHA256SUMS.txt`. The DMG is the simplest installation path; the ZIP is provided as a fallback.
+Each artifact also contains `GifJot-Test.app.zip`, `SHA256SUMS.txt`, and `BUILD-INFO.txt`. The build information records the packaged architectures and minimum macOS version. The DMG is the simplest installation path; the ZIP is provided as a fallback.
 
 ## User requirements
 

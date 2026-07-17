@@ -23,6 +23,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Structured GitHub issue forms, pull-request template, and unsigned macOS CI.
 - Automatic ad-hoc-signed `.app` and `.dmg` test packages from successful `main` builds.
 - Windows repository preflight, shared cross-platform Swift tests, Windows CI, and a physical-Mac verification matrix.
+- Universal Apple silicon and Intel test packages with architecture and minimum-version verification.
 
 ### Changed
 
