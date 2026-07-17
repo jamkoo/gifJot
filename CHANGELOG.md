@@ -26,7 +26,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Changed
 
 - Declared the project license as GNU AGPL version 3 or later.
-- Refined the menu-bar panel, permission guidance, settings, and region selector around a compact native visual system.
+- Rebuilt the menu-bar panel, permission guidance, settings, region selector, and recording HUD around the Pocket Capture Camera visual system.
+- Introduced an adaptive optical-ivory camera body, circular signal shutter, graphite status well, open viewfinder corners, and measured state readouts.
+- Added an explicit region-ready step with a low-footprint single-row controller, hover help, frame presets (including Full Screen), output-size choices, cursor visibility, direct Settings access, and a terminal-right cancellation control before capture begins.
+- The armed capture frame can now be moved or resized within its original display before recording begins.
+- Hardened the first-run permission relaunch, capture startup feedback, failure visibility, preset behavior, recent-output recovery, and abandoned-export cleanup.
 
 ### Security
 

@@ -1,6 +1,6 @@
 # GifJot Privacy Statement
 
-Last updated: 2026-07-16
+Last updated: 2026-07-17
 
 GifJot is designed so its core recording workflow works locally and offline. The application does not require an account and does not contain upload, analytics, advertising, telemetry, or crash-reporting services.
 
@@ -14,6 +14,7 @@ GifJot processes only the information needed to create a recording:
 - Temporary PNG frames in an application-controlled directory under the macOS temporary directory.
 - The completed GIF saved to `~/Downloads/GifJot`.
 - The completed GIF's file URL when clipboard copy is enabled.
+- The most recent completed GIF's local path in macOS `UserDefaults`, used to restore Open, Copy, and Reveal actions after relaunch.
 
 Release builds do not intentionally persist raw screen frames after a recording finishes. Debug builds include an explicit five-second ScreenCaptureKit diagnostic that reports frame metadata without intentionally saving captured pixels.
 
@@ -27,7 +28,9 @@ Granting Screen Recording permission is controlled by macOS. You can review or r
 
 - Temporary recording frames are removed after successful export, cancellation, and failure.
 - Abandoned temporary recording sessions are removed the next time GifJot launches.
+- Abandoned hidden export working files in `~/Downloads/GifJot` are removed the next time GifJot launches.
 - Completed GIFs remain in `~/Downloads/GifJot` until you move or delete them.
+- The recent-output path remains in macOS `UserDefaults` while that GIF exists and is discarded when GifJot next launches after the file is removed.
 - The clipboard file URL remains available until another application replaces the clipboard contents.
 - Preferences remain in macOS user defaults until they are reset or the application's data is removed.
 

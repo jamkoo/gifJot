@@ -15,6 +15,8 @@ The current implementation uses Apple Image I/O for GIF encoding and has no thir
 ## Current prototype
 
 - Native SwiftUI and AppKit menu-bar application.
+- Pocket Capture Camera interface with an adaptive optical body, signal shutter, graphite status well, and precise viewfinder selection.
+- Low-footprint region-ready controller beside the selection with an explicit shutter, output-size, cursor, cancel controls, and hover help.
 - Screen Recording permission guidance without Accessibility permission.
 - One overlay per display with crosshair region selection and Escape cancellation.
 - Single-display capture through ScreenCaptureKit.
@@ -101,11 +103,15 @@ Development builds require no repository secrets, signing certificates, or netwo
 
 1. Build and run the **GifJot** scheme in Xcode.
 2. Grant Screen Recording access when macOS asks.
-3. Quit and reopen GifJot if the permission panel says a restart is required.
-4. Choose **Record Area** from the menu-bar panel or press `Option-Command-G`.
+3. If prompted, choose **Quit and Reopen GifJot**. Confirm the menu-bar icon returns and the panel says **Ready to Record**.
+4. Choose **Start Recording**, choose **Record Area** from the menu-bar panel, or press `Option-Command-G`.
 5. Drag a region entirely within one display. Press Escape to cancel selection.
-6. Stop from the detached recording HUD, the menu-bar panel, or `Option-Command-G`.
-7. Confirm the GIF appears in `~/Downloads/GifJot`, loops at the expected speed, and pastes into another application.
+6. Confirm GifJot does not record yet. Drag inside the orange frame to reposition it, or drag an edge or corner to resize it. Then use the nearby controller to choose output size and whether to include the cursor.
+7. Press **Record** in the nearby controller, use the menu-bar panel, or press `Option-Command-G` again.
+8. Confirm the detached HUD changes from countdown to **Starting recording** and then **Recording**.
+9. Stop from the detached recording HUD, the menu-bar panel, or `Option-Command-G`.
+10. Confirm the GIF appears in `~/Downloads/GifJot`, loops at the expected speed, and pastes into another application.
+11. Start and cancel a second recording, then confirm the previous GIF remains available through **Open**, **Copy**, and **Reveal** in the menu-bar panel.
 
 Debug builds also provide isolated region-selection and five-second frame-delivery diagnostics in the menu.
 
