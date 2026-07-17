@@ -66,7 +66,7 @@ Each artifact also contains `GifJot-Test.app.zip` and `SHA256SUMS.txt`. The DMG 
 ## Developer requirements
 
 - Native application development: macOS 14 or later and Xcode 15 or later.
-- Windows preflight: Windows PowerShell 5.1 or PowerShell 7, Git, and optionally the official Swift toolchain for shared core tests.
+- Windows preflight: Windows PowerShell 5.1 or PowerShell 7 and Git. Shared core tests also require the official Swift toolchain and Visual Studio Build Tools with the Desktop development with C++ workload.
 
 ## Build and test
 
@@ -114,10 +114,11 @@ Install Swift and require the complete Windows test layer:
 
 ```powershell
 winget install --id Swift.Toolchain --exact --source winget
+winget install --id Microsoft.VisualStudio.2022.BuildTools --exact
 ./scripts/check-windows.ps1 -RequireSwift
 ```
 
-Open a new PowerShell session if `swift` is not found immediately after installation. See [TESTING.md](TESTING.md) for the CI layers and required physical-Mac test matrix.
+Select **Desktop development with C++** in the Visual Studio Installer. Administrator approval is required for Build Tools. Open a new PowerShell session if `swift` is not found immediately after installation. See [TESTING.md](TESTING.md) for the CI layers and required physical-Mac test matrix.
 
 ## First source test run
 

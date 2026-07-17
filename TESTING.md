@@ -12,13 +12,14 @@ Run the repository and Xcode-project checks from PowerShell:
 
 The script checks whitespace, merge markers, the public-repository boundary, and whether tracked Swift files agree with the Xcode Sources phase. It runs the shared Swift tests when the Swift toolchain is available.
 
-Install the official Swift toolchain through Windows Package Manager:
+Install the official Swift toolchain and Microsoft C++ Build Tools through Windows Package Manager:
 
 ```powershell
 winget install --id Swift.Toolchain --exact --source winget
+winget install --id Microsoft.VisualStudio.2022.BuildTools --exact
 ```
 
-Open a new PowerShell session after installation, then require the complete Windows check:
+In the Visual Studio Installer, select **Desktop development with C++** for Build Tools. This installation requires Windows administrator approval. Open a new PowerShell session after installation, then require the complete Windows check:
 
 ```powershell
 ./scripts/check-windows.ps1 -RequireSwift

@@ -26,6 +26,41 @@ function Invoke-NativeCheck {
     }
 }
 
+function Enable-MsvcEnvironment {
+    if ($null -ne (Get-Command link.exe -ErrorAction SilentlyContinue)) {
+        return $true
+    }
+
+    $vswherePath = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+    if (-not (Test-Path -LiteralPath $vswherePath)) {
+        return $false
+    }
+
+    $installationPath = & $vswherePath `
+        -latest `
+        -products * `
+        -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 `
+        -property installationPath
+    if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($installationPath)) {
+        return $false
+    }
+
+    $developerShell = Join-Path `
+        $installationPath `
+        "Common7/Tools/Microsoft.VisualStudio.DevShell.dll"
+    if (-not (Test-Path -LiteralPath $developerShell)) {
+        return $false
+    }
+
+    Import-Module $developerShell
+    Enter-VsDevShell `
+        -VsInstallPath $installationPath `
+        -SkipAutomaticLocation `
+        -DevCmdArguments "-arch=x64 -host_arch=x64" | Out-Null
+
+    return $null -ne (Get-Command link.exe -ErrorAction SilentlyContinue)
+}
+
 Push-Location $repoRoot
 try {
     Invoke-NativeCheck "repository root" {
@@ -104,8 +139,40 @@ try {
         throw "The Xcode project references missing Swift files:`n$($uniqueStaleReferences -join "`n")"
     }
 
-    $swift = Get-Command swift -ErrorAction SilentlyContinue
-    if ($null -eq $swift) {
+    $registeredPaths = @(
+        @(
+            [Environment]::GetEnvironmentVariable("Path", "Machine"),
+            [Environment]::GetEnvironmentVariable("Path", "User")
+        ) | Where-Object { -not [string]::IsNullOrWhiteSpace($_) }
+    )
+    if ($registeredPaths.Count -gt 0) {
+        $env:Path = "$env:Path;$($registeredPaths -join ';')"
+    }
+
+    $swiftCommand = Get-Command swift -ErrorAction SilentlyContinue
+    $swiftPath = if ($null -ne $swiftCommand) {
+        $swiftCommand.Source
+    } else {
+        $swiftSearchRoots = @(
+            @(
+                "$env:ProgramFiles\Swift",
+                "$env:LOCALAPPDATA\Programs\Swift",
+                "C:\Library\Developer\Toolchains"
+            ) | Where-Object { Test-Path -LiteralPath $_ }
+        )
+
+        if ($swiftSearchRoots.Count -gt 0) {
+            Get-ChildItem `
+                -Path $swiftSearchRoots `
+                -Filter swift.exe `
+                -File `
+                -Recurse `
+                -ErrorAction SilentlyContinue |
+                Select-Object -First 1 -ExpandProperty FullName
+        }
+    }
+
+    if ([string]::IsNullOrWhiteSpace($swiftPath)) {
         $installCommand = "winget install --id Swift.Toolchain --exact --source winget"
         if ($RequireSwift) {
             throw "Swift is required but was not found. Install it with: $installCommand"
@@ -114,12 +181,18 @@ try {
         Write-Warning "Swift was not found; shared Swift tests were skipped. Install it with: $installCommand"
     } else {
         Invoke-NativeCheck "Swift toolchain" {
-            & $swift.Source --version
+            & $swiftPath --version
         }
 
         if (-not $SkipSwiftTests) {
+            Write-Host "[check] Microsoft C++ linker"
+            if (-not (Enable-MsvcEnvironment)) {
+                $buildToolsCommand = "winget install --id Microsoft.VisualStudio.2022.BuildTools --exact"
+                throw "Swift tests require Visual Studio Build Tools with the Desktop development with C++ workload. Install it with: $buildToolsCommand"
+            }
+
             Invoke-NativeCheck "cross-platform Swift tests" {
-                & $swift.Source test --package-path $repoRoot
+                & $swiftPath test --package-path $repoRoot
             }
         }
     }

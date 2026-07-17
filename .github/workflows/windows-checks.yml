@@ -39,9 +39,12 @@ jobs:
             --disable-interactivity
 
           $searchRoots = @(
-            "$env:ProgramFiles\Swift",
-            "C:\Library\Developer\Toolchains"
-          ) | Where-Object { Test-Path -LiteralPath $_ }
+            @(
+              "$env:ProgramFiles\Swift",
+              "$env:LOCALAPPDATA\Programs\Swift",
+              "C:\Library\Developer\Toolchains"
+            ) | Where-Object { Test-Path -LiteralPath $_ }
+          )
 
           if ($searchRoots.Count -eq 0) {
             throw "Swift was installed but no toolchain directory was created."
@@ -59,9 +62,20 @@ jobs:
             throw "Swift was installed but swift.exe could not be located."
           }
 
-          $swift.DirectoryName |
+          $swiftRuntime = Get-ChildItem `
+            -Path $searchRoots `
+            -Filter swiftCore.dll `
+            -File `
+            -Recurse `
+            -ErrorAction SilentlyContinue |
+            Select-Object -First 1
+
+          if ($null -eq $swiftRuntime) {
+            throw "Swift was installed but its runtime directory could not be located."
+          }
+
+          @($swift.DirectoryName, $swiftRuntime.DirectoryName) |
             Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-          & $swift.FullName --version
 
       - name: Run Windows preflight and shared Swift tests
         shell: pwsh

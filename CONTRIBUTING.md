@@ -24,7 +24,7 @@ Requirements:
 
 - macOS 14 or later and Xcode 15 or later for native app development.
 - Windows PowerShell 5.1 or PowerShell 7 for the Windows preflight.
-- The official Swift for Windows toolchain to run shared core tests on Windows.
+- The official Swift for Windows toolchain and Visual Studio Build Tools with the Desktop development with C++ workload to run shared core tests on Windows.
 - Git on every platform.
 
 Clone the repository and open the detected project:
@@ -56,10 +56,11 @@ On Windows, install Swift and run the shared checks from PowerShell:
 
 ```powershell
 winget install --id Swift.Toolchain --exact --source winget
+winget install --id Microsoft.VisualStudio.2022.BuildTools --exact
 ./scripts/check-windows.ps1 -RequireSwift
 ```
 
-These checks do not compile or run the macOS application. Follow [TESTING.md](TESTING.md) for the macOS CI and physical-Mac gates.
+Select **Desktop development with C++** in the Visual Studio Installer; installing Build Tools requires administrator approval. These checks do not compile or run the macOS application. Follow [TESTING.md](TESTING.md) for the macOS CI and physical-Mac gates.
 
 ## Making a change
 
