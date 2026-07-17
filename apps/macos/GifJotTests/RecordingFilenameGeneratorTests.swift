@@ -1,6 +1,10 @@
 import Foundation
 import XCTest
+#if canImport(GifJotCore)
+@testable import GifJotCore
+#else
 @testable import GifJot
+#endif
 
 final class RecordingFilenameGeneratorTests: XCTestCase {
     func testBuildsStableLocalFilename() throws {

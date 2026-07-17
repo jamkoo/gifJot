@@ -1,6 +1,10 @@
 import Foundation
 import XCTest
+#if canImport(GifJotCore)
+@testable import GifJotCore
+#else
 @testable import GifJot
+#endif
 
 @MainActor
 final class RecentOutputStoreTests: XCTestCase {

@@ -1,5 +1,9 @@
 import XCTest
+#if canImport(GifJotCore)
+@testable import GifJotCore
+#else
 @testable import GifJot
+#endif
 
 final class RecordingStateMachineTests: XCTestCase {
     func testFullRecordingFlowReturnsToIdle() throws {
