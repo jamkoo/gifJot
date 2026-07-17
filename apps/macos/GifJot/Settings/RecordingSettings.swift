@@ -5,6 +5,7 @@ enum QualityPreset: String, CaseIterable, Identifiable, Sendable {
     case balanced
     case small
     case highQuality
+    case custom
 
     var id: Self { self }
 
@@ -14,7 +15,44 @@ enum QualityPreset: String, CaseIterable, Identifiable, Sendable {
         case .balanced: "Balanced"
         case .small: "Small"
         case .highQuality: "High Quality"
+        case .custom: "Custom"
         }
+    }
+
+    var maximumOutputWidth: MaximumOutputWidth? {
+        switch self {
+        case .github, .balanced:
+            .width960
+        case .small:
+            .width640
+        case .highQuality:
+            .width1280
+        case .custom:
+            nil
+        }
+    }
+
+    var frameRate: RecordingFrameRate? {
+        switch self {
+        case .github, .small:
+            .fps10
+        case .balanced:
+            .fps15
+        case .highQuality:
+            .fps20
+        case .custom:
+            nil
+        }
+    }
+
+    static func matching(
+        maximumOutputWidth: MaximumOutputWidth,
+        frameRate: RecordingFrameRate
+    ) -> QualityPreset {
+        allCases.first { preset in
+            preset.maximumOutputWidth == maximumOutputWidth
+                && preset.frameRate == frameRate
+        } ?? .custom
     }
 }
 

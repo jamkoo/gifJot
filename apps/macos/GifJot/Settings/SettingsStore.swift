@@ -13,17 +13,27 @@ final class SettingsStore: ObservableObject {
     }
 
     private let defaults: UserDefaults
+    private var isSynchronizingPreset = false
 
     @Published var qualityPreset: QualityPreset {
-        didSet { defaults.set(qualityPreset.rawValue, forKey: Key.qualityPreset.rawValue) }
+        didSet {
+            defaults.set(qualityPreset.rawValue, forKey: Key.qualityPreset.rawValue)
+            applyPresetIfNeeded()
+        }
     }
 
     @Published var maximumOutputWidth: MaximumOutputWidth {
-        didSet { defaults.set(maximumOutputWidth.rawValue, forKey: Key.maximumOutputWidth.rawValue) }
+        didSet {
+            defaults.set(maximumOutputWidth.rawValue, forKey: Key.maximumOutputWidth.rawValue)
+            synchronizePresetWithRecordingOptions()
+        }
     }
 
     @Published var framesPerSecond: RecordingFrameRate {
-        didSet { defaults.set(framesPerSecond.rawValue, forKey: Key.framesPerSecond.rawValue) }
+        didSet {
+            defaults.set(framesPerSecond.rawValue, forKey: Key.framesPerSecond.rawValue)
+            synchronizePresetWithRecordingOptions()
+        }
     }
 
     @Published var includeCursor: Bool {
@@ -76,6 +86,8 @@ final class SettingsStore: ObservableObject {
             defaultValue: true,
             defaults: defaults
         )
+
+        synchronizePresetWithRecordingOptions()
     }
 
     func restoreDefaults() {
@@ -95,6 +107,34 @@ final class SettingsStore: ObservableObject {
             countdownSeconds: countdown.rawValue,
             copyAfterRecording: copyAfterRecording
         )
+    }
+
+    private func applyPresetIfNeeded() {
+        guard !isSynchronizingPreset,
+              let width = qualityPreset.maximumOutputWidth,
+              let frameRate = qualityPreset.frameRate
+        else {
+            return
+        }
+
+        isSynchronizingPreset = true
+        maximumOutputWidth = width
+        framesPerSecond = frameRate
+        isSynchronizingPreset = false
+    }
+
+    private func synchronizePresetWithRecordingOptions() {
+        guard !isSynchronizingPreset else { return }
+
+        let matchingPreset = QualityPreset.matching(
+            maximumOutputWidth: maximumOutputWidth,
+            frameRate: framesPerSecond
+        )
+        guard qualityPreset != matchingPreset else { return }
+
+        isSynchronizingPreset = true
+        qualityPreset = matchingPreset
+        isSynchronizingPreset = false
     }
 
     private static func integerValue(

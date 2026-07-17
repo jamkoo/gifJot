@@ -38,6 +38,39 @@ final class SettingsStoreTests: XCTestCase {
         }
     }
 
+    func testPresetChangesRealRecordingOptions() {
+        withIsolatedDefaults { defaults in
+            let store = SettingsStore(defaults: defaults)
+
+            store.qualityPreset = .small
+
+            XCTAssertEqual(store.maximumOutputWidth, .width640)
+            XCTAssertEqual(store.framesPerSecond, .fps10)
+            XCTAssertEqual(store.recordingConfiguration().maximumOutputWidth, 640)
+            XCTAssertEqual(store.recordingConfiguration().framesPerSecond, 10)
+        }
+    }
+
+    func testManualRecordingOptionsSelectMatchingPreset() {
+        withIsolatedDefaults { defaults in
+            let store = SettingsStore(defaults: defaults)
+
+            store.framesPerSecond = .fps10
+
+            XCTAssertEqual(store.qualityPreset, .github)
+        }
+    }
+
+    func testManualRecordingOptionsShowCustomWhenNoPresetMatches() {
+        withIsolatedDefaults { defaults in
+            let store = SettingsStore(defaults: defaults)
+
+            store.maximumOutputWidth = .original
+
+            XCTAssertEqual(store.qualityPreset, .custom)
+        }
+    }
+
     func testRestoreDefaultsResetsEverySetting() {
         withIsolatedDefaults { defaults in
             let store = SettingsStore(defaults: defaults)
