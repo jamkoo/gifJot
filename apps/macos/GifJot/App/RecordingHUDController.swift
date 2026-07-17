@@ -500,15 +500,24 @@ private final class RecordingBorderView: NSView {
         let isNorth = point.y >= bounds.maxY - edgeLength
 
         switch (isNorth, isSouth, isEast, isWest) {
-        case (true, false, true, false): return .resize(.northEast)
-        case (true, false, false, true): return .resize(.northWest)
-        case (false, true, true, false): return .resize(.southEast)
-        case (false, true, false, true): return .resize(.southWest)
-        case (true, false, false, false): return .resize(.north)
-        case (false, true, false, false): return .resize(.south)
-        case (false, false, true, false): return .resize(.east)
-        case (false, false, false, true): return .resize(.west)
-        default: return .move
+        case (true, false, true, false):
+            return CaptureFrameAdjustment.resize(.northEast)
+        case (true, false, false, true):
+            return CaptureFrameAdjustment.resize(.northWest)
+        case (false, true, true, false):
+            return CaptureFrameAdjustment.resize(.southEast)
+        case (false, true, false, true):
+            return CaptureFrameAdjustment.resize(.southWest)
+        case (true, false, false, false):
+            return CaptureFrameAdjustment.resize(.north)
+        case (false, true, false, false):
+            return CaptureFrameAdjustment.resize(.south)
+        case (false, false, true, false):
+            return CaptureFrameAdjustment.resize(.east)
+        case (false, false, false, true):
+            return CaptureFrameAdjustment.resize(.west)
+        default:
+            return CaptureFrameAdjustment.move
         }
     }
 
