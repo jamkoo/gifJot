@@ -27,6 +27,9 @@ jobs:
           xcodebuild -version
           swift --version
 
+      - name: Run cross-platform core tests
+        run: swift test --package-path .
+
       - name: Verify project and shared scheme
         run: xcodebuild -list -project apps/macos/GifJot.xcodeproj
 
