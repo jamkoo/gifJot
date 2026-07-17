@@ -61,6 +61,9 @@ enum RecordingFilenameGenerator {
 }
 
 final class GIFFileExporter {
+    private static let workingFilenamePrefix = ".gifjot-"
+    private static let workingFilenameSuffix = ".tmp"
+
     private let fileManager: FileManager
     private let destinationDirectory: URL
 
@@ -73,15 +76,8 @@ final class GIFFileExporter {
         if let destinationDirectory {
             self.destinationDirectory = destinationDirectory
         } else {
-            guard let downloads = fileManager.urls(
-                for: .downloadsDirectory,
-                in: .userDomainMask
-            ).first else {
-                throw GIFFileExporterError.downloadsDirectoryUnavailable
-            }
-            self.destinationDirectory = downloads.appendingPathComponent(
-                "GifJot",
-                isDirectory: true
+            self.destinationDirectory = try Self.defaultDestinationDirectory(
+                fileManager: fileManager
             )
         }
     }
@@ -98,7 +94,7 @@ final class GIFFileExporter {
             fileExists: fileManager.fileExists(atPath:)
         )
         let workingURL = destinationDirectory.appendingPathComponent(
-            ".gifjot-\(UUID().uuidString).tmp"
+            "\(Self.workingFilenamePrefix)\(UUID().uuidString)\(Self.workingFilenameSuffix)"
         )
         return GIFExportPlan(workingURL: workingURL, finalURL: finalURL)
     }
@@ -113,5 +109,51 @@ final class GIFFileExporter {
 
     func discard(_ plan: GIFExportPlan) {
         try? fileManager.removeItem(at: plan.workingURL)
+    }
+
+    static func removeAbandonedWorkingFiles(
+        destinationDirectory: URL? = nil,
+        fileManager: FileManager = .default
+    ) {
+        let directory: URL
+        if let destinationDirectory {
+            directory = destinationDirectory
+        } else {
+            guard let defaultDirectory = try? defaultDestinationDirectory(
+                fileManager: fileManager
+            ) else {
+                return
+            }
+            directory = defaultDirectory
+        }
+
+        guard let contents = try? fileManager.contentsOfDirectory(
+            at: directory,
+            includingPropertiesForKeys: nil
+        ) else {
+            return
+        }
+
+        for url in contents where isWorkingFile(url) {
+            try? fileManager.removeItem(at: url)
+        }
+    }
+
+    private static func defaultDestinationDirectory(
+        fileManager: FileManager
+    ) throws -> URL {
+        guard let downloads = fileManager.urls(
+            for: .downloadsDirectory,
+            in: .userDomainMask
+        ).first else {
+            throw GIFFileExporterError.downloadsDirectoryUnavailable
+        }
+        return downloads.appendingPathComponent("GifJot", isDirectory: true)
+    }
+
+    private static func isWorkingFile(_ url: URL) -> Bool {
+        let filename = url.lastPathComponent
+        return filename.hasPrefix(workingFilenamePrefix)
+            && filename.hasSuffix(workingFilenameSuffix)
     }
 }

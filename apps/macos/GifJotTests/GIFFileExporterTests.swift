@@ -42,4 +42,33 @@ final class GIFFileExporterTests: XCTestCase {
 
         XCTAssertFalse(FileManager.default.fileExists(atPath: plan.workingURL.path))
     }
+
+    func testAbandonedWorkingFileCleanupLeavesUserFilesAlone() throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(
+            "GifJotExporterTests-\(UUID().uuidString)",
+            isDirectory: true
+        )
+        try FileManager.default.createDirectory(
+            at: root,
+            withIntermediateDirectories: true
+        )
+        defer { try? FileManager.default.removeItem(at: root) }
+
+        let abandoned = root.appendingPathComponent(".gifjot-abandoned.tmp")
+        let userGIF = root.appendingPathComponent("keep.gif")
+        let unrelatedTemporaryFile = root.appendingPathComponent("other.tmp")
+        try Data("partial".utf8).write(to: abandoned)
+        try Data("gif".utf8).write(to: userGIF)
+        try Data("temporary".utf8).write(to: unrelatedTemporaryFile)
+
+        GIFFileExporter.removeAbandonedWorkingFiles(
+            destinationDirectory: root
+        )
+
+        XCTAssertFalse(FileManager.default.fileExists(atPath: abandoned.path))
+        XCTAssertTrue(FileManager.default.fileExists(atPath: userGIF.path))
+        XCTAssertTrue(
+            FileManager.default.fileExists(atPath: unrelatedTemporaryFile.path)
+        )
+    }
 }
