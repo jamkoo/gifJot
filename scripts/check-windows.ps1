@@ -149,6 +149,14 @@ try {
         $env:Path = "$env:Path;$($registeredPaths -join ';')"
     }
 
+    $registeredSDKRoot = [Environment]::GetEnvironmentVariable("SDKROOT", "User")
+    if ([string]::IsNullOrWhiteSpace($registeredSDKRoot)) {
+        $registeredSDKRoot = [Environment]::GetEnvironmentVariable("SDKROOT", "Machine")
+    }
+    if (-not [string]::IsNullOrWhiteSpace($registeredSDKRoot)) {
+        $env:SDKROOT = $registeredSDKRoot
+    }
+
     $swiftCommand = Get-Command swift -ErrorAction SilentlyContinue
     $swiftPath = if ($null -ne $swiftCommand) {
         $swiftCommand.Source
