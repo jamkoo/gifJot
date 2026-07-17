@@ -4,7 +4,9 @@ enum RecordingState: String, CaseIterable, Hashable, Sendable {
     case idle
     case requestingPermission
     case selectingRegion
+    case readyToRecord
     case countdown
+    case startingCapture
     case recording
     case finishingCapture
     case encoding
@@ -43,8 +45,10 @@ struct RecordingStateMachine: Sendable {
     private static let allowedTransitions: [RecordingState: Set<RecordingState>] = [
         .idle: [.requestingPermission, .selectingRegion],
         .requestingPermission: [.selectingRegion, .canceled, .failed],
-        .selectingRegion: [.countdown, .recording, .canceled, .failed],
-        .countdown: [.recording, .canceled, .failed],
+        .selectingRegion: [.readyToRecord, .canceled, .failed],
+        .readyToRecord: [.countdown, .startingCapture, .canceled, .failed],
+        .countdown: [.startingCapture, .canceled, .failed],
+        .startingCapture: [.recording, .canceled, .failed],
         .recording: [.finishingCapture, .canceled, .failed],
         .finishingCapture: [.encoding, .canceled, .failed],
         .encoding: [.exporting, .canceled, .failed],

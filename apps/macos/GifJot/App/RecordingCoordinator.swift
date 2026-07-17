@@ -34,6 +34,7 @@ final class RecordingCoordinator: ObservableObject {
     private let regionSelectionService: RegionSelectionService
     private let encodingWorker: GIFEncodingWorker
     private let clipboardWriter: FileClipboardWriting
+    private let recentOutputStore: RecentOutputStore
     private let sessionFactory: (
         @escaping @Sendable (Error) -> Void
     ) -> ScreenCaptureRecordingSession
@@ -51,6 +52,7 @@ final class RecordingCoordinator: ObservableObject {
         regionSelectionService: RegionSelectionService,
         encodingWorker: GIFEncodingWorker? = nil,
         clipboardWriter: FileClipboardWriting? = nil,
+        recentOutputStore: RecentOutputStore? = nil,
         sessionFactory: @escaping (
             @escaping @Sendable (Error) -> Void
         ) -> ScreenCaptureRecordingSession = { handler in
@@ -64,6 +66,9 @@ final class RecordingCoordinator: ObservableObject {
         self.regionSelectionService = regionSelectionService
         self.encodingWorker = encodingWorker ?? GIFEncodingWorker()
         self.clipboardWriter = clipboardWriter ?? MacFileClipboardWriter()
+        let recentOutputStore = recentOutputStore ?? RecentOutputStore()
+        self.recentOutputStore = recentOutputStore
+        lastOutputURL = recentOutputStore.restoreLastOutputURL()
         self.sessionFactory = sessionFactory
         self.exporterFactory = exporterFactory
     }
@@ -81,7 +86,9 @@ final class RecordingCoordinator: ObservableObject {
         switch state {
         case .recording:
             "Stop Recording"
-        case .selectingRegion, .countdown:
+        case .readyToRecord:
+            "Start Recording"
+        case .selectingRegion, .countdown, .startingCapture:
             "Cancel"
         case .requestingPermission:
             "Checking Permission..."
@@ -112,9 +119,13 @@ final class RecordingCoordinator: ObservableObject {
         case .requestingPermission:
             "Checking Screen Recording access..."
         case .selectingRegion:
-            "Drag over one display — Esc to cancel"
+            "Drag over one display. Press Esc to cancel."
+        case .readyToRecord:
+            "Region ready. Review options, then record."
         case .countdown:
             "Recording in \(countdownSecondsRemaining ?? 0)..."
+        case .startingCapture:
+            "Starting recording..."
         case .recording:
             recordingStatusText
         case .finishingCapture:
@@ -142,15 +153,39 @@ final class RecordingCoordinator: ObservableObject {
         resetPresentationState()
         activeConfiguration = configuration
         workflowTask = Task { [weak self] in
-            await self?.runStartWorkflow(configuration: configuration)
+            await self?.runSelectionWorkflow()
         }
+    }
+
+    func confirmSelectedRegion(configuration: RecordingConfiguration) {
+        guard state == .readyToRecord,
+              workflowTask == nil,
+              let activeRegion
+        else {
+            return
+        }
+
+        activeConfiguration = configuration
+        workflowTask = Task { [weak self] in
+            await self?.runCaptureWorkflow(
+                region: activeRegion,
+                configuration: configuration
+            )
+        }
+    }
+
+    func updateSelectedRegion(_ region: CaptureRegion) {
+        guard state == .readyToRecord else { return }
+        activeRegion = region
     }
 
     func performPrimaryAction(configuration: RecordingConfiguration) {
         switch state {
         case .recording:
             requestStop()
-        case .selectingRegion, .countdown:
+        case .readyToRecord:
+            confirmSelectedRegion(configuration: configuration)
+        case .selectingRegion, .countdown, .startingCapture:
             cancelPendingRecording()
         case .requestingPermission, .finishingCapture, .encoding, .exporting:
             break
@@ -176,7 +211,18 @@ final class RecordingCoordinator: ObservableObject {
     }
 
     func cancelPendingRecording() {
-        guard state == .selectingRegion || state == .countdown else { return }
+        if state == .readyToRecord {
+            try? transition(to: .canceled)
+            activeRegion = nil
+            activeConfiguration = nil
+            return
+        }
+
+        guard state == .selectingRegion
+            || state == .countdown
+            || state == .startingCapture
+        else { return }
+
         regionSelectionService.cancelSelection()
         workflowTask?.cancel()
     }
@@ -193,9 +239,20 @@ final class RecordingCoordinator: ObservableObject {
         }
     }
 
-    private func runStartWorkflow(
-        configuration: RecordingConfiguration
-    ) async {
+    @discardableResult
+    func copyLastOutputToClipboard() -> Bool {
+        guard let lastOutputURL else { return false }
+
+        let didCopy = clipboardWriter.writeFile(at: lastOutputURL)
+        if state == .completed {
+            warningMessage = didCopy
+                ? nil
+                : "Saved, but GifJot could not copy the GIF."
+        }
+        return didCopy
+    }
+
+    private func runSelectionWorkflow() async {
         do {
             try transition(to: .requestingPermission)
             guard permissionService.refreshStatus() == .authorized else {
@@ -213,7 +270,21 @@ final class RecordingCoordinator: ObservableObject {
             }
             activeRegion = region
             try Task.checkCancellation()
+            try transition(to: .readyToRecord)
+        } catch is CancellationError {
+            cancelStateIfPossible()
+        } catch {
+            fail(with: error)
+        }
 
+        workflowTask = nil
+    }
+
+    private func runCaptureWorkflow(
+        region: CaptureRegion,
+        configuration: RecordingConfiguration
+    ) async {
+        do {
             if configuration.countdownSeconds > 0 {
                 try transition(to: .countdown)
                 for remaining in stride(
@@ -228,6 +299,7 @@ final class RecordingCoordinator: ObservableObject {
             }
 
             try Task.checkCancellation()
+            try transition(to: .startingCapture)
             let session = sessionFactory { [weak self] error in
                 Task { @MainActor [weak self] in
                     self?.handleUnexpectedStop(error)
@@ -272,6 +344,7 @@ final class RecordingCoordinator: ObservableObject {
 
         do {
             let capture = try await session.stop()
+            try Task.checkCancellation()
             droppedFrames = capture.droppedFrames
             optimizedFrameCount = capture.duplicateFrames
             try transition(to: .encoding)
@@ -285,11 +358,14 @@ final class RecordingCoordinator: ObservableObject {
                 frames: capture.frames,
                 to: plan.workingURL
             )
+            try Task.checkCancellation()
             try transition(to: .exporting)
 
+            try Task.checkCancellation()
             let finalURL = try createdExporter.commit(plan)
             exportPlan = nil
             lastOutputURL = finalURL
+            recentOutputStore.record(finalURL)
 
             if activeConfiguration?.copyAfterRecording == true,
                !clipboardWriter.writeFile(at: finalURL)
@@ -364,7 +440,8 @@ final class RecordingCoordinator: ObservableObject {
 
     private func cancelStateIfPossible() {
         switch state {
-        case .requestingPermission, .selectingRegion, .countdown, .recording,
+        case .requestingPermission, .selectingRegion, .readyToRecord, .countdown,
+             .startingCapture, .recording,
              .finishingCapture, .encoding, .exporting:
             try? transition(to: .canceled)
         default:
@@ -378,7 +455,8 @@ final class RecordingCoordinator: ObservableObject {
         errorMessage = error.localizedDescription
 
         switch state {
-        case .requestingPermission, .selectingRegion, .countdown, .recording,
+        case .requestingPermission, .selectingRegion, .readyToRecord, .countdown,
+             .startingCapture, .recording,
              .finishingCapture, .encoding, .exporting:
             try? transition(to: .failed)
         default:
@@ -399,7 +477,6 @@ final class RecordingCoordinator: ObservableObject {
         optimizedFrameCount = 0
         errorMessage = nil
         warningMessage = nil
-        lastOutputURL = nil
         activeRegion = nil
     }
 

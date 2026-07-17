@@ -11,12 +11,24 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 #endif
 
     private lazy var permissionWindowController = CapturePermissionWindowController(
-        permissionService: permissionService
+        permissionService: permissionService,
+        onRestart: { [weak self] in
+            self?.permissionService.prepareForRelaunch()
+            self?.applicationRelauncher.relaunch()
+        },
+        onStartRecording: { [weak self] in
+            self?.startRecordingFromPermissionWindow()
+        }
     )
     private lazy var recordingHUDController = RecordingHUDController(
-        coordinator: recordingCoordinator
+        coordinator: recordingCoordinator,
+        settings: settings,
+        onShowSettings: {
+            NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
+        }
     )
-    private let globalShortcutService = GlobalShortcutService()
+    let globalShortcutService = GlobalShortcutService()
+    private let applicationRelauncher = ApplicationRelauncher()
 
     override init() {
         let permissionService = CapturePermissionService()
@@ -39,6 +51,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         TemporaryRecordingStore.removeAbandonedSessions()
+        GIFFileExporter.removeAbandonedWorkingFiles()
         recordingHUDController.start()
         let shortcutRegistered = globalShortcutService.start { [weak self] in
             self?.performRecordingShortcut()
@@ -47,7 +60,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             NSLog("GifJot could not register the %@ shortcut.", GlobalShortcutService.displayName)
         }
 
-        if permissionService.refreshStatus() != .authorized {
+        if permissionService.refreshStatus() != .authorized
+            || permissionService.showReadyOnLaunch
+        {
             permissionWindowController.present()
         }
     }
@@ -64,6 +79,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func showPermissionWindow() {
         permissionWindowController.present()
+    }
+
+    private func startRecordingFromPermissionWindow() {
+        recordingCoordinator.begin(
+            configuration: settings.recordingConfiguration()
+        )
     }
 
     private func performRecordingShortcut() {

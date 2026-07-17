@@ -6,12 +6,18 @@ final class CapturePermissionWindowController: NSWindowController {
     private let permissionService: CapturePermissionService
     private let hostingController: NSHostingController<CapturePermissionView>
 
-    init(permissionService: CapturePermissionService) {
+    init(
+        permissionService: CapturePermissionService,
+        onRestart: @escaping () -> Void,
+        onStartRecording: @escaping () -> Void
+    ) {
         self.permissionService = permissionService
 
         let initialView = CapturePermissionView(
             permissionService: permissionService,
-            onDismiss: {}
+            onDismiss: {},
+            onRestart: onRestart,
+            onStartRecording: {}
         )
         let hostingController = NSHostingController(rootView: initialView)
         self.hostingController = hostingController
@@ -28,6 +34,11 @@ final class CapturePermissionWindowController: NSWindowController {
             permissionService: permissionService,
             onDismiss: { [weak self] in
                 self?.close()
+            },
+            onRestart: onRestart,
+            onStartRecording: { [weak self] in
+                self?.close()
+                onStartRecording()
             }
         )
     }

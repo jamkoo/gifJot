@@ -7,7 +7,9 @@ final class RecordingStateMachineTests: XCTestCase {
 
         try machine.transition(to: .requestingPermission)
         try machine.transition(to: .selectingRegion)
+        try machine.transition(to: .readyToRecord)
         try machine.transition(to: .countdown)
+        try machine.transition(to: .startingCapture)
         try machine.transition(to: .recording)
         try machine.transition(to: .finishingCapture)
         try machine.transition(to: .encoding)
@@ -18,9 +20,10 @@ final class RecordingStateMachineTests: XCTestCase {
         XCTAssertEqual(machine.state, .idle)
     }
 
-    func testSelectionCanSkipCountdown() throws {
-        var machine = RecordingStateMachine(initialState: .selectingRegion)
+    func testArmedSelectionCanSkipCountdownWhileStillShowingCaptureStartup() throws {
+        var machine = RecordingStateMachine(initialState: .readyToRecord)
 
+        try machine.transition(to: .startingCapture)
         try machine.transition(to: .recording)
 
         XCTAssertEqual(machine.state, .recording)
@@ -30,7 +33,9 @@ final class RecordingStateMachineTests: XCTestCase {
         let activeStates: [RecordingState] = [
             .requestingPermission,
             .selectingRegion,
+            .readyToRecord,
             .countdown,
+            .startingCapture,
             .recording,
             .finishingCapture,
             .encoding,
@@ -48,7 +53,9 @@ final class RecordingStateMachineTests: XCTestCase {
         let activeStates: [RecordingState] = [
             .requestingPermission,
             .selectingRegion,
+            .readyToRecord,
             .countdown,
+            .startingCapture,
             .recording,
             .finishingCapture,
             .encoding,
@@ -72,6 +79,17 @@ final class RecordingStateMachineTests: XCTestCase {
             )
         }
         XCTAssertEqual(machine.state, .idle)
+    }
+
+    func testSelectionCannotStartCaptureBeforeItIsArmed() throws {
+        var machine = RecordingStateMachine(initialState: .selectingRegion)
+
+        XCTAssertThrowsError(try machine.transition(to: .countdown))
+        XCTAssertThrowsError(try machine.transition(to: .startingCapture))
+        XCTAssertEqual(machine.state, .selectingRegion)
+
+        try machine.transition(to: .readyToRecord)
+        XCTAssertEqual(machine.state, .readyToRecord)
     }
 
     func testTerminalStatesCanReturnToIdle() throws {

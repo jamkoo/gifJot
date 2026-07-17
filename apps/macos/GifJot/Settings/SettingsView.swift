@@ -23,22 +23,29 @@ struct SettingsView: View {
 
             footer
         }
-        .frame(width: 500, height: 520)
-        .background(Color(nsColor: .windowBackgroundColor))
+        .frame(width: 540, height: 560)
+        .background(GifJotDesign.opticalBody)
+        .tint(GifJotDesign.signal)
     }
 
     private var header: some View {
         HStack(alignment: .top, spacing: 14) {
-            Image(systemName: "record.circle")
-                .font(.system(size: 22, weight: .semibold))
-                .foregroundStyle(GifJotDesign.signal)
-                .frame(width: 32, height: 32)
+            CaptureFrameMark(
+                color: GifJotDesign.signal,
+                lineWidth: 2
+            )
+            .frame(width: 36, height: 36)
 
             VStack(alignment: .leading, spacing: 3) {
-                Text("GifJot Settings")
+                Text("GIFJOT / CAMERA SETUP")
+                    .font(.system(size: 9, weight: .semibold, design: .monospaced))
+                    .tracking(0.8)
+                    .foregroundStyle(.secondary)
+
+                Text("Capture defaults")
                     .font(.system(size: 20, weight: .semibold))
 
-                Text("Set the defaults used for each new recording.")
+                Text("Set the starting point once. The shutter flow stays immediate.")
                     .font(.system(size: 12))
                     .foregroundStyle(.secondary)
             }
@@ -50,13 +57,16 @@ struct SettingsView: View {
 
     private var recordingSection: some View {
         SettingsSection(
+            index: "01",
             title: "Recording",
             detail: "Balanced is a clear, compact starting point for product demos and documentation."
         ) {
             SettingsRow(title: "Preset") {
                 Picker("Preset", selection: $settings.qualityPreset) {
                     ForEach(QualityPreset.allCases) { preset in
-                        Text(preset.displayName).tag(preset)
+                        Text(preset.displayName)
+                            .tag(preset)
+                            .disabled(preset == .custom)
                     }
                 }
                 .labelsHidden()
@@ -97,28 +107,12 @@ struct SettingsView: View {
 
     private var behaviorSection: some View {
         SettingsSection(
+            index: "02",
             title: "Behavior",
             detail: "The shortcut works globally without requesting Accessibility access."
         ) {
             SettingsRow(title: "Shortcut") {
-                Text("⌥⌘G")
-                    .font(.system(size: 12, weight: .semibold, design: .rounded))
-                    .padding(.horizontal, 9)
-                    .frame(height: 26)
-                    .background(Color(nsColor: .controlBackgroundColor))
-                    .overlay {
-                        RoundedRectangle(
-                            cornerRadius: GifJotDesign.controlRadius,
-                            style: .continuous
-                        )
-                        .stroke(Color(nsColor: .separatorColor).opacity(0.72))
-                    }
-                    .clipShape(
-                        RoundedRectangle(
-                            cornerRadius: GifJotDesign.controlRadius,
-                            style: .continuous
-                        )
-                    )
+                GifJotKeycap(text: "⌥⌘G")
             }
 
             SettingsRow(title: "Include cursor") {
@@ -175,15 +169,18 @@ struct SettingsView: View {
 }
 
 private struct SettingsSection<Content: View>: View {
+    let index: String
     let title: String
     let detail: String
     let content: Content
 
     init(
+        index: String,
         title: String,
         detail: String,
         @ViewBuilder content: () -> Content
     ) {
+        self.index = index
         self.title = title
         self.detail = detail
         self.content = content()
@@ -191,14 +188,20 @@ private struct SettingsSection<Content: View>: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 9) {
-            VStack(alignment: .leading, spacing: 3) {
-                Text(title)
-                    .font(.system(size: 13, weight: .semibold))
+            HStack(alignment: .firstTextBaseline, spacing: 10) {
+                Text(index)
+                    .font(.system(size: 10, weight: .semibold, design: .monospaced))
+                    .foregroundStyle(GifJotDesign.signal)
 
-                Text(detail)
-                    .font(.system(size: 11))
-                    .foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(title)
+                        .font(.system(size: 13, weight: .semibold))
+
+                    Text(detail)
+                        .font(.system(size: 11))
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
             }
 
             VStack(spacing: 0) {

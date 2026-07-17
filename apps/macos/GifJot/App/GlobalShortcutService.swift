@@ -1,4 +1,5 @@
 import Carbon
+import Combine
 import Foundation
 
 private let gifJotHotKeySignature: OSType = 0x474A4F54 // GJOT
@@ -20,7 +21,9 @@ private func handleGifJotHotKey(
 }
 
 @MainActor
-final class GlobalShortcutService {
+final class GlobalShortcutService: ObservableObject {
+    @Published private(set) var isRegistered = false
+
     static let displayName = "⌥⌘G"
 
     private var hotKeyReference: EventHotKeyRef?
@@ -67,6 +70,7 @@ final class GlobalShortcutService {
             return false
         }
 
+        isRegistered = true
         return true
     }
 
@@ -80,6 +84,7 @@ final class GlobalShortcutService {
             self.eventHandlerReference = nil
         }
         action = nil
+        isRegistered = false
     }
 
     fileprivate func invoke() {

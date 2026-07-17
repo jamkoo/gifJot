@@ -196,7 +196,7 @@ private final class RegionSelectionView: NSView {
             dimPath.windingRule = .evenOdd
         }
 
-        NSColor.black.withAlphaComponent(0.42).setFill()
+        NSColor.black.withAlphaComponent(0.55).setFill()
         dimPath.fill()
 
         guard let selectionRect else {
@@ -206,9 +206,9 @@ private final class RegionSelectionView: NSView {
 
         let lineWidth = 1.0 / max(displayScale, 1)
         NSColor(
-            red: 217.0 / 255.0,
+            red: 242.0 / 255.0,
             green: 74.0 / 255.0,
-            blue: 54.0 / 255.0,
+            blue: 29.0 / 255.0,
             alpha: 1
         ).setStroke()
         let border = NSBezierPath(
@@ -220,6 +220,7 @@ private final class RegionSelectionView: NSView {
         border.lineWidth = lineWidth
         border.stroke()
 
+        drawCornerBrackets(for: selectionRect, lineWidth: lineWidth)
         drawSizeLabel(for: selectionRect)
     }
 
@@ -231,11 +232,11 @@ private final class RegionSelectionView: NSView {
     }
 
     private func drawInstruction() {
-        let text = "Drag to record an area  •  Esc to cancel"
+        let text = "COMPOSE A REGION    ESC  CANCEL"
         drawBadge(
             text,
             centeredAt: CGPoint(x: bounds.midX, y: bounds.midY),
-            font: .systemFont(ofSize: 13, weight: .medium)
+            font: .monospacedSystemFont(ofSize: 12, weight: .medium)
         )
     }
 
@@ -243,11 +244,114 @@ private final class RegionSelectionView: NSView {
         let pixelWidth = Int((rect.width * displayScale).rounded())
         let pixelHeight = Int((rect.height * displayScale).rounded())
         let center = CGPoint(x: rect.midX, y: max(rect.minY - 24, 18))
-        drawBadge(
+        drawMeasurementBadge(
             "\(pixelWidth) × \(pixelHeight)",
-            centeredAt: center,
-            font: .monospacedSystemFont(ofSize: 12, weight: .medium)
+            centeredAt: center
         )
+    }
+
+    private func drawCornerBrackets(
+        for rect: CGRect,
+        lineWidth: CGFloat
+    ) {
+        let length = min(22, min(rect.width / 3, rect.height / 3))
+        guard length > 2 else { return }
+
+        let corners = [
+            [
+                CGPoint(x: rect.minX, y: rect.minY + length),
+                CGPoint(x: rect.minX, y: rect.minY),
+                CGPoint(x: rect.minX + length, y: rect.minY),
+            ],
+            [
+                CGPoint(x: rect.maxX - length, y: rect.minY),
+                CGPoint(x: rect.maxX, y: rect.minY),
+                CGPoint(x: rect.maxX, y: rect.minY + length),
+            ],
+            [
+                CGPoint(x: rect.maxX, y: rect.maxY - length),
+                CGPoint(x: rect.maxX, y: rect.maxY),
+                CGPoint(x: rect.maxX - length, y: rect.maxY),
+            ],
+            [
+                CGPoint(x: rect.minX + length, y: rect.maxY),
+                CGPoint(x: rect.minX, y: rect.maxY),
+                CGPoint(x: rect.minX, y: rect.maxY - length),
+            ],
+        ]
+
+        NSColor(
+            red: 242.0 / 255.0,
+            green: 74.0 / 255.0,
+            blue: 29.0 / 255.0,
+            alpha: 1
+        ).setStroke()
+
+        for points in corners {
+            guard let first = points.first else { continue }
+            let path = NSBezierPath()
+            path.move(to: first)
+            for point in points.dropFirst() {
+                path.line(to: point)
+            }
+            path.lineWidth = max(lineWidth * 2.5, 1.5 / max(displayScale, 1))
+            path.lineCapStyle = .square
+            path.lineJoinStyle = .miter
+            path.stroke()
+        }
+    }
+
+    private func drawMeasurementBadge(
+        _ text: String,
+        centeredAt center: CGPoint
+    ) {
+        let attributes: [NSAttributedString.Key: Any] = [
+            .font: NSFont.monospacedSystemFont(ofSize: 12, weight: .medium),
+            .foregroundColor: NSColor(
+                red: 248.0 / 255.0,
+                green: 244.0 / 255.0,
+                blue: 234.0 / 255.0,
+                alpha: 1
+            ),
+        ]
+        let attributed = NSAttributedString(string: text, attributes: attributes)
+        let textSize = attributed.size()
+        let badgeRect = CGRect(
+            x: center.x - (textSize.width + 36) / 2,
+            y: center.y - textSize.height / 2 - 6,
+            width: textSize.width + 36,
+            height: textSize.height + 12
+        )
+
+        NSColor(
+            red: 23.0 / 255.0,
+            green: 23.0 / 255.0,
+            blue: 22.0 / 255.0,
+            alpha: 0.98
+        ).setFill()
+        NSBezierPath(roundedRect: badgeRect, xRadius: 4, yRadius: 4).fill()
+
+        NSColor(
+            red: 242.0 / 255.0,
+            green: 74.0 / 255.0,
+            blue: 29.0 / 255.0,
+            alpha: 1
+        ).setFill()
+        NSBezierPath(
+            roundedRect: CGRect(
+                x: badgeRect.minX + 10,
+                y: badgeRect.midY - 3,
+                width: 6,
+                height: 6
+            ),
+            xRadius: 1.5,
+            yRadius: 1.5
+        ).fill()
+
+        attributed.draw(at: CGPoint(
+            x: badgeRect.minX + 24,
+            y: badgeRect.minY + 6
+        ))
     }
 
     private func drawBadge(
@@ -258,9 +362,9 @@ private final class RegionSelectionView: NSView {
         let attributes: [NSAttributedString.Key: Any] = [
             .font: font,
             .foregroundColor: NSColor(
-                red: 251.0 / 255.0,
-                green: 250.0 / 255.0,
-                blue: 247.0 / 255.0,
+                red: 248.0 / 255.0,
+                green: 244.0 / 255.0,
+                blue: 234.0 / 255.0,
                 alpha: 1
             ),
         ]
@@ -274,12 +378,12 @@ private final class RegionSelectionView: NSView {
         )
 
         NSColor(
-            red: 34.0 / 255.0,
-            green: 34.0 / 255.0,
-            blue: 32.0 / 255.0,
-            alpha: 0.94
+            red: 23.0 / 255.0,
+            green: 23.0 / 255.0,
+            blue: 22.0 / 255.0,
+            alpha: 0.97
         ).setFill()
-        NSBezierPath(roundedRect: badgeRect, xRadius: 6, yRadius: 6).fill()
+        NSBezierPath(roundedRect: badgeRect, xRadius: 7, yRadius: 7).fill()
         attributed.draw(at: CGPoint(
             x: badgeRect.minX + 10,
             y: badgeRect.minY + 6

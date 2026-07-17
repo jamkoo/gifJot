@@ -25,6 +25,16 @@ final class RecordingHUDPlacementTests: XCTestCase {
         XCTAssertEqual(result, CGPoint(x: 261, y: 510))
     }
 
+    func testPlacesRegionReadyControllerBesideSelection() {
+        let result = RecordingHUDPlacement.panelOrigin(
+            selectionRect: CGRect(x: 200, y: 200, width: 400, height: 300),
+            availableFrame: CGRect(x: 0, y: 0, width: 1_440, height: 875),
+            panelSize: CGSize(width: 344, height: 52)
+        )
+
+        XCTAssertEqual(result, CGPoint(x: 228, y: 510))
+    }
+
     func testFallsBelowSelectionNearTopOfScreen() {
         let result = RecordingHUDPlacement.panelOrigin(
             selectionRect: CGRect(x: 200, y: 600, width: 400, height: 260),
