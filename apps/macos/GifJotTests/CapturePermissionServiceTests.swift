@@ -111,6 +111,56 @@ final class CapturePermissionServiceTests: XCTestCase {
         }
     }
 
+    func testPreparedRelaunchShowsReadyHandoffOnceAccessIsAuthorized() {
+        withIsolatedDefaults { defaults in
+            let service = CapturePermissionService(
+                defaults: defaults,
+                authorizationCheck: { false },
+                authorizationRequest: { false }
+            )
+            service.prepareForRelaunch()
+
+            let relaunchedService = CapturePermissionService(
+                defaults: defaults,
+                authorizationCheck: { true },
+                authorizationRequest: { false }
+            )
+            let laterService = CapturePermissionService(
+                defaults: defaults,
+                authorizationCheck: { true },
+                authorizationRequest: { false }
+            )
+
+            XCTAssertTrue(relaunchedService.showReadyOnLaunch)
+            XCTAssertFalse(laterService.showReadyOnLaunch)
+        }
+    }
+
+    func testPreparedRelaunchWaitsUntilAccessIsAuthorized() {
+        withIsolatedDefaults { defaults in
+            let service = CapturePermissionService(
+                defaults: defaults,
+                authorizationCheck: { false },
+                authorizationRequest: { false }
+            )
+            service.prepareForRelaunch()
+
+            let deniedRelaunch = CapturePermissionService(
+                defaults: defaults,
+                authorizationCheck: { false },
+                authorizationRequest: { false }
+            )
+            let authorizedRelaunch = CapturePermissionService(
+                defaults: defaults,
+                authorizationCheck: { true },
+                authorizationRequest: { false }
+            )
+
+            XCTAssertFalse(deniedRelaunch.showReadyOnLaunch)
+            XCTAssertTrue(authorizedRelaunch.showReadyOnLaunch)
+        }
+    }
+
     private func withIsolatedDefaults(_ body: (UserDefaults) -> Void) {
         let suiteName = "GifJotTests.\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: suiteName)!

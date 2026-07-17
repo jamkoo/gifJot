@@ -40,6 +40,10 @@
 		C00000000000000000000022 /* GlobalShortcutService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000022 /* GlobalShortcutService.swift */; };
 		C00000000000000000000023 /* RecordingHUDController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000023 /* RecordingHUDController.swift */; };
 		C00000000000000000000024 /* RecordingHUDPlacementTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000024 /* RecordingHUDPlacementTests.swift */; };
+		C00000000000000000000025 /* ApplicationRelauncher.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000025 /* ApplicationRelauncher.swift */; };
+		C00000000000000000000026 /* ApplicationRelauncherTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000026 /* ApplicationRelauncherTests.swift */; };
+		C00000000000000000000027 /* RecentOutputStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000027 /* RecentOutputStore.swift */; };
+		C00000000000000000000028 /* RecentOutputStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000028 /* RecentOutputStoreTests.swift */; };
 		D624BC0C09A5AF99230619F2 /* GIFFileExporterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88757E36953D20F46D92EA68 /* GIFFileExporterTests.swift */; };
 		D68AD8C8F891FE09C4A7AD05 /* GIFEncoding.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0EDCE2C5F9BAD4A364F5F5D /* GIFEncoding.swift */; };
 		DFB54B12136FEA1B6CBD8CB6 /* RegionSelectionGeometry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92E0EA6C4061226F68BDD6C8 /* RegionSelectionGeometry.swift */; };
@@ -97,6 +101,10 @@
 		B00000000000000000000022 /* GlobalShortcutService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalShortcutService.swift; sourceTree = "<group>"; };
 		B00000000000000000000023 /* RecordingHUDController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingHUDController.swift; sourceTree = "<group>"; };
 		B00000000000000000000024 /* RecordingHUDPlacementTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingHUDPlacementTests.swift; sourceTree = "<group>"; };
+		B00000000000000000000025 /* ApplicationRelauncher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationRelauncher.swift; sourceTree = "<group>"; };
+		B00000000000000000000026 /* ApplicationRelauncherTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationRelauncherTests.swift; sourceTree = "<group>"; };
+		B00000000000000000000027 /* RecentOutputStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentOutputStore.swift; sourceTree = "<group>"; };
+		B00000000000000000000028 /* RecentOutputStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentOutputStoreTests.swift; sourceTree = "<group>"; };
 		D0EDCE2C5F9BAD4A364F5F5D /* GIFEncoding.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GIFEncoding.swift; sourceTree = "<group>"; };
 		DC5C51DF1D9196242783FF4D /* RegionSelectionGeometryTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RegionSelectionGeometryTests.swift; sourceTree = "<group>"; };
 		F41DB9C4DEC6D0B34D47B7B9 /* GIFFrameTiming.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GIFFrameTiming.swift; sourceTree = "<group>"; };
@@ -163,6 +171,7 @@
 				B00000000000000000000021 /* GifJotDesign.swift */,
 				B00000000000000000000022 /* GlobalShortcutService.swift */,
 				B00000000000000000000023 /* RecordingHUDController.swift */,
+				B00000000000000000000025 /* ApplicationRelauncher.swift */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -206,6 +215,8 @@
 				88757E36953D20F46D92EA68 /* GIFFileExporterTests.swift */,
 				78B67474FE9028DA29AD0C44 /* RecordingStreamStateTests.swift */,
 				B00000000000000000000024 /* RecordingHUDPlacementTests.swift */,
+				B00000000000000000000026 /* ApplicationRelauncherTests.swift */,
+				B00000000000000000000028 /* RecentOutputStoreTests.swift */,
 			);
 			path = GifJotTests;
 			sourceTree = "<group>";
@@ -229,6 +240,7 @@
 			children = (
 				8C500CEF92246D69DF91807E /* GIFFileExporter.swift */,
 				56846862311354214872DDE3 /* FileClipboardWriter.swift */,
+				B00000000000000000000027 /* RecentOutputStore.swift */,
 			);
 			name = Export;
 			path = Export;
@@ -358,6 +370,8 @@
 				C00000000000000000000021 /* GifJotDesign.swift in Sources */,
 				C00000000000000000000022 /* GlobalShortcutService.swift in Sources */,
 				C00000000000000000000023 /* RecordingHUDController.swift in Sources */,
+				C00000000000000000000025 /* ApplicationRelauncher.swift in Sources */,
+				C00000000000000000000027 /* RecentOutputStore.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -378,6 +392,8 @@
 				D624BC0C09A5AF99230619F2 /* GIFFileExporterTests.swift in Sources */,
 				FF979EB5A8785E81FF2465EC /* RecordingStreamStateTests.swift in Sources */,
 				C00000000000000000000024 /* RecordingHUDPlacementTests.swift in Sources */,
+				C00000000000000000000026 /* ApplicationRelauncherTests.swift in Sources */,
+				C00000000000000000000028 /* RecentOutputStoreTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

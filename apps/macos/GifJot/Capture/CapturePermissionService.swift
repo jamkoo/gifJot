@@ -17,10 +17,12 @@ final class CapturePermissionService: ObservableObject {
 
     private enum Key {
         static let hasRequestedAccess = "capturePermission.hasRequestedAccess"
+        static let showReadyAfterRelaunch = "capturePermission.showReadyAfterRelaunch"
     }
 
     @Published private(set) var status: CapturePermissionStatus
     @Published private(set) var restartRecommended = false
+    private(set) var showReadyOnLaunch: Bool
 
     private let defaults: UserDefaults
     private let authorizationCheck: AuthorizationCheck
@@ -46,6 +48,12 @@ final class CapturePermissionService: ObservableObject {
             || defaults.bool(forKey: Key.hasRequestedAccess)
         if isAuthorized {
             defaults.set(true, forKey: Key.hasRequestedAccess)
+        }
+        let shouldShowReadyOnLaunch = isAuthorized
+            && defaults.bool(forKey: Key.showReadyAfterRelaunch)
+        showReadyOnLaunch = shouldShowReadyOnLaunch
+        if shouldShowReadyOnLaunch {
+            defaults.removeObject(forKey: Key.showReadyAfterRelaunch)
         }
         status = Self.resolveStatus(
             isAuthorized: isAuthorized,
@@ -95,6 +103,10 @@ final class CapturePermissionService: ObservableObject {
 
     func openSystemSettings() {
         settingsOpener()
+    }
+
+    func prepareForRelaunch() {
+        defaults.set(true, forKey: Key.showReadyAfterRelaunch)
     }
 
     private static func resolveStatus(
