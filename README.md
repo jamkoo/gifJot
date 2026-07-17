@@ -1,6 +1,7 @@
 # GifJot
 
 [![macOS CI](https://github.com/jamkoo/gifJot/actions/workflows/macos-ci.yml/badge.svg)](https://github.com/jamkoo/gifJot/actions/workflows/macos-ci.yml)
+[![Windows Checks](https://github.com/jamkoo/gifJot/actions/workflows/windows-checks.yml/badge.svg)](https://github.com/jamkoo/gifJot/actions/workflows/windows-checks.yml)
 
 GifJot is a free, open-source, native macOS menu-bar utility for turning a selected screen region into a local, paste-ready GIF.
 
@@ -11,6 +12,8 @@ GifJot is a free, open-source, native macOS menu-bar utility for turning a selec
 GifJot is an early, unreleased prototype. The end-to-end workflow is implemented in source, and successful `main` builds provide an ad-hoc-signed test app and DMG. There is no Developer ID-signed or notarized public release yet. ScreenCaptureKit behavior, clipboard compatibility, performance, and multi-display geometry still require verification on real Macs before a release is declared ready.
 
 The current implementation uses Apple Image I/O for GIF encoding and has no third-party runtime or package dependency.
+
+Windows can run repository preflight checks and a shared package of platform-neutral Swift tests. macOS CI remains authoritative for the native application build and complete Xcode test target, and physical Mac testing remains required for capture and permission behavior.
 
 ## Current prototype
 
@@ -62,8 +65,8 @@ Each artifact also contains `GifJot-Test.app.zip` and `SHA256SUMS.txt`. The DMG 
 
 ## Developer requirements
 
-- macOS 14 or later
-- Xcode 15 or later
+- Native application development: macOS 14 or later and Xcode 15 or later.
+- Windows preflight: Windows PowerShell 5.1 or PowerShell 7, Git, and optionally the official Swift toolchain for shared core tests.
 
 ## Build and test
 
@@ -99,6 +102,23 @@ xcodebuild \
 
 Development builds require no repository secrets, signing certificates, or network service.
 
+### Windows preflight and shared core tests
+
+Windows cannot compile the macOS application, but it can validate repository integrity and run platform-neutral production logic through Swift Package Manager:
+
+```powershell
+./scripts/check-windows.ps1
+```
+
+Install Swift and require the complete Windows test layer:
+
+```powershell
+winget install --id Swift.Toolchain --exact --source winget
+./scripts/check-windows.ps1 -RequireSwift
+```
+
+Open a new PowerShell session if `swift` is not found immediately after installation. See [TESTING.md](TESTING.md) for the CI layers and required physical-Mac test matrix.
+
 ## First source test run
 
 1. Build and run the **GifJot** scheme in Xcode.
@@ -126,6 +146,7 @@ Debug builds also provide isolated region-selection and five-second frame-delive
 ## Community and policies
 
 - Read [CONTRIBUTING.md](CONTRIBUTING.md) before proposing a change.
+- Follow [TESTING.md](TESTING.md) when reporting automated or manual verification.
 - Follow [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) in all project spaces.
 - Read [PRIVACY.md](PRIVACY.md) for the app's local-data behavior.
 - Report vulnerabilities according to [SECURITY.md](SECURITY.md), not through a public issue.

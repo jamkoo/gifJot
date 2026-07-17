@@ -22,9 +22,10 @@ Do not introduce Electron, Tauri, Flutter, a browser runtime, a custom Rust shar
 
 Requirements:
 
-- macOS 14 or later
-- Xcode 15 or later
-- Git
+- macOS 14 or later and Xcode 15 or later for native app development.
+- Windows PowerShell 5.1 or PowerShell 7 for the Windows preflight.
+- The official Swift for Windows toolchain to run shared core tests on Windows.
+- Git on every platform.
 
 Clone the repository and open the detected project:
 
@@ -51,6 +52,15 @@ xcodebuild \
 
 Do not commit signing identities, certificates, provisioning profiles, credentials, local `.xcconfig` files, or notarization material.
 
+On Windows, install Swift and run the shared checks from PowerShell:
+
+```powershell
+winget install --id Swift.Toolchain --exact --source winget
+./scripts/check-windows.ps1 -RequireSwift
+```
+
+These checks do not compile or run the macOS application. Follow [TESTING.md](TESTING.md) for the macOS CI and physical-Mac gates.
+
 ## Making a change
 
 1. Fork the repository or create a focused branch.
@@ -66,6 +76,8 @@ Use clear commit messages written in the imperative mood. Avoid mixing unrelated
 ## Testing expectations
 
 At minimum, a pull request should pass the unsigned Xcode build and unit tests on macOS CI.
+
+Pull requests also run the Windows repository preflight and shared Swift package tests. Run them locally when working from Windows, but do not describe them as an AppKit, SwiftUI, ScreenCaptureKit, signing, or runtime validation.
 
 Changes involving capture, permission, displays, region geometry, cursor behavior, clipboard handling, or output quality also require relevant manual Mac testing. Report the hardware, macOS version, display arrangement, settings, and observed result without exposing sensitive content.
 
