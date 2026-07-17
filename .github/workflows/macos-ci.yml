@@ -77,11 +77,34 @@ jobs:
             -project apps/macos/GifJot.xcodeproj \
             -scheme GifJot \
             -configuration Release \
-            -destination 'platform=macOS' \
+            -destination 'generic/platform=macOS' \
             -derivedDataPath "$RUNNER_TEMP/GifJotRelease" \
+            ARCHS="arm64 x86_64" \
+            ONLY_ACTIVE_ARCH=NO \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             build
+
+      - name: Verify universal app compatibility
+        env:
+          APP_PATH: ${{ runner.temp }}/GifJotRelease/Build/Products/Release/GifJot.app
+        run: |
+          EXECUTABLE="$APP_PATH/Contents/MacOS/GifJot"
+          test -x "$EXECUTABLE"
+
+          ARCHITECTURES="$(lipo -archs "$EXECUTABLE")"
+          echo "Architectures: $ARCHITECTURES"
+          for ARCH in arm64 x86_64; do
+            case " $ARCHITECTURES " in
+              *" $ARCH "*) ;;
+              *) echo "Missing required architecture: $ARCH" >&2; exit 1 ;;
+            esac
+          done
+
+          MINIMUM_OS="$(plutil -extract LSMinimumSystemVersion raw "$APP_PATH/Contents/Info.plist")"
+          echo "Minimum macOS: $MINIMUM_OS"
+          test "$MINIMUM_OS" = "14.0"
+          file "$EXECUTABLE"
 
       - name: Ad-hoc sign and verify app bundle
         env:
@@ -104,6 +127,16 @@ jobs:
         run: |
           rm -rf "$DIST_DIR" "$STAGE_DIR"
           mkdir -p "$DIST_DIR" "$STAGE_DIR"
+
+          ARCHITECTURES="$(lipo -archs "$APP_PATH/Contents/MacOS/GifJot")"
+          MINIMUM_OS="$(plutil -extract LSMinimumSystemVersion raw "$APP_PATH/Contents/Info.plist")"
+          {
+            echo "GifJot macOS test build"
+            echo "Commit: $GITHUB_SHA"
+            echo "Architectures: $ARCHITECTURES"
+            echo "Minimum macOS: $MINIMUM_OS"
+            echo "Signing: ad hoc (not notarized)"
+          } > "$DIST_DIR/BUILD-INFO.txt"
 
           ditto "$APP_PATH" "$STAGE_DIR/GifJot.app"
           ln -s /Applications "$STAGE_DIR/Applications"
@@ -138,6 +171,7 @@ jobs:
             ${{ runner.temp }}/GifJotDistribution/GifJot-Test.dmg
             ${{ runner.temp }}/GifJotDistribution/GifJot-Test.app.zip
             ${{ runner.temp }}/GifJotDistribution/SHA256SUMS.txt
+            ${{ runner.temp }}/GifJotDistribution/BUILD-INFO.txt
           if-no-files-found: error
           compression-level: 0
           retention-days: 30
