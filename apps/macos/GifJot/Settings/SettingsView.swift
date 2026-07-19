@@ -1,3 +1,4 @@
+import AppKit
 import SwiftUI
 
 @MainActor
@@ -23,7 +24,7 @@ struct SettingsView: View {
 
             footer
         }
-        .frame(width: 540, height: 560)
+        .frame(width: 520, height: 560)
         .background(GifJotDesign.opticalBody)
         .tint(GifJotDesign.signal)
     }
@@ -67,16 +68,6 @@ struct SettingsView: View {
                         Text(preset.displayName)
                             .tag(preset)
                             .disabled(preset == .custom)
-                    }
-                }
-                .labelsHidden()
-                .frame(width: 156)
-            }
-
-            SettingsRow(title: "Maximum width") {
-                Picker("Maximum width", selection: $settings.maximumOutputWidth) {
-                    ForEach(MaximumOutputWidth.allCases) { width in
-                        Text(width.displayName).tag(width)
                     }
                 }
                 .labelsHidden()
@@ -146,8 +137,13 @@ struct SettingsView: View {
 
             Spacer(minLength: 0)
         }
-        .padding(14)
-        .gifJotGroupSurface()
+        .padding(.vertical, 14)
+        .overlay(alignment: .top) {
+            Divider()
+        }
+        .overlay(alignment: .bottom) {
+            Divider()
+        }
     }
 
     private var footer: some View {
@@ -224,17 +220,51 @@ private struct SettingsRow<Control: View>: View {
     var body: some View {
         HStack(spacing: 16) {
             Text(title)
-                .font(.system(size: 12, weight: .medium))
+                .font(.system(size: 11, weight: .semibold))
 
             Spacer()
 
             control
         }
         .padding(.horizontal, 12)
-        .frame(minHeight: 42)
+        .frame(minHeight: 40)
         .overlay(alignment: .bottom) {
             Divider()
                 .padding(.leading, 12)
         }
+    }
+}
+
+@MainActor
+final class SettingsWindowController: NSWindowController {
+    init(settings: SettingsStore) {
+        let hostingController = NSHostingController(
+            rootView: SettingsView(settings: settings)
+        )
+        let window = NSWindow(
+            contentRect: CGRect(origin: .zero, size: CGSize(width: 520, height: 560)),
+            styleMask: [.titled, .closable, .miniaturizable],
+            backing: .buffered,
+            defer: false
+        )
+        window.title = "GifJot Settings"
+        window.contentViewController = hostingController
+        window.isReleasedWhenClosed = false
+        window.collectionBehavior = [.moveToActiveSpace]
+        window.setContentSize(CGSize(width: 520, height: 560))
+
+        super.init(window: window)
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) is unavailable")
+    }
+
+    func present() {
+        NSApplication.shared.activate(ignoringOtherApps: true)
+        showWindow(nil)
+        window?.center()
+        window?.makeKeyAndOrderFront(nil)
     }
 }

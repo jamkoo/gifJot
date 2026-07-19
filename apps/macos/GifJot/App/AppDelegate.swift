@@ -22,10 +22,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     )
     private lazy var recordingHUDController = RecordingHUDController(
         coordinator: recordingCoordinator,
-        settings: settings,
-        onShowSettings: {
-            NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
-        }
+        settings: settings
+    )
+    private lazy var menuBarController = GifJotMenuBarController(
+        appDelegate: self
+    )
+    private lazy var settingsWindowController = SettingsWindowController(
+        settings: settings
     )
     let globalShortcutService = GlobalShortcutService()
     private let applicationRelauncher = ApplicationRelauncher()
@@ -52,6 +55,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         TemporaryRecordingStore.removeAbandonedSessions()
         GIFFileExporter.removeAbandonedWorkingFiles()
+        menuBarController.start()
         recordingHUDController.start()
         let shortcutRegistered = globalShortcutService.start { [weak self] in
             self?.performRecordingShortcut()
@@ -73,12 +77,21 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationWillTerminate(_ notification: Notification) {
         globalShortcutService.stop()
+        menuBarController.stop()
         recordingHUDController.stop()
         recordingCoordinator.applicationWillTerminate()
     }
 
     func showPermissionWindow() {
-        permissionWindowController.present()
+        DispatchQueue.main.async { [weak self] in
+            self?.permissionWindowController.present()
+        }
+    }
+
+    func showSettingsWindow() {
+        DispatchQueue.main.async { [weak self] in
+            self?.settingsWindowController.present()
+        }
     }
 
     private func startRecordingFromPermissionWindow() {

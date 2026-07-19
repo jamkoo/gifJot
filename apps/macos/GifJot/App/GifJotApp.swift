@@ -1,4 +1,5 @@
 import AppKit
+import Combine
 import SwiftUI
 
 @main
@@ -7,41 +8,138 @@ struct GifJotApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
 
     var body: some Scene {
-        MenuBarExtra {
-#if DEBUG
-            RecordingPanel(
-                coordinator: appDelegate.recordingCoordinator,
-                permissionService: appDelegate.permissionService,
-                shortcutService: appDelegate.globalShortcutService,
-                settings: appDelegate.settings,
-                showPermissionWindow: appDelegate.showPermissionWindow,
-                showAboutPanel: showAboutPanel,
-                regionSelectionService: appDelegate.regionSelectionService,
-                diagnosticService: appDelegate.diagnosticCaptureService
-            )
-#else
-            RecordingPanel(
-                coordinator: appDelegate.recordingCoordinator,
-                permissionService: appDelegate.permissionService,
-                shortcutService: appDelegate.globalShortcutService,
-                settings: appDelegate.settings,
-                showPermissionWindow: appDelegate.showPermissionWindow,
-                showAboutPanel: showAboutPanel
-            )
-#endif
-        } label: {
-            RecordingMenuBarLabel(
-                coordinator: appDelegate.recordingCoordinator
-            )
-        }
-        .menuBarExtraStyle(.window)
-
         Settings {
             SettingsView(settings: appDelegate.settings)
         }
     }
+}
 
-    private func showAboutPanel() {
+@MainActor
+final class GifJotMenuBarController: NSObject {
+    private let coordinator: RecordingCoordinator
+    private let popover = NSPopover()
+    private var statusItem: NSStatusItem?
+    private var stateSubscription: AnyCancellable?
+
+    init(appDelegate: AppDelegate) {
+        coordinator = appDelegate.recordingCoordinator
+        super.init()
+
+#if DEBUG
+        let rootView = RecordingPanel(
+            coordinator: appDelegate.recordingCoordinator,
+            permissionService: appDelegate.permissionService,
+            shortcutService: appDelegate.globalShortcutService,
+            settings: appDelegate.settings,
+            showPermissionWindow: { [weak appDelegate] in
+                appDelegate?.showPermissionWindow()
+            },
+            showSettingsWindow: { [weak appDelegate] in
+                appDelegate?.showSettingsWindow()
+            },
+            showAboutPanel: Self.showAboutPanel,
+            regionSelectionService: appDelegate.regionSelectionService,
+            diagnosticService: appDelegate.diagnosticCaptureService
+        )
+#else
+        let rootView = RecordingPanel(
+            coordinator: appDelegate.recordingCoordinator,
+            permissionService: appDelegate.permissionService,
+            shortcutService: appDelegate.globalShortcutService,
+            settings: appDelegate.settings,
+            showPermissionWindow: { [weak appDelegate] in
+                appDelegate?.showPermissionWindow()
+            },
+            showSettingsWindow: { [weak appDelegate] in
+                appDelegate?.showSettingsWindow()
+            },
+            showAboutPanel: Self.showAboutPanel
+        )
+#endif
+
+        let hostingController = NSHostingController(rootView: rootView)
+        hostingController.sizingOptions = [.preferredContentSize]
+        popover.contentViewController = hostingController
+        popover.behavior = .transient
+        popover.animates = true
+    }
+
+    func start() {
+        guard statusItem == nil else { return }
+
+        let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
+        guard let button = item.button else {
+            NSStatusBar.system.removeStatusItem(item)
+            return
+        }
+
+        statusItem = item
+        button.target = self
+        button.action = #selector(togglePopover(_:))
+        button.imagePosition = .imageOnly
+        item.isVisible = true
+        updateStatusItem()
+
+        stateSubscription = coordinator.$state
+            .removeDuplicates()
+            .sink { [weak self] _ in
+                self?.updateStatusItem()
+            }
+    }
+
+    func stop() {
+        stateSubscription?.cancel()
+        stateSubscription = nil
+        popover.close()
+
+        if let statusItem {
+            NSStatusBar.system.removeStatusItem(statusItem)
+            self.statusItem = nil
+        }
+    }
+
+    @objc
+    private func togglePopover(_ sender: Any?) {
+        guard let button = statusItem?.button else { return }
+
+        if popover.isShown {
+            popover.performClose(sender)
+            return
+        }
+
+        popover.show(
+            relativeTo: button.bounds,
+            of: button,
+            preferredEdge: .minY
+        )
+        NSApplication.shared.activate(ignoringOtherApps: true)
+    }
+
+    private func updateStatusItem() {
+        guard let button = statusItem?.button else { return }
+
+        let isRecording = coordinator.state == .recording
+        let symbolName = isRecording ? "record.circle.fill" : "viewfinder"
+        let description = "GifJot, \(coordinator.statusText)"
+
+        if let image = NSImage(
+            systemSymbolName: symbolName,
+            accessibilityDescription: description
+        ) {
+            image.isTemplate = true
+            button.image = image
+            button.title = ""
+        } else {
+            button.image = nil
+            button.title = "GJ"
+        }
+
+        button.toolTip = description
+        button.setAccessibilityLabel(description)
+    }
+
+    private static func showAboutPanel() {
+        NSApplication.shared.activate(ignoringOtherApps: true)
         NSApplication.shared.orderFrontStandardAboutPanel(options: [
             .applicationName: "GifJot",
             .applicationVersion: "0.1.0",
@@ -49,31 +147,6 @@ struct GifJotApp: App {
                 string: "Free, local-only GIF screen recording."
             ),
         ])
-        NSApplication.shared.activate(ignoringOtherApps: true)
-    }
-}
-
-@MainActor
-private struct RecordingMenuBarLabel: View {
-    @ObservedObject var coordinator: RecordingCoordinator
-
-    var body: some View {
-        CaptureFrameMark(
-            color: (
-                coordinator.state == .recording
-                    || coordinator.state == .readyToRecord
-            )
-                ? GifJotDesign.signal
-                : .primary,
-            isActive: coordinator.state == .recording,
-            lineWidth: 1.5
-        )
-            .frame(width: 15, height: 15)
-            .accessibilityLabel(accessibilityLabel)
-    }
-
-    private var accessibilityLabel: String {
-        "GifJot, \(coordinator.statusText)"
     }
 }
 
@@ -84,6 +157,7 @@ private struct RecordingPanel: View {
     @ObservedObject var shortcutService: GlobalShortcutService
     @ObservedObject var settings: SettingsStore
     let showPermissionWindow: () -> Void
+    let showSettingsWindow: () -> Void
     let showAboutPanel: () -> Void
 #if DEBUG
     let regionSelectionService: RegionSelectionService
@@ -91,16 +165,22 @@ private struct RecordingPanel: View {
     @State private var developerToolsExpanded = false
 #endif
     @State private var didCopyRecentOutput = false
+    @State private var moreActionsExpanded = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             header
 
+            if moreActionsExpanded {
+                moreActionsPanel
+                    .padding(.top, 8)
+            }
+
             Divider()
                 .overlay(GifJotDesign.opticalHairline)
-                .padding(.top, 14)
+                .padding(.top, 12)
 
-            VStack(alignment: .leading, spacing: 14) {
+            VStack(alignment: .leading, spacing: 12) {
                 if needsPermissionAttention {
                     permissionNotice
                 }
@@ -119,16 +199,16 @@ private struct RecordingPanel: View {
                 developerTools
 #endif
             }
-            .padding(.top, 16)
+            .padding(.top, 10)
 
             Divider()
                 .overlay(GifJotDesign.opticalHairline)
-                .padding(.top, 14)
-                .padding(.bottom, 11)
+                .padding(.top, 12)
+                .padding(.bottom, 9)
 
             footer
         }
-        .padding(18)
+        .padding(16)
         .frame(width: GifJotDesign.panelWidth)
         .background(GifJotDesign.opticalBody)
         .tint(GifJotDesign.signal)
@@ -138,99 +218,79 @@ private struct RecordingPanel: View {
     }
 
     private var header: some View {
-        HStack(spacing: 11) {
-            CaptureFrameMark(
-                color: coordinator.state == .recording
-                    ? GifJotDesign.signal
-                    : .primary,
-                isActive: coordinator.state == .recording
-            )
-            .frame(width: 25, height: 25)
-
-            VStack(alignment: .leading, spacing: 1) {
-                Text("GifJot")
-                    .font(.system(size: 16, weight: .bold))
-                    .tracking(-0.2)
-
-                Text("POCKET CAPTURE CAMERA")
-                    .font(.system(size: 8, weight: .semibold, design: .monospaced))
-                    .tracking(0.85)
-                    .foregroundStyle(GifJotDesign.mutedInk)
-            }
+        HStack(spacing: 8) {
+            Text("GifJot")
+                .font(.system(size: 15, weight: .bold))
+                .tracking(-0.15)
 
             Spacer()
 
-            headerState
-
-            SettingsLink {
+            Button {
+                moreActionsExpanded = false
+                showSettingsWindow()
+            } label: {
                 Image(systemName: "gearshape")
                     .accessibilityLabel("Open Settings")
             }
             .buttonStyle(GifJotIconButtonStyle())
 
-            Menu {
-                Button("About GifJot", action: showAboutPanel)
-                Divider()
-                Button("Quit GifJot") {
-                    NSApplication.shared.terminate(nil)
+            Button {
+                withAnimation(.easeOut(duration: 0.12)) {
+                    moreActionsExpanded.toggle()
                 }
-                .keyboardShortcut("q")
             } label: {
                 Image(systemName: "ellipsis")
                     .accessibilityLabel("More GifJot Actions")
             }
-            .menuStyle(.borderlessButton)
-            .menuIndicator(.hidden)
-            .frame(width: 28, height: 28)
+            .buttonStyle(GifJotIconButtonStyle())
+            .accessibilityValue(moreActionsExpanded ? "Expanded" : "Collapsed")
         }
+    }
+
+    private var moreActionsPanel: some View {
+        HStack(spacing: 0) {
+            Button("About GifJot") {
+                moreActionsExpanded = false
+                DispatchQueue.main.async {
+                    showAboutPanel()
+                }
+            }
+            .buttonStyle(GifJotInlineActionButtonStyle())
+
+            Divider()
+                .frame(height: 16)
+
+            Button("Quit GifJot") {
+                NSApplication.shared.terminate(nil)
+            }
+            .buttonStyle(GifJotInlineActionButtonStyle())
+            .keyboardShortcut("q")
+        }
+        .background(GifJotDesign.shellHighlight)
+        .overlay {
+            RoundedRectangle(
+                cornerRadius: GifJotDesign.controlRadius,
+                style: .continuous
+            )
+            .stroke(GifJotDesign.opticalHairline)
+        }
+        .clipShape(
+            RoundedRectangle(
+                cornerRadius: GifJotDesign.controlRadius,
+                style: .continuous
+            )
+        )
     }
 
     private var cameraDeck: some View {
         VStack(alignment: .leading, spacing: 0) {
-            HStack {
-                Text("CAPTURE / REGION")
-                Spacer()
-                Text("LOCAL GIF")
-            }
-            .font(.system(size: 8, weight: .semibold, design: .monospaced))
-            .tracking(0.7)
-            .foregroundStyle(GifJotDesign.mutedInk)
-            .padding(.horizontal, 8)
-            .padding(.bottom, 8)
-
-            Divider()
-                .overlay(GifJotDesign.opticalHairline)
-
             primaryAction
-                .padding(.top, 2)
 
-            stateSummary
-                .padding(.top, 6)
+            if shouldShowStateReadout {
+                stateSummary
+                    .padding(.top, 8)
+            }
         }
-        .padding(9)
-        .gifJotGroupSurface()
-    }
-
-    private var headerState: some View {
-        HStack(spacing: 5) {
-            RoundedRectangle(cornerRadius: 1.5, style: .continuous)
-                .fill(headerStatusColor)
-                .frame(width: 5, height: 5)
-
-            Text(headerStatus.uppercased())
-                .font(.system(size: 9, weight: .semibold, design: .monospaced))
-                .tracking(0.25)
-                .lineLimit(1)
-        }
-        .foregroundStyle(headerStatusColor)
-        .padding(.horizontal, 9)
-        .frame(height: 26)
-        .background(GifJotDesign.cameraBlack)
-        .overlay {
-            Capsule()
-                .stroke(GifJotDesign.warmChalk.opacity(0.08))
-        }
-        .clipShape(Capsule())
     }
 
     private var primaryAction: some View {
@@ -255,16 +315,16 @@ private struct RecordingPanel: View {
                     height: GifJotDesign.shutterSize
                 )
 
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("SHUTTER")
-                        .font(.system(size: 8, weight: .semibold, design: .monospaced))
-                        .tracking(0.8)
-                        .foregroundStyle(GifJotDesign.mutedInk)
-
+                VStack(alignment: .leading, spacing: 3) {
                     Text(coordinator.primaryActionTitle)
-                        .font(.system(size: 14, weight: .bold))
+                        .font(.system(size: 13, weight: .bold))
                         .tracking(-0.1)
                         .foregroundStyle(.primary)
+
+                    Text(compactConfigurationSummary)
+                        .font(.system(size: 8, weight: .medium, design: .monospaced))
+                        .tracking(0.35)
+                        .foregroundStyle(GifJotDesign.mutedInk)
                 }
 
                 Spacer()
@@ -276,7 +336,8 @@ private struct RecordingPanel: View {
                     )
                 }
             }
-            .frame(maxWidth: .infinity, minHeight: 54)
+            .padding(.horizontal, 8)
+            .frame(maxWidth: .infinity, minHeight: 60)
         }
         .buttonStyle(GifJotShutterRowButtonStyle())
         .disabled(!coordinator.primaryActionEnabled)
@@ -558,16 +619,21 @@ private struct RecordingPanel: View {
                 .font(.system(size: 11, weight: .medium))
                 .foregroundStyle(.secondary)
 
-            Text("LOCAL / NO CLOUD")
+            Text("LOCAL ONLY")
                 .font(.system(size: 9, weight: .semibold, design: .monospaced))
                 .tracking(0.65)
                 .foregroundStyle(GifJotDesign.mutedInk)
 
             Spacer()
+        }
+    }
 
-            Text("v0.1")
-                .font(.system(size: 10, weight: .medium, design: .monospaced))
-                .foregroundStyle(.tertiary)
+    private var shouldShowStateReadout: Bool {
+        switch coordinator.state {
+        case .idle, .completed, .canceled:
+            false
+        default:
+            true
         }
     }
 
@@ -576,44 +642,15 @@ private struct RecordingPanel: View {
             || permissionService.restartRecommended
     }
 
-    private var headerStatus: String {
-        switch coordinator.state {
-        case .recording:
-            "Recording"
-        case .finishingCapture, .encoding, .exporting:
-            "Creating GIF"
-        case .completed:
-            "Saved"
-        case .failed:
-            "Needs attention"
-        case .selectingRegion:
-            "Select an area"
-        case .readyToRecord:
-            "Region ready"
-        case .countdown, .startingCapture:
-            "Starting soon"
-        default:
-            needsPermissionAttention ? "Setup needed" : "Ready"
-        }
-    }
-
-    private var headerStatusColor: Color {
-        switch coordinator.state {
-        case .readyToRecord, .recording:
-            GifJotDesign.signal
-        case .completed:
-            GifJotDesign.success
-        case .failed:
-            GifJotDesign.warning
-        default:
-            GifJotDesign.mutedChalk
-        }
-    }
-
     private var configurationSummary: String {
         let cursor = settings.includeCursor ? "Cursor on" : "Cursor off"
         return "\(settings.maximumOutputWidth.displayName) / \(settings.framesPerSecond.displayName) / \(cursor)"
             .uppercased()
+    }
+
+    private var compactConfigurationSummary: String {
+        let cursor = settings.includeCursor ? "CURSOR ON" : "CURSOR OFF"
+        return "\(settings.framesPerSecond.rawValue) FPS · \(cursor)"
     }
 
     private func performPrimaryAction() {

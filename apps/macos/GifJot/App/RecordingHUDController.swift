@@ -50,14 +50,27 @@ enum RecordingHUDPlacement {
     }
 }
 
+private final class InteractiveRecordingHUDPanel: NSPanel {
+    override var canBecomeKey: Bool { true }
+    override var canBecomeMain: Bool { false }
+
+    override func sendEvent(_ event: NSEvent) {
+        if event.type == .leftMouseDown {
+            NSApplication.shared.activate(ignoringOtherApps: true)
+            makeKey()
+        }
+
+        super.sendEvent(event)
+    }
+}
+
 @MainActor
 final class RecordingHUDController {
     private static let compactPanelSize = CGSize(width: 306, height: 60)
-    private static let setupPanelSize = CGSize(width: 344, height: 52)
+    private static let setupPanelSize = CGSize(width: 392, height: 52)
 
     private let coordinator: RecordingCoordinator
     private let settings: SettingsStore
-    private let onShowSettings: () -> Void
     private var panel: NSPanel?
     private var selectionBorderWindow: NSPanel?
     private var subscriptions: Set<AnyCancellable> = []
@@ -65,12 +78,10 @@ final class RecordingHUDController {
 
     init(
         coordinator: RecordingCoordinator,
-        settings: SettingsStore,
-        onShowSettings: @escaping () -> Void
+        settings: SettingsStore
     ) {
         self.coordinator = coordinator
         self.settings = settings
-        self.onShowSettings = onShowSettings
     }
 
     func start() {
@@ -217,19 +228,18 @@ final class RecordingHUDController {
         let rootView = RecordingHUDView(
             coordinator: coordinator,
             settings: settings,
-            onShowSettings: onShowSettings,
             onApplyFramePreset: { [weak self] preset in
                 self?.applyFramePreset(preset)
             }
         )
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         let hostingController = NSHostingController(rootView: rootView)
-        let panel = NSPanel(
+        let panel = InteractiveRecordingHUDPanel(
             contentRect: CGRect(
                 origin: .zero,
                 size: Self.compactPanelSize
             ),
-            styleMask: [.borderless, .nonactivatingPanel],
+            styleMask: [.borderless],
             backing: .buffered,
             defer: false
         )
@@ -239,7 +249,6 @@ final class RecordingHUDController {
         panel.isOpaque = false
         panel.hasShadow = true
         panel.hidesOnDeactivate = false
-        panel.becomesKeyOnlyIfNeeded = true
         panel.isReleasedWhenClosed = false
         panel.collectionBehavior = [
             .canJoinAllSpaces,
@@ -269,6 +278,7 @@ final class RecordingHUDController {
         panel.hasShadow = false
         panel.hidesOnDeactivate = false
         panel.ignoresMouseEvents = true
+        panel.acceptsMouseMovedEvents = true
         panel.isReleasedWhenClosed = false
         panel.collectionBehavior = [
             .canJoinAllSpaces,
@@ -427,22 +437,57 @@ private final class RecordingBorderView: NSView {
         guard isAdjustable else { return }
 
         let edgeLength = min(12, min(bounds.width, bounds.height) / 2)
-        addCursorRect(bounds, cursor: .openHand)
+        let cornerSize = edgeLength
+        let horizontalSpan = max(0, bounds.width - cornerSize * 2)
+        let verticalSpan = max(0, bounds.height - cornerSize * 2)
+
+        addCursorRect(bounds.insetBy(dx: edgeLength, dy: edgeLength), cursor: .openHand)
         addCursorRect(
-            CGRect(x: 0, y: 0, width: bounds.width, height: edgeLength),
+            CGRect(x: cornerSize, y: 0, width: horizontalSpan, height: edgeLength),
             cursor: .resizeUpDown
         )
         addCursorRect(
-            CGRect(x: 0, y: bounds.maxY - edgeLength, width: bounds.width, height: edgeLength),
+            CGRect(
+                x: cornerSize,
+                y: bounds.maxY - edgeLength,
+                width: horizontalSpan,
+                height: edgeLength
+            ),
             cursor: .resizeUpDown
         )
         addCursorRect(
-            CGRect(x: 0, y: 0, width: edgeLength, height: bounds.height),
+            CGRect(x: 0, y: cornerSize, width: edgeLength, height: verticalSpan),
             cursor: .resizeLeftRight
         )
         addCursorRect(
-            CGRect(x: bounds.maxX - edgeLength, y: 0, width: edgeLength, height: bounds.height),
+            CGRect(
+                x: bounds.maxX - edgeLength,
+                y: cornerSize,
+                width: edgeLength,
+                height: verticalSpan
+            ),
             cursor: .resizeLeftRight
+        )
+        addCursorRect(
+            CGRect(x: 0, y: 0, width: cornerSize, height: cornerSize),
+            cursor: .crosshair
+        )
+        addCursorRect(
+            CGRect(x: bounds.maxX - cornerSize, y: 0, width: cornerSize, height: cornerSize),
+            cursor: .crosshair
+        )
+        addCursorRect(
+            CGRect(x: 0, y: bounds.maxY - cornerSize, width: cornerSize, height: cornerSize),
+            cursor: .crosshair
+        )
+        addCursorRect(
+            CGRect(
+                x: bounds.maxX - cornerSize,
+                y: bounds.maxY - cornerSize,
+                width: cornerSize,
+                height: cornerSize
+            ),
+            cursor: .crosshair
         )
     }
 
@@ -486,7 +531,7 @@ private final class RecordingBorderView: NSView {
             lastMouseLocation = nil
             activeAdjustment = nil
             if isAdjustable {
-                NSCursor.openHand.set()
+                window?.invalidateCursorRects(for: self)
             }
         }
         super.mouseUp(with: event)
@@ -581,51 +626,27 @@ private final class RecordingBorderView: NSView {
     }
 }
 
-private struct RegionReadyIconButtonStyle: ButtonStyle {
+private struct RegionReadyRecordButtonStyle: ButtonStyle {
     @Environment(\.isEnabled) private var isEnabled
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(.system(size: 11, weight: .semibold))
+            .font(.system(size: 11, weight: .bold))
             .foregroundStyle(GifJotDesign.warmChalk)
-            .frame(width: 30, height: 32)
+            .frame(width: 82, height: 40)
             .background(
-                GifJotDesign.warmChalk.opacity(
-                    configuration.isPressed ? 0.18 : 0.08
-                )
-            )
-            .overlay {
                 RoundedRectangle(
-                    cornerRadius: GifJotDesign.controlRadius,
+                    cornerRadius: 9,
                     style: .continuous
-                )
-                .stroke(GifJotDesign.warmChalk.opacity(0.14))
-            }
-            .clipShape(
-                RoundedRectangle(
-                    cornerRadius: GifJotDesign.controlRadius,
-                    style: .continuous
-                )
-            )
-            .opacity(isEnabled ? 1 : 0.48)
-    }
-}
-
-private struct RegionReadyShutterButtonStyle: ButtonStyle {
-    @Environment(\.isEnabled) private var isEnabled
-
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .frame(width: 40, height: 40)
-            .background(
-                Circle().fill(
+                ).fill(
                     configuration.isPressed
                         ? GifJotDesign.pressedSignal
                         : GifJotDesign.signal
                 )
             )
             .overlay {
-                Circle().stroke(GifJotDesign.pressedSignal)
+                RoundedRectangle(cornerRadius: 9, style: .continuous)
+                    .stroke(GifJotDesign.pressedSignal)
             }
             .opacity(isEnabled ? 1 : 0.48)
     }
@@ -635,7 +656,6 @@ private struct RegionReadyShutterButtonStyle: ButtonStyle {
 private struct RecordingHUDView: View {
     @ObservedObject var coordinator: RecordingCoordinator
     @ObservedObject var settings: SettingsStore
-    let onShowSettings: () -> Void
     let onApplyFramePreset: (CaptureFramePreset) -> Void
 
     var body: some View {
@@ -724,44 +744,26 @@ private struct RecordingHUDView: View {
 
     private var setupControls: some View {
         HStack(spacing: 5) {
-            HStack(spacing: 5) {
-                CaptureFrameMark(
-                    color: GifJotDesign.signal,
-                    lineWidth: 1.5
-                )
-                .frame(width: 18, height: 18)
-                .accessibilityHidden(true)
-
-                Text(selectedRegionDimensions)
-                    .font(.system(size: 11, weight: .semibold, design: .monospaced))
-                    .foregroundStyle(GifJotDesign.warmChalk)
-                    .monospacedDigit()
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.82)
-                    .frame(width: 68, alignment: .leading)
-            }
-            .help("Selected region. Recording begins only after you press Record.")
-            .accessibilityElement(children: .combine)
-            .accessibilityLabel("Selected region, \(selectedRegionDimensions) pixels")
-
-            Rectangle()
-                .fill(GifJotDesign.warmChalk.opacity(0.14))
-                .frame(width: 1, height: 24)
-                .accessibilityHidden(true)
-
             outputSizeMenu
 
             Button {
                 settings.includeCursor.toggle()
             } label: {
-                Image(
-                    systemName: settings.includeCursor
-                        ? "cursorarrow"
-                        : "cursorarrow.slash"
-                )
-                .accessibilityHidden(true)
+                HStack(spacing: 5) {
+                    Image(
+                        systemName: settings.includeCursor
+                            ? "cursorarrow"
+                            : "cursorarrow.slash"
+                    )
+                    .accessibilityHidden(true)
+
+                    Text("Cursor")
+                    Text(settings.includeCursor ? "On" : "Off")
+                        .font(.system(size: 9, weight: .medium, design: .monospaced))
+                        .foregroundStyle(GifJotDesign.mutedChalk)
+                }
             }
-            .buttonStyle(RegionReadyIconButtonStyle())
+            .buttonStyle(GifJotDarkQuietButtonStyle())
             .help(
                 settings.includeCursor
                     ? "Cursor is included. Click to hide it."
@@ -774,43 +776,30 @@ private struct RecordingHUDView: View {
             )
             .accessibilityHint("Toggles whether the cursor appears in the GIF")
 
-            Button {
-                onShowSettings()
-            } label: {
-                Image(systemName: "gearshape")
-                    .accessibilityHidden(true)
+            Rectangle()
+                .fill(GifJotDesign.warmChalk.opacity(0.14))
+                .frame(width: 1, height: 24)
+                .accessibilityHidden(true)
+
+            Button("Cancel") {
+                coordinator.cancelPendingRecording()
             }
-            .buttonStyle(RegionReadyIconButtonStyle())
-            .help("Open recording settings")
-            .accessibilityLabel("Recording settings")
-            .accessibilityHint("Opens output and recording defaults")
+            .buttonStyle(GifJotDarkQuietButtonStyle())
+            .help("Cancel and discard this selection")
+            .accessibilityHint("Discards the selected region")
 
             Button {
                 coordinator.confirmSelectedRegion(
                     configuration: settings.recordingConfiguration()
                 )
             } label: {
-                Circle()
-                    .fill(GifJotDesign.warmChalk)
-                    .frame(width: 7, height: 7)
-                    .accessibilityHidden(true)
+                Label("Record", systemImage: "circle.fill")
             }
-            .buttonStyle(RegionReadyShutterButtonStyle())
+            .buttonStyle(RegionReadyRecordButtonStyle())
             .keyboardShortcut(.defaultAction)
             .help("Start recording this region")
             .accessibilityLabel("Record selected region")
             .accessibilityHint("Starts recording the selected region")
-
-            Button {
-                coordinator.cancelPendingRecording()
-            } label: {
-                Image(systemName: "xmark")
-                    .accessibilityHidden(true)
-            }
-            .buttonStyle(RegionReadyIconButtonStyle())
-            .help("Cancel and discard this selection")
-            .accessibilityLabel("Cancel recording")
-            .accessibilityHint("Discards the selected region")
         }
     }
 
@@ -824,25 +813,23 @@ private struct RecordingHUDView: View {
                 }
             }
 
-            Section("Output width") {
-                ForEach(MaximumOutputWidth.allCases) { width in
-                    Button {
-                        settings.maximumOutputWidth = width
-                    } label: {
-                        if settings.maximumOutputWidth == width {
-                            Label(width.displayName, systemImage: "checkmark")
-                        } else {
-                            Text(width.displayName)
-                        }
-                    }
-                }
-            }
         } label: {
             HStack(spacing: 5) {
-                Image(systemName: "aspectratio")
-                    .font(.system(size: 10, weight: .semibold))
-                Text(compactOutputWidthLabel)
+                CaptureFrameMark(
+                    color: GifJotDesign.signal,
+                    lineWidth: 1.5
+                )
+                .frame(width: 18, height: 18)
+                .accessibilityHidden(true)
+
+                Text(selectedRegionDimensions)
+                    .font(.system(size: 11, weight: .semibold, design: .monospaced))
+                    .monospacedDigit()
                     .lineLimit(1)
+
+                Image(systemName: "chevron.down")
+                    .font(.system(size: 8, weight: .semibold))
+                    .foregroundStyle(GifJotDesign.mutedChalk)
             }
             .font(.system(size: 11, weight: .semibold))
             .foregroundStyle(GifJotDesign.warmChalk)
@@ -866,16 +853,8 @@ private struct RecordingHUDView: View {
         .menuStyle(.borderlessButton)
         .menuIndicator(.hidden)
         .fixedSize()
-        .help(
-            "Frame and output size. Current output width: \(settings.maximumOutputWidth.displayName)."
-        )
-        .accessibilityLabel(
-            "Frame and output size, \(settings.maximumOutputWidth.displayName)"
-        )
-    }
-
-    private var compactOutputWidthLabel: String {
-        settings.maximumOutputWidth.pixels.map { String($0) } ?? "Original"
+        .help("Frame size. Click to choose a preset.")
+        .accessibilityLabel("Frame size, \(selectedRegionDimensions) pixels")
     }
 
     private var selectedRegionDimensions: String {

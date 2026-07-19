@@ -44,7 +44,7 @@ enum GifJotDesign {
     static let carbon = cameraBlack
     static let softPaper = warmChalk
 
-    static let panelWidth: CGFloat = 384
+    static let panelWidth: CGFloat = 344
     static let controlRadius: CGFloat = 7
     static let surfaceRadius: CGFloat = 10
     static let panelRadius: CGFloat = 16

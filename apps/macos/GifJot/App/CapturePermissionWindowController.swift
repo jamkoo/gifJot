@@ -50,8 +50,9 @@ final class CapturePermissionWindowController: NSWindowController {
 
     func present() {
         permissionService.refreshStatus()
+        NSApplication.shared.activate(ignoringOtherApps: true)
         showWindow(nil)
         window?.center()
-        NSApplication.shared.activate(ignoringOtherApps: true)
+        window?.makeKeyAndOrderFront(nil)
     }
 }
