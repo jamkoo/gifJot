@@ -46,8 +46,9 @@ legible without covering the content the user is trying to demonstrate.
   after the macOS workflow is stable.
 - Captures one selected region on one display through ScreenCaptureKit.
 - Produces silent GIFs only.
-- Supports frame presets, direct moving and resizing, cursor inclusion,
-  countdown, frame rate, output width, save, reveal, and clipboard copy.
+- Supports containment-first frame presets, explicit output breathing room,
+  direct moving and resizing, cursor inclusion, countdown, frame rate, output
+  width, save, reveal, and clipboard copy.
 - Local-only operation with no accounts, uploads, telemetry, ads, or watermark.
 - No editor, timeline, audio, webcam, annotations, cloud sharing, or additional
   export formats in the current product boundary.

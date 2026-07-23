@@ -1,3 +1,4 @@
+import AppKit
 import CoreGraphics
 import XCTest
 @testable import GifJot
@@ -53,5 +54,29 @@ final class RecordingHUDPlacementTests: XCTestCase {
         )
 
         XCTAssertEqual(result.x, RecordingHUDPlacement.screenInset)
+    }
+
+    func testInspectorWindowStaysAboveTheDraggableSelectionFrame() {
+        XCTAssertGreaterThan(
+            RecordingHUDWindowLevels.inspector.rawValue,
+            RecordingHUDWindowLevels.selectionFrame.rawValue
+        )
+        XCTAssertLessThan(
+            RecordingHUDWindowLevels.inspector.rawValue,
+            NSWindow.Level.modalPanel.rawValue
+        )
+    }
+
+    func testEveryHUDStateUsesOneBalancedControlLane() {
+        XCTAssertEqual(
+            RecordingHUDMetrics.panelSize.height,
+            RecordingHUDMetrics.controlHeight
+                + RecordingHUDMetrics.verticalInset * 2
+        )
+        XCTAssertEqual(
+            RecordingHUDMetrics.panelSize,
+            CGSize(width: 310, height: 50)
+        )
+        XCTAssertEqual(RecordingHUDMetrics.statusSymbolWidth, 16)
     }
 }

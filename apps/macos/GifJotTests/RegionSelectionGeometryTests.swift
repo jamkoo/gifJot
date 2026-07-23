@@ -111,13 +111,88 @@ final class RegionSelectionGeometryTests: XCTestCase {
         XCTAssertEqual(result, CGRect(x: 0, y: 0, width: 1_440, height: 900))
     }
 
-    func testAppliesAspectPresetAroundTheCurrentSelectionCenter() {
+    func testAspectPresetExpandsToContainTheCurrentSelection() {
+        let source = CGRect(x: 100, y: 100, width: 400, height: 400)
         let result = RegionSelectionGeometry.sourceRect(
             applying: .widescreen,
-            to: CGRect(x: 100, y: 100, width: 400, height: 400),
+            to: source,
             within: CGSize(width: 800, height: 600)
         )
 
-        XCTAssertEqual(result, CGRect(x: 100, y: 187.5, width: 400, height: 225))
+        XCTAssertEqual(result.minX, 0, accuracy: 0.001)
+        XCTAssertEqual(result.minY, 100, accuracy: 0.001)
+        XCTAssertEqual(result.width, 400 * 16 / 9, accuracy: 0.001)
+        XCTAssertEqual(result.height, 400, accuracy: 0.001)
+        XCTAssertTrue(result.contains(source))
+    }
+
+    func testAspectPresetUsesLargestPossibleFrameWhenContainmentCannotFit() {
+        let result = RegionSelectionGeometry.sourceRect(
+            applying: .widescreen,
+            to: CGRect(x: 0, y: 0, width: 800, height: 600),
+            within: CGSize(width: 800, height: 600)
+        )
+
+        XCTAssertEqual(result.minX, 0, accuracy: 0.001)
+        XCTAssertEqual(result.minY, 75, accuracy: 0.001)
+        XCTAssertEqual(result.width, 800, accuracy: 0.001)
+        XCTAssertEqual(result.height, 450, accuracy: 0.001)
+    }
+
+    func testAddsExactOutputPaddingWithoutDownscaling() {
+        let result = RegionSelectionGeometry.sourceRect(
+            addingOutputPadding: 16,
+            to: CGRect(x: 100, y: 100, width: 400, height: 200),
+            displayScale: 2,
+            maximumOutputWidth: 960,
+            within: CGSize(width: 1_000, height: 800)
+        )
+
+        XCTAssertEqual(result, CGRect(x: 92, y: 92, width: 416, height: 216))
+    }
+
+    func testAddsExactOutputPaddingWhenExportIsDownscaled() {
+        let source = CGRect(x: 100, y: 100, width: 800, height: 400)
+        let result = RegionSelectionGeometry.sourceRect(
+            addingOutputPadding: 16,
+            to: source,
+            displayScale: 2,
+            maximumOutputWidth: 960,
+            within: CGSize(width: 2_000, height: 1_200)
+        )
+
+        let outputScale = 960 / (result.width * 2)
+        let horizontalMargin = (result.width - source.width) * 2 * outputScale
+        XCTAssertEqual(horizontalMargin / 2, 16, accuracy: 0.001)
+        XCTAssertEqual(result.midX, source.midX, accuracy: 0.001)
+        XCTAssertEqual(result.midY, source.midY, accuracy: 0.001)
+    }
+
+    func testAddedOutputPaddingStaysInsideTheDisplay() {
+        let result = RegionSelectionGeometry.sourceRect(
+            addingOutputPadding: 16,
+            to: CGRect(x: 0, y: 10, width: 400, height: 200),
+            displayScale: 1,
+            maximumOutputWidth: nil,
+            within: CGSize(width: 500, height: 300)
+        )
+
+        XCTAssertEqual(result, CGRect(x: 0, y: 0, width: 416, height: 226))
+    }
+
+    func testAddedOutputPaddingAtDisplayEdgeRemainsExactAfterDownscaling() {
+        let source = CGRect(x: 0, y: 100, width: 800, height: 400)
+        let result = RegionSelectionGeometry.sourceRect(
+            addingOutputPadding: 16,
+            to: source,
+            displayScale: 2,
+            maximumOutputWidth: 960,
+            within: CGSize(width: 2_000, height: 1_200)
+        )
+
+        let outputScale = 960 / (result.width * 2)
+        let rightMargin = (result.maxX - source.maxX) * 2 * outputScale
+        XCTAssertEqual(result.minX, 0, accuracy: 0.001)
+        XCTAssertEqual(rightMargin, 16, accuracy: 0.001)
     }
 }

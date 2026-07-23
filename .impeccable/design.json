@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-07-23T12:01:46Z",
+  "generatedAt": "2026-07-23T14:41:20Z",
   "title": "Design System: GifJot",
   "extensions": {
     "colorMeta": {
@@ -65,7 +65,7 @@
       "name": "Ready Inspector",
       "kind": "card",
       "refersTo": "ready-inspector",
-      "description": "The 310 by 50 point control surface attached six points from the selected frame.",
+      "description": "The stable 310 by 50 point control surface used in every capture state, attached six points from the selected frame and always stacked above its draggable capture boundary.",
       "html": "<div class=\"ds-ready-inspector\"><button class=\"ds-size-trigger\">1280 × 720 px <span>⌄</span></button><button class=\"ds-more\" aria-label=\"More recording options\">•••</button><button class=\"ds-record\"><span>●</span> Record</button></div>",
       "css": ".ds-ready-inspector { width: 296px; height: 36px; padding: 7px; display: flex; align-items: center; gap: 6px; background: #FCFCFD; border: 1px solid #D7D7DD; border-radius: 14px; box-shadow: 0 8px 24px rgba(0,0,0,.16); font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif; } .ds-ready-inspector button { height: 36px; border: 1px solid #D7D7DD; border-radius: 8px; font-size: 12px; font-weight: 600; } .ds-ready-inspector button:focus-visible { outline: 2px solid #6758E8; outline-offset: 2px; }"
     },
@@ -80,7 +80,7 @@
       "name": "Frame Size Trigger",
       "kind": "button",
       "refersTo": "frame-size-trigger",
-      "description": "The exact exported GIF size doubles as the frame-preset menu trigger.",
+      "description": "The exact exported GIF size opens containment-first frame presets and an explicit action that adds 16 output pixels of breathing room.",
       "html": "<button class=\"ds-size-trigger\">1280 × 720 px <span aria-hidden=\"true\">⌄</span></button>",
       "css": ".ds-size-trigger { height: 36px; padding: 0 10px; background: #F2F2F5; color: #1D1D20; border: 1px solid #D7D7DD; border-radius: 8px; font: 600 12px ui-monospace, 'SF Mono', monospace; font-variant-numeric: tabular-nums; } .ds-size-trigger:hover { background: #EEECFF; } .ds-size-trigger:focus-visible { outline: 2px solid #6758E8; outline-offset: 2px; } .ds-size-trigger:active { background: #E3E0FF; }"
     },
@@ -121,6 +121,7 @@
     "keyCharacteristics": [
       "Direct manipulation instead of configuration-first flows.",
       "One compact attached inspector with exact exported GIF dimensions in the primary path.",
+      "Containment-first presets preserve selected content, while surrounding pixels are added only by an explicit action.",
       "Secondary choices revealed progressively through More.",
       "One-time guidance that recedes after the action is learned.",
       "Clear semantic separation between ready and recording."
@@ -140,11 +141,17 @@
         "name": "The Flat Canvas Rule",
         "body": "Depth belongs to controls above the canvas, never to the capture boundary itself.",
         "section": "elevation"
+      },
+      {
+        "name": "The Precise Crop Rule",
+        "body": "Never include pixels outside the selected frame unless the user explicitly chooses a frame preset or breathing room action.",
+        "section": "layout"
       }
     ],
     "dos": [
       "Do make the selected region feel like a familiar editable object.",
       "Do keep live dimensions readable and directly actionable.",
+      "Do preserve the selected content when applying an aspect preset.",
       "Do use native menus, keyboard actions, materials, and accessibility semantics.",
       "Do let one-time guidance recede after movement or resizing is learned."
     ],
@@ -152,7 +159,8 @@
       "Don't style the primary path like camera hardware or a developer overlay.",
       "Don't use red before recording is live.",
       "Don't expose quality, frame rate, output width, and countdown as equal first-step decisions.",
-      "Don't leave movement, resizing, or cursor state dependent on hover alone."
+      "Don't leave movement, resizing, or cursor state dependent on hover alone.",
+      "Don't silently add surrounding pixels to a precise crop."
     ]
   }
 }

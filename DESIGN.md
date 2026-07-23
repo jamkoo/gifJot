@@ -169,8 +169,8 @@ internal capture terminology never appears in the primary path.
 The selected region is the spatial anchor. Its inspector docks to the nearest
 available horizontal edge and feels attached without covering the content. It
 may move with the region and flip above or below it to remain on-screen.
-The inspector sits exactly 6 pt from the frame, is 310 × 50 pt while ready, and
-uses a 12 pt minimum screen inset. The active-status inspector is 306 × 60 pt.
+The inspector sits exactly 6 pt from the frame, stays 310 × 50 pt through every
+state, and uses a 12 pt minimum screen inset.
 
 The inspector is one compact group: measurement or preset first, optional
 capture choices second, destructive dismissal quiet, and Record last. Secondary
@@ -221,9 +221,11 @@ or eight permanently visible circular nodes.
 
 - **Placement:** Attached 6 pt above the frame when possible, otherwise below;
   it stays within the 12 pt screen inset and moves with the selection.
+- **Layering:** Always remains above the draggable selection frame, including
+  when Full Screen places the inspector inside the selected region.
 - **Size and shape:** 310 × 50 pt, 14 pt continuous corners, 7 pt internal
   inset, adaptive HUD surface, hairline outline, and one native panel shadow.
-- **Order:** Exact exported GIF dimensions and preset menu, More, then Record.
+- **Order:** Exact exported GIF dimensions and frame menu, More, then Record.
 - **Keyboard:** Return starts recording. Escape cancels the selection.
 
 ### Frame Size Trigger
@@ -234,6 +236,14 @@ or eight permanently visible circular nodes.
   that will be silently reduced.
 - **Type:** 12 pt semibold monospaced with monospaced digits.
 - **Presets:** Full Screen, 16:9, 4:3, and 1:1.
+- **Preset behavior:** Aspect presets expand the frame to contain the full
+  current selection whenever the display allows. They crop only when the
+  display cannot contain the requested ratio.
+- **Spacing:** `Add 16 px breathing room` explicitly expands the capture on all
+  available sides. The 16 px is measured in the saved GIF, even when output
+  width scaling is active.
+- **Precision rule:** Never include pixels outside the selected frame unless
+  the user explicitly chooses a frame preset or breathing room action.
 
 ### More Menu
 
@@ -245,8 +255,12 @@ or eight permanently visible circular nodes.
 
 ### Recording Status
 
-- **Surface:** 306 × 60 pt adaptive inspector with a 9 pt recording-red dot,
-  state label, and monospaced elapsed time.
+- **Surface:** The same 310 × 50 pt adaptive inspector used while ready. Every
+  state uses a centered 36 pt control lane with 7 pt top and bottom insets.
+- **Alignment:** Status symbols occupy a fixed 16 pt column so labels do not
+  shift between starting, recording, processing, success, and failure.
+- **Contents:** A 9 pt recording-red dot, state label, and monospaced elapsed
+  time.
 - **Stop:** Recording Red with Chalk text. Red appears only while recording is
   live or on the explicit stop action.
 
@@ -273,6 +287,7 @@ or eight permanently visible circular nodes.
 
 - **Do** make the selected region feel like a familiar editable object.
 - **Do** keep live dimensions readable and directly actionable.
+- **Do** preserve the selected content when applying an aspect preset.
 - **Do** use native menus, keyboard actions, materials, and accessibility
   semantics wherever they fit.
 - **Do** let one-time guidance recede after the corresponding action is learned.
@@ -285,5 +300,6 @@ or eight permanently visible circular nodes.
 - **Don't** expose quality, frame rate, output width, and countdown as equal
   first-step decisions.
 - **Don't** leave movement, resizing, or cursor state dependent on hover alone.
+- **Don't** silently add surrounding pixels to a precise crop.
 - **Don't** add cloud, timeline, audio, or editor patterns to imitate the
   reference products.

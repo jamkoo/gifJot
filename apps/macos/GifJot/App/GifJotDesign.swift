@@ -297,7 +297,7 @@ struct GifJotDarkQuietButtonStyle: ButtonStyle {
             .font(.system(size: 12, weight: .semibold))
             .foregroundStyle(Color.primary)
             .padding(.horizontal, 12)
-            .frame(minHeight: 34)
+            .frame(minHeight: 36)
             .background(
                 configuration.isPressed
                     ? GifJotDesign.indigoTint

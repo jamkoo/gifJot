@@ -59,6 +59,22 @@ enum RecordingHUDPlacement {
     }
 }
 
+enum RecordingHUDWindowLevels {
+    static let selectionFrame = NSWindow.Level.floating
+    static let inspector = NSWindow.Level(
+        rawValue: selectionFrame.rawValue + 1
+    )
+}
+
+enum RecordingHUDMetrics {
+    static let panelSize = CGSize(width: 310, height: 50)
+    static let controlHeight: CGFloat = 36
+    static let verticalInset: CGFloat = 7
+    static let readyHorizontalInset: CGFloat = 7
+    static let compactHorizontalInset: CGFloat = 12
+    static let statusSymbolWidth: CGFloat = 16
+}
+
 private final class InteractiveRecordingHUDPanel: NSPanel {
     override var canBecomeKey: Bool { true }
     override var canBecomeMain: Bool { false }
@@ -75,8 +91,8 @@ private final class InteractiveRecordingHUDPanel: NSPanel {
 
 @MainActor
 final class RecordingHUDController {
-    private static let compactPanelSize = CGSize(width: 306, height: 60)
-    private static let setupPanelSize = CGSize(width: 310, height: 50)
+    private static let panelSize = RecordingHUDMetrics.panelSize
+    private static let breathingRoomOutputPixels = 16
     private static let frameCoachDefaultsKey = "captureFrame.didLearnAdjustment"
 
     private let coordinator: RecordingCoordinator
@@ -208,7 +224,7 @@ final class RecordingHUDController {
         state: RecordingState
     ) {
         let panel = makePanelIfNeeded()
-        let panelSize = Self.panelSize(for: state)
+        let panelSize = Self.panelSize
         panel.setContentSize(panelSize)
         position(panel, near: region, panelSize: panelSize)
 
@@ -348,6 +364,10 @@ final class RecordingHUDController {
             onApplyFramePreset: { [weak self] preset in
                 self?.applyFramePreset(preset)
             },
+            breathingRoomOutputPixels: Self.breathingRoomOutputPixels,
+            onAddBreathingRoom: { [weak self] in
+                self?.addBreathingRoom()
+            },
             onAdjustFrame: { [weak self] adjustment, delta in
                 self?.adjustSelectedRegion(
                     adjustment,
@@ -360,14 +380,14 @@ final class RecordingHUDController {
         let panel = InteractiveRecordingHUDPanel(
             contentRect: CGRect(
                 origin: .zero,
-                size: Self.compactPanelSize
+                size: Self.panelSize
             ),
             styleMask: [.borderless],
             backing: .buffered,
             defer: false
         )
         panel.contentViewController = hostingController
-        panel.level = .floating
+        panel.level = RecordingHUDWindowLevels.inspector
         panel.backgroundColor = .clear
         panel.isOpaque = false
         panel.hasShadow = true
@@ -395,7 +415,7 @@ final class RecordingHUDController {
         panel.contentView = RecordingBorderView { [weak self] adjustment, delta in
             self?.adjustSelectedRegion(adjustment, byAppKitDelta: delta)
         }
-        panel.level = .floating
+        panel.level = RecordingHUDWindowLevels.selectionFrame
         panel.backgroundColor = .clear
         panel.isOpaque = false
         panel.hasShadow = false
@@ -487,6 +507,32 @@ final class RecordingHUDController {
         )
     }
 
+    private func addBreathingRoom() {
+        guard coordinator.state == .readyToRecord,
+              let region = coordinator.activeRegion,
+              let screen = screen(for: region)
+        else {
+            return
+        }
+
+        let sourceRect = RegionSelectionGeometry.sourceRect(
+            addingOutputPadding: Self.breathingRoomOutputPixels,
+            to: region.sourceRect,
+            displayScale: region.displayScale,
+            maximumOutputWidth: settings.maximumOutputWidth.pixels,
+            within: screen.frame.size
+        )
+        guard sourceRect != region.sourceRect else { return }
+
+        coordinator.updateSelectedRegion(
+            CaptureRegion(
+                displayID: region.displayID,
+                sourceRect: sourceRect,
+                displayScale: region.displayScale
+            )
+        )
+    }
+
     private func position(
         _ panel: NSPanel,
         near region: CaptureRegion?,
@@ -516,10 +562,6 @@ final class RecordingHUDController {
             panelSize: panelSize
         )
         panel.setFrameOrigin(origin)
-    }
-
-    private static func panelSize(for state: RecordingState) -> CGSize {
-        state == .readyToRecord ? setupPanelSize : compactPanelSize
     }
 
     private func screen(for region: CaptureRegion?) -> NSScreen? {
@@ -1109,6 +1151,8 @@ private struct RecordingHUDView: View {
     @ObservedObject var coordinator: RecordingCoordinator
     @ObservedObject var settings: SettingsStore
     let onApplyFramePreset: (CaptureFramePreset) -> Void
+    let breathingRoomOutputPixels: Int
+    let onAddBreathingRoom: () -> Void
     let onAdjustFrame: (CaptureFrameAdjustment, CGPoint) -> Void
 
     var body: some View {
@@ -1121,12 +1165,11 @@ private struct RecordingHUDView: View {
         }
         .padding(
             .horizontal,
-            coordinator.state == .readyToRecord ? 7 : 12
+            coordinator.state == .readyToRecord
+                ? RecordingHUDMetrics.readyHorizontalInset
+                : RecordingHUDMetrics.compactHorizontalInset
         )
-        .padding(
-            .vertical,
-            coordinator.state == .readyToRecord ? 7 : 0
-        )
+        .padding(.vertical, RecordingHUDMetrics.verticalInset)
         .background(GifJotDesign.hudSurface)
         .overlay {
             RoundedRectangle(
@@ -1152,6 +1195,10 @@ private struct RecordingHUDView: View {
     private var compactControls: some View {
         HStack(spacing: 10) {
             leadingSymbol
+                .frame(
+                    width: RecordingHUDMetrics.statusSymbolWidth,
+                    height: RecordingHUDMetrics.controlHeight
+                )
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(primaryText)
@@ -1166,6 +1213,7 @@ private struct RecordingHUDView: View {
                         .foregroundStyle(Color.secondary)
                 }
             }
+            .layoutPriority(1)
 
             Spacer(minLength: 4)
 
@@ -1192,6 +1240,7 @@ private struct RecordingHUDView: View {
                 .buttonStyle(GifJotDarkQuietButtonStyle())
             }
         }
+        .frame(height: RecordingHUDMetrics.controlHeight)
     }
 
     private var setupControls: some View {
@@ -1264,6 +1313,17 @@ private struct RecordingHUDView: View {
                     }
                 }
             }
+
+            Section("Frame spacing") {
+                Button {
+                    onAddBreathingRoom()
+                } label: {
+                    Label(
+                        "Add \(breathingRoomOutputPixels) px breathing room",
+                        systemImage: "arrow.up.left.and.arrow.down.right"
+                    )
+                }
+            }
         } label: {
             HStack(spacing: 6) {
                 Text(selectedRegionDimensions)
@@ -1306,12 +1366,12 @@ private struct RecordingHUDView: View {
         .tint(GifJotDesign.canvasIndigo)
         .fixedSize()
         .help(
-            "GIF output size · choose a frame preset · "
+            "GIF output size · choose a preset or add breathing room · "
                 + "arrow keys move · Option-arrow resizes"
         )
         .accessibilityLabel("GIF output size, \(selectedRegionDimensions)")
         .accessibilityHint(
-            "Choose Full Screen, 16 by 9, 4 by 3, or square"
+            "Choose a frame preset or add 16 pixels around the selected content"
         )
     }
 

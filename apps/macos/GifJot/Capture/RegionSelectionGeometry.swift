@@ -224,19 +224,28 @@ enum RegionSelectionGeometry {
         }
 
         let currentRatio = sourceRect.width / sourceRect.height
-        let size: CGSize
+        let containingSize: CGSize
         if currentRatio > aspectRatio {
-            size = CGSize(
-                width: sourceRect.height * aspectRatio,
-                height: sourceRect.height
-            )
-        } else {
-            size = CGSize(
+            containingSize = CGSize(
                 width: sourceRect.width,
                 height: sourceRect.width / aspectRatio
             )
+        } else {
+            containingSize = CGSize(
+                width: sourceRect.height * aspectRatio,
+                height: sourceRect.height
+            )
         }
 
+        let fitScale = min(
+            1,
+            displaySize.width / containingSize.width,
+            displaySize.height / containingSize.height
+        )
+        let size = CGSize(
+            width: containingSize.width * fitScale,
+            height: containingSize.height * fitScale
+        )
         let maximumX = max(0, displaySize.width - size.width)
         let maximumY = max(0, displaySize.height - size.height)
         let origin = CGPoint(
@@ -244,5 +253,64 @@ enum RegionSelectionGeometry {
             y: min(max(sourceRect.midY - size.height / 2, 0), maximumY)
         )
         return CGRect(origin: origin, size: size)
+    }
+
+    static func sourceRect(
+        addingOutputPadding outputPadding: Int,
+        to sourceRect: CGRect,
+        displayScale: CGFloat,
+        maximumOutputWidth: Int?,
+        within displaySize: CGSize
+    ) -> CGRect {
+        let displayBounds = CGRect(origin: .zero, size: displaySize)
+        let boundedSource = sourceRect.standardized.intersection(displayBounds)
+        guard outputPadding > 0,
+              !boundedSource.isNull,
+              boundedSource.width >= minimumSelectionLength,
+              boundedSource.height >= minimumSelectionLength
+        else {
+            return sourceRect
+        }
+
+        let scale = max(displayScale, 1)
+        let requestedOutputPadding = CGFloat(outputPadding)
+        let nativeWidth = boundedSource.width * scale
+        var nativePadding = requestedOutputPadding
+
+        if let maximumOutputWidth {
+            let maximumWidth = CGFloat(maximumOutputWidth)
+            guard maximumWidth > requestedOutputPadding * 2 else {
+                return sourceRect
+            }
+
+            let leftRoom = boundedSource.minX * scale
+            let rightRoom = (displaySize.width - boundedSource.maxX) * scale
+            for _ in 0..<12 {
+                let expandedWidth = nativeWidth
+                    + min(nativePadding, leftRoom)
+                    + min(nativePadding, rightRoom)
+                let outputScale = min(1, maximumWidth / expandedWidth)
+                let nextPadding = requestedOutputPadding / outputScale
+                guard abs(nextPadding - nativePadding) > 0.001 else {
+                    nativePadding = nextPadding
+                    break
+                }
+                nativePadding = nextPadding
+            }
+        }
+
+        let paddingInPoints = nativePadding / scale
+        return CGRect(
+            x: max(boundedSource.minX - paddingInPoints, 0),
+            y: max(boundedSource.minY - paddingInPoints, 0),
+            width: min(
+                boundedSource.maxX + paddingInPoints,
+                displaySize.width
+            ) - max(boundedSource.minX - paddingInPoints, 0),
+            height: min(
+                boundedSource.maxY + paddingInPoints,
+                displaySize.height
+            ) - max(boundedSource.minY - paddingInPoints, 0)
+        )
     }
 }
