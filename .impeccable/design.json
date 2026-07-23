@@ -123,6 +123,7 @@
       "One compact attached inspector with exact exported GIF dimensions in the primary path.",
       "Containment-first presets preserve selected content, while surrounding pixels are added only by an explicit action.",
       "Secondary choices revealed progressively through More.",
+      "Reversible inspector parking keeps controls reachable inside large selections.",
       "One-time guidance that recedes after the action is learned.",
       "Clear semantic separation between ready and recording.",
       "Semantic text styles and proportional inspector scaling preserve legibility with enlarged content."

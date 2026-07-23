@@ -169,6 +169,9 @@ internal capture terminology never appears in the primary path.
 The selected region is the spatial anchor. Its inspector docks to the nearest
 available horizontal edge and feels attached without covering the content. It
 may move with the region and flip above or below it to remain on-screen.
+When an attached inspector blocks controls inside a large or full-screen
+selection, the user can park it at the top-right visible-screen inset and
+reattach it through the same More menu.
 The inspector sits exactly 6 pt from the frame, uses 310 × 50 pt at the
 standard macOS text size, and scales proportionally with preferred text metrics
 up to 1.35×. It uses a 12 pt minimum screen inset.
@@ -262,8 +265,8 @@ or oversized control nodes.
 ### More Menu
 
 - **Trigger:** A 36 × 36 pt ellipsis control with an 8 pt radius.
-- **Contents:** Show cursor, countdown (Off, 1 second, or 3 seconds), then
-  Cancel selection after a separator.
+- **Contents:** Show cursor, countdown (Off, 1 second, or 3 seconds), reversible
+  inspector parking, then Cancel selection after a separator.
 - **Rule:** Only secondary capture choices belong here; the first view remains
   frame-first.
 

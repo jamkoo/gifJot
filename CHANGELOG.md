@@ -38,6 +38,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Hardened the first-run permission relaunch, capture startup feedback, failure visibility, preset behavior, recent-output recovery, and abandoned-export cleanup.
 - Kept recording failures visible with Retry and Dismiss actions, clarified paste-ready completion, and surfaced cursor and countdown state on the ready inspector.
 - Added semantic text styles, proportional preferred-text scaling for the recording inspector, and resizable permission and Settings windows.
+- Added reversible inspector parking at the screen edge for large selections where the attached HUD would cover controls.
 
 ### Security
 

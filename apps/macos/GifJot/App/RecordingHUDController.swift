@@ -57,6 +57,16 @@ enum RecordingHUDPlacement {
         )
         return CGPoint(x: x, y: insideY)
     }
+
+    static func parkedOrigin(
+        availableFrame: CGRect,
+        panelSize: CGSize
+    ) -> CGPoint {
+        CGPoint(
+            x: availableFrame.maxX - panelSize.width - screenInset,
+            y: availableFrame.maxY - panelSize.height - screenInset
+        )
+    }
 }
 
 enum RecordingHUDWindowLevels {
@@ -358,13 +368,16 @@ final class RecordingHUDController {
     func start() {
         guard subscriptions.isEmpty else { return }
 
-        coordinator.$state
-            .combineLatest(coordinator.$activeRegion)
+        Publishers.CombineLatest3(
+            coordinator.$state,
+            coordinator.$activeRegion,
+            coordinator.$isInspectorParked
+        )
             // @Published emits from willSet. Deliver on the next main-queue turn so
             // SwiftUI reads the stored state instead of the preceding one when the
             // HUD is first created for a completed selection.
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] state, region in
+            .sink { [weak self] state, region, _ in
                 self?.update(for: state, region: region)
             }
             .store(in: &subscriptions)
@@ -891,11 +904,16 @@ final class RecordingHUDController {
             )
         }
 
-        let origin = RecordingHUDPlacement.panelOrigin(
-            selectionRect: selectionRect,
-            availableFrame: screen.visibleFrame,
-            panelSize: panelSize
-        )
+        let origin = coordinator.isInspectorParked
+            ? RecordingHUDPlacement.parkedOrigin(
+                availableFrame: screen.visibleFrame,
+                panelSize: panelSize
+            )
+            : RecordingHUDPlacement.panelOrigin(
+                selectionRect: selectionRect,
+                availableFrame: screen.visibleFrame,
+                panelSize: panelSize
+            )
         panel.setFrameOrigin(origin)
     }
 
@@ -1780,6 +1798,19 @@ private struct RecordingHUDView: View {
                     }
                 }
 
+                Button {
+                    coordinator.toggleInspectorParking()
+                } label: {
+                    Label(
+                        coordinator.isInspectorParked
+                            ? "Attach inspector to frame"
+                            : "Park inspector at screen edge",
+                        systemImage: coordinator.isInspectorParked
+                            ? "pin.slash"
+                            : "pin"
+                    )
+                }
+
                 Divider()
 
                 Button {
@@ -2006,6 +2037,9 @@ private struct RecordingHUDView: View {
         let countdown = settings.countdown == .off
             ? "no countdown"
             : "\(settings.countdown.displayName) countdown"
-        return "\(cursor) · \(countdown)"
+        let placement = coordinator.isInspectorParked
+            ? "inspector parked"
+            : "inspector attached"
+        return "\(cursor) · \(countdown) · \(placement)"
     }
 }

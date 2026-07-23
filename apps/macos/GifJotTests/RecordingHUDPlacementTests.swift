@@ -46,6 +46,20 @@ final class RecordingHUDPlacementTests: XCTestCase {
         XCTAssertEqual(result, CGPoint(x: 261, y: 546))
     }
 
+    func testParksHUDAtTopRightVisibleFrameInset() {
+        let result = RecordingHUDPlacement.parkedOrigin(
+            availableFrame: CGRect(
+                x: -1_920,
+                y: 24,
+                width: 1_920,
+                height: 1_056
+            ),
+            panelSize: CGSize(width: 310, height: 50)
+        )
+
+        XCTAssertEqual(result, CGPoint(x: -322, y: 1_018))
+    }
+
     func testClampsHUDToAvailableHorizontalFrame() {
         let result = RecordingHUDPlacement.panelOrigin(
             selectionRect: CGRect(x: 5, y: 200, width: 40, height: 40),

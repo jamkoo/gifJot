@@ -29,6 +29,7 @@ final class RecordingCoordinator: ObservableObject {
     @Published private(set) var activeRegion: CaptureRegion?
     @Published private(set) var errorMessage: String?
     @Published private(set) var warningMessage: String?
+    @Published private(set) var isInspectorParked = false
 
     private let permissionService: CapturePermissionService
     private let regionSelectionService: RegionSelectionService
@@ -184,6 +185,11 @@ final class RecordingCoordinator: ObservableObject {
     func updateSelectedRegion(_ region: CaptureRegion) {
         guard state == .readyToRecord else { return }
         activeRegion = region
+    }
+
+    func toggleInspectorParking() {
+        guard state == .readyToRecord else { return }
+        isInspectorParked.toggle()
     }
 
     func performPrimaryAction(configuration: RecordingConfiguration) {
@@ -486,6 +492,7 @@ final class RecordingCoordinator: ObservableObject {
         optimizedFrameCount = 0
         errorMessage = nil
         warningMessage = nil
+        isInspectorParked = false
         activeRegion = nil
     }
 
