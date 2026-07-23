@@ -79,4 +79,100 @@ final class RecordingHUDPlacementTests: XCTestCase {
         )
         XCTAssertEqual(RecordingHUDMetrics.statusSymbolWidth, 16)
     }
+
+    func testFrameOverlayAddsGrabSpaceOutsideTheCaptureBoundary() {
+        let selection = CGRect(x: 100, y: 80, width: 500, height: 320)
+        let overlay = RecordingFrameInteractionGeometry.overlayRect(
+            for: selection
+        )
+
+        XCTAssertEqual(
+            overlay,
+            CGRect(x: 86, y: 66, width: 528, height: 348)
+        )
+        XCTAssertEqual(
+            RecordingFrameInteractionGeometry.selectionRect(
+                in: CGRect(origin: .zero, size: overlay.size)
+            ),
+            CGRect(x: 14, y: 14, width: 500, height: 320)
+        )
+    }
+
+    func testFrameCornersHaveGenerousTwoAxisGrabTargets() {
+        let frame = CGRect(x: 14, y: 14, width: 500, height: 320)
+
+        XCTAssertEqual(
+            RecordingFrameInteractionGeometry.adjustment(
+                at: CGPoint(x: 2, y: 2),
+                in: frame
+            ),
+            .resize(.southWest)
+        )
+        XCTAssertEqual(
+            RecordingFrameInteractionGeometry.adjustment(
+                at: CGPoint(x: 526, y: 346),
+                in: frame
+            ),
+            .resize(.northEast)
+        )
+    }
+
+    func testFrameEdgesRemainResizableWhileInteriorPassesThrough() {
+        let frame = CGRect(x: 14, y: 14, width: 500, height: 320)
+
+        XCTAssertEqual(
+            RecordingFrameInteractionGeometry.adjustment(
+                at: CGPoint(x: frame.maxX + 12, y: frame.midY),
+                in: frame
+            ),
+            .resize(.east)
+        )
+        XCTAssertEqual(
+            RecordingFrameInteractionGeometry.adjustment(
+                at: CGPoint(x: frame.midX, y: frame.maxY - 12),
+                in: frame
+            ),
+            .resize(.north)
+        )
+        XCTAssertEqual(
+            RecordingFrameInteractionGeometry.adjustment(
+                at: CGPoint(x: frame.midX, y: frame.midY),
+                in: frame
+            ),
+            nil
+        )
+    }
+
+    func testOnlyMoveHandleRepositionsTheFrame() {
+        let frame = CGRect(x: 14, y: 14, width: 500, height: 320)
+        let moveHandle =
+            RecordingFrameInteractionGeometry.moveHandleHitRect(in: frame)
+
+        XCTAssertEqual(
+            RecordingFrameInteractionGeometry.adjustment(
+                at: CGPoint(x: moveHandle.midX, y: moveHandle.midY),
+                in: frame
+            ),
+            .move
+        )
+
+        let moveTargets =
+            RecordingFrameInteractionGeometry.interactionTargets(for: frame)
+                .filter { $0.adjustment == .move }
+        XCTAssertEqual(moveTargets.count, 1)
+        XCTAssertEqual(moveTargets.first?.frame, moveHandle)
+        XCTAssertFalse(moveHandle.contains(
+            CGPoint(x: frame.midX, y: frame.midY)
+        ))
+    }
+
+    func testInteractionTargetsDoNotCoverFrameCenter() {
+        let frame = CGRect(x: 14, y: 14, width: 500, height: 320)
+        let center = CGPoint(x: frame.midX, y: frame.midY)
+
+        XCTAssertFalse(
+            RecordingFrameInteractionGeometry.interactionTargets(for: frame)
+                .contains { $0.frame.contains(center) }
+        )
+    }
 }

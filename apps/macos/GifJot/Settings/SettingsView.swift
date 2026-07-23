@@ -25,7 +25,12 @@ struct SettingsView: View {
 
             footer
         }
-        .frame(width: 520, height: 620)
+        .frame(
+            minWidth: 520,
+            idealWidth: 520,
+            minHeight: 620,
+            idealHeight: 620
+        )
         .background(GifJotDesign.opticalBody)
         .tint(GifJotDesign.signal)
     }
@@ -39,7 +44,7 @@ struct SettingsView: View {
             .frame(width: 36, height: 36)
 
             VStack(alignment: .leading, spacing: 3) {
-                Text("GIFJOT / CAMERA SETUP")
+                Text("GIFJOT / CAPTURE DEFAULTS")
                     .font(.system(size: 9, weight: .semibold, design: .monospaced))
                     .tracking(0.8)
                     .foregroundStyle(.secondary)
@@ -47,7 +52,7 @@ struct SettingsView: View {
                 Text("Capture defaults")
                     .font(.system(size: 20, weight: .semibold))
 
-                Text("Set the starting point once. The shutter flow stays immediate.")
+                Text("Set your defaults once. Recording stays immediate.")
                     .font(.system(size: 12))
                     .foregroundStyle(.secondary)
             }
@@ -306,7 +311,7 @@ final class SettingsWindowController: NSWindowController {
         )
         let window = NSWindow(
             contentRect: CGRect(origin: .zero, size: CGSize(width: 520, height: 620)),
-            styleMask: [.titled, .closable, .miniaturizable],
+            styleMask: [.titled, .closable, .miniaturizable, .resizable],
             backing: .buffered,
             defer: false
         )
@@ -314,6 +319,7 @@ final class SettingsWindowController: NSWindowController {
         window.contentViewController = hostingController
         window.isReleasedWhenClosed = false
         window.collectionBehavior = [.moveToActiveSpace]
+        window.contentMinSize = CGSize(width: 520, height: 620)
         window.setContentSize(CGSize(width: 520, height: 620))
 
         super.init(window: window)

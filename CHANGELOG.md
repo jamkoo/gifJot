@@ -25,16 +25,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Automatic ad-hoc-signed `.app` and `.dmg` test packages from successful `main` builds.
 - Windows repository preflight, shared cross-platform Swift tests, Windows CI, and a physical-Mac verification matrix.
 - Universal Apple silicon and Intel test packages with architecture and minimum-version verification.
+- Repeatable Developer ID signing, DMG notarization, ticket stapling, Gatekeeper verification, and release-report tooling.
 
 ### Changed
 
 - Declared the project license as GNU AGPL version 3 or later.
 - Changed the default recording folder from `~/Downloads/GifJot` to `~/GifJot`.
-- Rebuilt the menu-bar panel, permission guidance, settings, region selector, and recording HUD around the Pocket Capture Camera visual system.
-- Introduced an adaptive optical-ivory camera body, circular signal shutter, graphite status well, open viewfinder corners, and measured state readouts.
+- Rebuilt the menu-bar panel, permission guidance, settings, region selector, and recording HUD around the Contextual Canvas visual system.
+- Introduced adaptive macOS surfaces, direct frame manipulation, open selection corners, and measured state readouts.
 - Added an explicit region-ready step with a low-footprint single-row controller, hover help, frame presets (including Full Screen), output-size choices, cursor visibility, direct Settings access, and a terminal-right cancellation control before capture begins.
 - The armed capture frame can now be moved or resized within its original display before recording begins.
 - Hardened the first-run permission relaunch, capture startup feedback, failure visibility, preset behavior, recent-output recovery, and abandoned-export cleanup.
+- Kept recording failures visible with Retry and Dismiss actions, clarified paste-ready completion, and surfaced cursor and countdown state on the ready inspector.
 
 ### Security
 

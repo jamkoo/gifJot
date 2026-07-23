@@ -18,8 +18,8 @@ Windows can run repository preflight checks and a shared package of platform-neu
 ## Current prototype
 
 - Native SwiftUI and AppKit menu-bar application.
-- Pocket Capture Camera interface with an adaptive optical body, signal shutter, graphite status well, and precise viewfinder selection.
-- Low-footprint region-ready controller beside the selection with an explicit shutter, output-size, cursor, cancel controls, and hover help.
+- Contextual Canvas interface with adaptive macOS surfaces, clear recording states, and precise region selection.
+- Low-footprint region-ready inspector beside the selection with an explicit Record action, output size, cursor, countdown, cancellation, and hover help.
 - Screen Recording permission guidance without Accessibility permission.
 - One overlay per display with crosshair region selection and Escape cancellation.
 - Single-display capture through ScreenCaptureKit.
@@ -115,6 +115,11 @@ designated requirement:
 The identity is intentionally local to the development Mac and must never be
 committed or exported with the repository. This workflow is for local testing
 only; public builds still require Developer ID signing and notarization.
+
+For a public macOS build, follow [RELEASE.md](RELEASE.md). The release script
+uses credentials stored in the login Keychain to create a Developer ID-signed,
+notarized, stapled, and Gatekeeper-verified DMG. It also requires the permanent
+bundle ID and Apple Developer Team ID to be confirmed explicitly.
 
 ### Windows preflight and shared core tests
 

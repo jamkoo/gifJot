@@ -135,7 +135,7 @@ final class RecordingCoordinator: ObservableObject {
         case .exporting:
             "Saving GIF..."
         case .completed:
-            warningMessage ?? "Saved and copied to the clipboard."
+            warningMessage ?? "Copied—ready to paste."
         case .canceled:
             "Recording canceled."
         case .failed:
@@ -155,6 +155,13 @@ final class RecordingCoordinator: ObservableObject {
         workflowTask = Task { [weak self] in
             await self?.runSelectionWorkflow()
         }
+    }
+
+    func dismissResult() {
+        guard [.completed, .canceled, .failed].contains(state) else { return }
+
+        try? transition(to: .idle)
+        resetPresentationState()
     }
 
     func confirmSelectedRegion(configuration: RecordingConfiguration) {

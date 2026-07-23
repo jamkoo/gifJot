@@ -75,6 +75,233 @@ enum RecordingHUDMetrics {
     static let statusSymbolWidth: CGFloat = 16
 }
 
+enum RecordingFrameInteractionGeometry {
+    static let outerInteractionInset: CGFloat = 14
+    static let edgeHitTarget: CGFloat = 28
+    static let cornerHitTarget: CGFloat = 32
+    static let moveHandleVisualSize = CGSize(width: 36, height: 28)
+    static let moveHandleHitSize = CGSize(width: 44, height: 36)
+    static let moveHandleTopInset: CGFloat = 18
+
+    static func overlayRect(for selectionRect: CGRect) -> CGRect {
+        selectionRect.insetBy(
+            dx: -outerInteractionInset,
+            dy: -outerInteractionInset
+        )
+    }
+
+    static func selectionRect(in overlayBounds: CGRect) -> CGRect {
+        overlayBounds.insetBy(
+            dx: outerInteractionInset,
+            dy: outerInteractionInset
+        )
+    }
+
+    static func moveHandleVisualRect(in selectionRect: CGRect) -> CGRect {
+        CGRect(
+            x: selectionRect.midX - moveHandleVisualSize.width / 2,
+            y: selectionRect.maxY
+                - moveHandleTopInset
+                - moveHandleVisualSize.height,
+            width: moveHandleVisualSize.width,
+            height: moveHandleVisualSize.height
+        )
+    }
+
+    static func moveHandleHitRect(in selectionRect: CGRect) -> CGRect {
+        let visualRect = moveHandleVisualRect(in: selectionRect)
+        return CGRect(
+            x: visualRect.midX - moveHandleHitSize.width / 2,
+            y: visualRect.midY - moveHandleHitSize.height / 2,
+            width: moveHandleHitSize.width,
+            height: moveHandleHitSize.height
+        )
+    }
+
+    static func interactionTargets(
+        for selectionRect: CGRect
+    ) -> [RecordingFrameInteractionTarget] {
+        let cornerRadius = cornerHitTarget / 2
+        let edgeRadius = edgeHitTarget / 2
+        var targets: [RecordingFrameInteractionTarget] = [
+            RecordingFrameInteractionTarget(
+                adjustment: .resize(.southWest),
+                frame: CGRect(
+                    x: selectionRect.minX - cornerRadius,
+                    y: selectionRect.minY - cornerRadius,
+                    width: cornerHitTarget,
+                    height: cornerHitTarget
+                )
+            ),
+            RecordingFrameInteractionTarget(
+                adjustment: .resize(.southEast),
+                frame: CGRect(
+                    x: selectionRect.maxX - cornerRadius,
+                    y: selectionRect.minY - cornerRadius,
+                    width: cornerHitTarget,
+                    height: cornerHitTarget
+                )
+            ),
+            RecordingFrameInteractionTarget(
+                adjustment: .resize(.northWest),
+                frame: CGRect(
+                    x: selectionRect.minX - cornerRadius,
+                    y: selectionRect.maxY - cornerRadius,
+                    width: cornerHitTarget,
+                    height: cornerHitTarget
+                )
+            ),
+            RecordingFrameInteractionTarget(
+                adjustment: .resize(.northEast),
+                frame: CGRect(
+                    x: selectionRect.maxX - cornerRadius,
+                    y: selectionRect.maxY - cornerRadius,
+                    width: cornerHitTarget,
+                    height: cornerHitTarget
+                )
+            ),
+        ]
+
+        let horizontalSpan = selectionRect.width - cornerHitTarget
+        if horizontalSpan > 0 {
+            targets.append(
+                RecordingFrameInteractionTarget(
+                    adjustment: .resize(.south),
+                    frame: CGRect(
+                        x: selectionRect.minX + cornerRadius,
+                        y: selectionRect.minY - edgeRadius,
+                        width: horizontalSpan,
+                        height: edgeHitTarget
+                    )
+                )
+            )
+            targets.append(
+                RecordingFrameInteractionTarget(
+                    adjustment: .resize(.north),
+                    frame: CGRect(
+                        x: selectionRect.minX + cornerRadius,
+                        y: selectionRect.maxY - edgeRadius,
+                        width: horizontalSpan,
+                        height: edgeHitTarget
+                    )
+                )
+            )
+        }
+
+        let verticalSpan = selectionRect.height - cornerHitTarget
+        if verticalSpan > 0 {
+            targets.append(
+                RecordingFrameInteractionTarget(
+                    adjustment: .resize(.west),
+                    frame: CGRect(
+                        x: selectionRect.minX - edgeRadius,
+                        y: selectionRect.minY + cornerRadius,
+                        width: edgeHitTarget,
+                        height: verticalSpan
+                    )
+                )
+            )
+            targets.append(
+                RecordingFrameInteractionTarget(
+                    adjustment: .resize(.east),
+                    frame: CGRect(
+                        x: selectionRect.maxX - edgeRadius,
+                        y: selectionRect.minY + cornerRadius,
+                        width: edgeHitTarget,
+                        height: verticalSpan
+                    )
+                )
+            )
+        }
+
+        if selectionRect.width >= 90, selectionRect.height >= 70 {
+            targets.append(
+                RecordingFrameInteractionTarget(
+                    adjustment: .move,
+                    frame: moveHandleHitRect(in: selectionRect)
+                )
+            )
+        }
+        return targets
+    }
+
+    static func adjustment(
+        at point: CGPoint,
+        in selectionRect: CGRect
+    ) -> CaptureFrameAdjustment? {
+        let cornerRadius = cornerHitTarget / 2
+        let cornerDescriptors: [
+            (CGPoint, RegionSelectionResizeHandle)
+        ] = [
+            (
+                CGPoint(x: selectionRect.minX, y: selectionRect.minY),
+                .southWest
+            ),
+            (
+                CGPoint(x: selectionRect.maxX, y: selectionRect.minY),
+                .southEast
+            ),
+            (
+                CGPoint(x: selectionRect.minX, y: selectionRect.maxY),
+                .northWest
+            ),
+            (
+                CGPoint(x: selectionRect.maxX, y: selectionRect.maxY),
+                .northEast
+            ),
+        ]
+        for (center, handle) in cornerDescriptors {
+            let rect = CGRect(
+                x: center.x - cornerRadius,
+                y: center.y - cornerRadius,
+                width: cornerHitTarget,
+                height: cornerHitTarget
+            )
+            if rect.contains(point) {
+                return .resize(handle)
+            }
+        }
+
+        let edgeRadius = edgeHitTarget / 2
+        if abs(point.y - selectionRect.maxY) <= edgeRadius,
+           point.x >= selectionRect.minX,
+           point.x <= selectionRect.maxX
+        {
+            return .resize(.north)
+        }
+        if abs(point.y - selectionRect.minY) <= edgeRadius,
+           point.x >= selectionRect.minX,
+           point.x <= selectionRect.maxX
+        {
+            return .resize(.south)
+        }
+        if abs(point.x - selectionRect.maxX) <= edgeRadius,
+           point.y >= selectionRect.minY,
+           point.y <= selectionRect.maxY
+        {
+            return .resize(.east)
+        }
+        if abs(point.x - selectionRect.minX) <= edgeRadius,
+           point.y >= selectionRect.minY,
+           point.y <= selectionRect.maxY
+        {
+            return .resize(.west)
+        }
+        if selectionRect.width >= 90,
+           selectionRect.height >= 70,
+           moveHandleHitRect(in: selectionRect).contains(point)
+        {
+            return .move
+        }
+        return nil
+    }
+}
+
+struct RecordingFrameInteractionTarget: Equatable {
+    let adjustment: CaptureFrameAdjustment
+    let frame: CGRect
+}
+
 private final class InteractiveRecordingHUDPanel: NSPanel {
     override var canBecomeKey: Bool { true }
     override var canBecomeMain: Bool { false }
@@ -99,6 +326,7 @@ final class RecordingHUDController {
     private let settings: SettingsStore
     private var panel: NSPanel?
     private var selectionBorderWindow: NSPanel?
+    private var selectionInteractionWindows: [NSPanel] = []
     private var subscriptions: Set<AnyCancellable> = []
     private var delayedHideTask: Task<Void, Never>?
     private var appWindowSuspensionTask: Task<Void, Never>?
@@ -160,6 +388,8 @@ final class RecordingHUDController {
         panel = nil
         selectionBorderWindow?.orderOut(nil)
         selectionBorderWindow = nil
+        selectionInteractionWindows.forEach { $0.orderOut(nil) }
+        selectionInteractionWindows.removeAll()
     }
 
     private func update(
@@ -190,7 +420,7 @@ final class RecordingHUDController {
             present(near: region, state: state)
             delayedHideTask = Task { [weak self] in
                 do {
-                    try await ContinuousClock().sleep(for: .seconds(3))
+                    try await ContinuousClock().sleep(for: .seconds(5))
                 } catch {
                     return
                 }
@@ -202,17 +432,6 @@ final class RecordingHUDController {
         case .failed:
             hideSelectionBorder()
             present(near: region, state: state)
-            delayedHideTask = Task { [weak self] in
-                do {
-                    try await ContinuousClock().sleep(for: .seconds(5))
-                } catch {
-                    return
-                }
-                guard let self, self.coordinator.state == .failed else {
-                    return
-                }
-                self.hide()
-            }
         default:
             hideSelectionBorder()
             hide()
@@ -277,8 +496,13 @@ final class RecordingHUDController {
             sourceRect: region.sourceRect,
             screenFrame: screen.frame
         )
-        borderWindow.setFrame(selectionRect, display: true)
-        borderWindow.ignoresMouseEvents = !isDraggable
+        borderWindow.setFrame(
+            RecordingFrameInteractionGeometry.overlayRect(
+                for: selectionRect
+            ),
+            display: true
+        )
+        borderWindow.ignoresMouseEvents = true
         if let borderView = borderWindow.contentView as? RecordingBorderView {
             borderView.displayScale = region.displayScale
             borderView.isAdjustable = isDraggable
@@ -294,10 +518,21 @@ final class RecordingHUDController {
             borderView.needsDisplay = true
         }
         borderWindow.orderFrontRegardless()
+        presentSelectionInteractionWindows(
+            for: selectionRect,
+            isAdjustable: isDraggable
+        )
     }
 
     private func hideSelectionBorder() {
+        if let borderView = selectionBorderWindow?.contentView
+            as? RecordingBorderView
+        {
+            borderView.setHoveredAdjustment(nil)
+            borderView.setActiveAdjustment(nil)
+        }
         selectionBorderWindow?.orderOut(nil)
+        selectionInteractionWindows.forEach { $0.orderOut(nil) }
     }
 
     private func refreshAppWindowSuspension() {
@@ -329,6 +564,9 @@ final class RecordingHUDController {
                 && (window.isKeyWindow || window.isMainWindow)
                 && window !== panel
                 && window !== selectionBorderWindow
+                && !selectionInteractionWindows.contains {
+                    $0 === window
+                }
         }
     }
 
@@ -430,6 +668,88 @@ final class RecordingHUDController {
         ]
         panel.animationBehavior = .none
         selectionBorderWindow = panel
+        return panel
+    }
+
+    private func presentSelectionInteractionWindows(
+        for selectionRect: CGRect,
+        isAdjustable: Bool
+    ) {
+        guard isAdjustable else {
+            selectionInteractionWindows.forEach { $0.orderOut(nil) }
+            return
+        }
+
+        let targets = RecordingFrameInteractionGeometry.interactionTargets(
+            for: selectionRect
+        )
+        let existingAdjustments = selectionInteractionWindows.compactMap {
+            ($0.contentView as? RecordingFrameInteractionView)?.adjustment
+        }
+        if existingAdjustments != targets.map(\.adjustment) {
+            selectionInteractionWindows.forEach { $0.orderOut(nil) }
+            selectionInteractionWindows = targets.map {
+                makeSelectionInteractionWindow(for: $0.adjustment)
+            }
+        }
+
+        for (window, target) in zip(
+            selectionInteractionWindows,
+            targets
+        ) {
+            window.setFrame(target.frame, display: true)
+            window.orderFrontRegardless()
+        }
+    }
+
+    private func makeSelectionInteractionWindow(
+        for adjustment: CaptureFrameAdjustment
+    ) -> NSPanel {
+        let panel = NSPanel(
+            contentRect: .zero,
+            styleMask: [.borderless, .nonactivatingPanel],
+            backing: .buffered,
+            defer: false
+        )
+        panel.contentView = RecordingFrameInteractionView(
+            adjustment: adjustment,
+            onAdjust: { [weak self] adjustment, delta in
+                self?.adjustSelectedRegion(
+                    adjustment,
+                    byAppKitDelta: delta
+                )
+            },
+            onHover: { [weak self] adjustment in
+                guard let borderView = self?.selectionBorderWindow?.contentView
+                    as? RecordingBorderView
+                else {
+                    return
+                }
+                borderView.setHoveredAdjustment(adjustment)
+            },
+            onActive: { [weak self] adjustment in
+                guard let borderView = self?.selectionBorderWindow?.contentView
+                    as? RecordingBorderView
+                else {
+                    return
+                }
+                borderView.setActiveAdjustment(adjustment)
+            }
+        )
+        panel.level = RecordingHUDWindowLevels.selectionFrame
+        panel.backgroundColor = .clear
+        panel.isOpaque = false
+        panel.hasShadow = false
+        panel.hidesOnDeactivate = false
+        panel.ignoresMouseEvents = false
+        panel.acceptsMouseMovedEvents = true
+        panel.isReleasedWhenClosed = false
+        panel.collectionBehavior = [
+            .canJoinAllSpaces,
+            .fullScreenAuxiliary,
+            .transient,
+        ]
+        panel.animationBehavior = .none
         return panel
     }
 
@@ -577,33 +897,192 @@ final class RecordingHUDController {
     }
 }
 
-private enum CaptureFrameAdjustment: Equatable {
+enum CaptureFrameAdjustment: Equatable {
     case move
     case resize(RegionSelectionResizeHandle)
 }
 
+private final class RecordingFrameInteractionView: NSView {
+    let adjustment: CaptureFrameAdjustment
+
+    private let onAdjust: (CaptureFrameAdjustment, CGPoint) -> Void
+    private let onHover: (CaptureFrameAdjustment?) -> Void
+    private let onActive: (CaptureFrameAdjustment?) -> Void
+    private var lastMouseLocation: CGPoint?
+    private var pointerTrackingArea: NSTrackingArea?
+
+    init(
+        adjustment: CaptureFrameAdjustment,
+        onAdjust: @escaping (CaptureFrameAdjustment, CGPoint) -> Void,
+        onHover: @escaping (CaptureFrameAdjustment?) -> Void,
+        onActive: @escaping (CaptureFrameAdjustment?) -> Void
+    ) {
+        self.adjustment = adjustment
+        self.onAdjust = onAdjust
+        self.onHover = onHover
+        self.onActive = onActive
+        super.init(frame: .zero)
+
+        setAccessibilityElement(false)
+        toolTip = accessibilityHelp
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    override var acceptsFirstResponder: Bool { false }
+    override var isOpaque: Bool { false }
+
+    override func updateTrackingAreas() {
+        super.updateTrackingAreas()
+        if let pointerTrackingArea {
+            removeTrackingArea(pointerTrackingArea)
+        }
+        let trackingArea = NSTrackingArea(
+            rect: bounds,
+            options: [
+                .activeAlways,
+                .inVisibleRect,
+                .mouseEnteredAndExited,
+            ],
+            owner: self,
+            userInfo: nil
+        )
+        addTrackingArea(trackingArea)
+        pointerTrackingArea = trackingArea
+    }
+
+    override func resetCursorRects() {
+        addCursorRect(bounds, cursor: cursor)
+    }
+
+    override func mouseEntered(with event: NSEvent) {
+        onHover(adjustment)
+    }
+
+    override func mouseExited(with event: NSEvent) {
+        guard lastMouseLocation == nil else { return }
+        onHover(nil)
+    }
+
+    override func mouseDown(with event: NSEvent) {
+        lastMouseLocation = NSEvent.mouseLocation
+        onActive(adjustment)
+        if adjustment == .move {
+            NSCursor.closedHand.set()
+        }
+    }
+
+    override func mouseDragged(with event: NSEvent) {
+        guard let lastMouseLocation else {
+            super.mouseDragged(with: event)
+            return
+        }
+
+        let currentMouseLocation = NSEvent.mouseLocation
+        let delta = CGPoint(
+            x: currentMouseLocation.x - lastMouseLocation.x,
+            y: currentMouseLocation.y - lastMouseLocation.y
+        )
+        guard delta != .zero else { return }
+
+        onAdjust(adjustment, delta)
+        self.lastMouseLocation = currentMouseLocation
+    }
+
+    override func mouseUp(with event: NSEvent) {
+        lastMouseLocation = nil
+        onActive(nil)
+
+        let location = convert(event.locationInWindow, from: nil)
+        if bounds.contains(location) {
+            onHover(adjustment)
+            cursor.set()
+        } else {
+            onHover(nil)
+        }
+    }
+
+    private var accessibilityHelp: String {
+        switch adjustment {
+        case .move:
+            return "Drag this handle to move the recording frame."
+        case .resize:
+            return "Drag this edge or corner to resize the recording frame."
+        }
+    }
+
+    private var cursor: NSCursor {
+        switch adjustment {
+        case .move:
+            return .openHand
+        case .resize(.north), .resize(.south):
+            return .resizeUpDown
+        case .resize(.east), .resize(.west):
+            return .resizeLeftRight
+        case .resize(.northWest), .resize(.southEast):
+            return Self.diagonalResizeCursor(
+                symbolName: "arrow.up.left.and.arrow.down.right"
+            )
+        case .resize(.northEast), .resize(.southWest):
+            return Self.diagonalResizeCursor(
+                symbolName: "arrow.up.right.and.arrow.down.left"
+            )
+        }
+    }
+
+    private static func diagonalResizeCursor(symbolName: String) -> NSCursor {
+        guard let image = NSImage(
+            systemSymbolName: symbolName,
+            accessibilityDescription: "Resize"
+        )?.withSymbolConfiguration(
+            NSImage.SymbolConfiguration(pointSize: 15, weight: .medium)
+        ) else {
+            return .crosshair
+        }
+        image.size = CGSize(width: 18, height: 18)
+        return NSCursor(
+            image: image,
+            hotSpot: CGPoint(x: image.size.width / 2, y: image.size.height / 2)
+        )
+    }
+}
+
 private final class RecordingBorderView: NSView {
     private enum Metrics {
-        static let resizeHitTarget: CGFloat = 20
-        static let handleSize: CGFloat = 7
-        static let highlightedHandleSize: CGFloat = 10
+        static let cornerHandleSize: CGFloat = 12
+        static let highlightedCornerHandleSize: CGFloat = 16
+        static let edgeHandleLength: CGFloat = 24
+        static let highlightedEdgeHandleLength: CGFloat = 30
+        static let edgeHandleThickness: CGFloat = 6
+        static let highlightedEdgeHandleThickness: CGFloat = 8
+        static let dimensionBadgeHeight: CGFloat = 24
+        static let dimensionBadgeInset: CGFloat = 10
+        static let dimensionBadgeHorizontalPadding: CGFloat = 9
         static let coachHeight: CGFloat = 30
         static let coachInset: CGFloat = 12
         static let coachHorizontalPadding: CGFloat = 11
     }
 
+    private enum HandleVisual {
+        case corner
+        case horizontalRail
+        case verticalRail
+    }
+
     private static let selectionColor = GifJotDesign.canvasIndigoNS
     private let onAdjust: (CaptureFrameAdjustment, CGPoint) -> Void
-    private var lastMouseLocation: CGPoint?
     private var activeAdjustment: CaptureFrameAdjustment?
     private var hoveredAdjustment: CaptureFrameAdjustment?
-    private var pointerTrackingArea: NSTrackingArea?
 
     var displayScale: CGFloat = 1
     var outputDimensions: OutputDimensions? {
         didSet {
             guard outputDimensions != oldValue else { return }
             updateAccessibilityValue()
+            needsDisplay = true
         }
     }
     var showsCoach = false {
@@ -619,16 +1098,18 @@ private final class RecordingBorderView: NSView {
                 activeAdjustment = nil
             }
             toolTip = isAdjustable
-                ? "Drag inside to move. Drag an edge or corner to resize."
+                ? "Drag the move handle to reposition the frame. "
+                    + "Drag an edge or corner to resize."
                 : nil
-            refreshPointerTrackingArea()
-            window?.invalidateCursorRects(for: self)
             needsDisplay = true
         }
     }
 
-    override var acceptsFirstResponder: Bool { true }
     override var isOpaque: Bool { false }
+
+    private var selectionRect: CGRect {
+        RecordingFrameInteractionGeometry.selectionRect(in: bounds)
+    }
 
     init(onAdjust: @escaping (CaptureFrameAdjustment, CGPoint) -> Void) {
         self.onAdjust = onAdjust
@@ -637,8 +1118,9 @@ private final class RecordingBorderView: NSView {
         setAccessibilityRole(.group)
         setAccessibilityLabel("Selected recording region")
         setAccessibilityHelp(
-            "Drag inside the frame to move it. Drag a handle to resize it. "
-                + "Arrow keys move; Option-arrow resizes."
+            "Drag the move handle to reposition the frame. "
+                + "The center stays interactive with the app underneath. "
+                + "Drag a handle to resize."
         )
         setAccessibilityCustomActions([
             accessibilityAction(name: "Move left") { view in
@@ -674,321 +1156,322 @@ private final class RecordingBorderView: NSView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    override func updateTrackingAreas() {
-        super.updateTrackingAreas()
-        refreshPointerTrackingArea()
-    }
-
-    private func refreshPointerTrackingArea() {
-        if let pointerTrackingArea {
-            removeTrackingArea(pointerTrackingArea)
-        }
-        guard isAdjustable else {
-            pointerTrackingArea = nil
-            return
-        }
-
-        let trackingArea = NSTrackingArea(
-            rect: bounds,
-            options: [
-                .activeAlways,
-                .inVisibleRect,
-                .mouseEnteredAndExited,
-                .mouseMoved,
-            ],
-            owner: self,
-            userInfo: nil
-        )
-        addTrackingArea(trackingArea)
-        pointerTrackingArea = trackingArea
-    }
-
-    override func resetCursorRects() {
-        guard isAdjustable else { return }
-
-        let edgeLength = min(
-            Metrics.resizeHitTarget,
-            min(bounds.width, bounds.height) / 2
-        )
-        let cornerSize = edgeLength
-        let horizontalSpan = max(0, bounds.width - cornerSize * 2)
-        let verticalSpan = max(0, bounds.height - cornerSize * 2)
-
-        let moveRect = bounds.insetBy(dx: edgeLength, dy: edgeLength)
-        if moveRect.width > 0, moveRect.height > 0 {
-            addCursorRect(moveRect, cursor: .openHand)
-        }
-        addCursorRect(
-            CGRect(x: cornerSize, y: 0, width: horizontalSpan, height: edgeLength),
-            cursor: .resizeUpDown
-        )
-        addCursorRect(
-            CGRect(
-                x: cornerSize,
-                y: bounds.maxY - edgeLength,
-                width: horizontalSpan,
-                height: edgeLength
-            ),
-            cursor: .resizeUpDown
-        )
-        addCursorRect(
-            CGRect(x: 0, y: cornerSize, width: edgeLength, height: verticalSpan),
-            cursor: .resizeLeftRight
-        )
-        addCursorRect(
-            CGRect(
-                x: bounds.maxX - edgeLength,
-                y: cornerSize,
-                width: edgeLength,
-                height: verticalSpan
-            ),
-            cursor: .resizeLeftRight
-        )
-        addCursorRect(
-            CGRect(x: 0, y: 0, width: cornerSize, height: cornerSize),
-            cursor: Self.diagonalResizeCursor(
-                symbolName: "arrow.up.left.and.arrow.down.right"
-            )
-        )
-        addCursorRect(
-            CGRect(x: bounds.maxX - cornerSize, y: 0, width: cornerSize, height: cornerSize),
-            cursor: Self.diagonalResizeCursor(
-                symbolName: "arrow.up.right.and.arrow.down.left"
-            )
-        )
-        addCursorRect(
-            CGRect(x: 0, y: bounds.maxY - cornerSize, width: cornerSize, height: cornerSize),
-            cursor: Self.diagonalResizeCursor(
-                symbolName: "arrow.up.right.and.arrow.down.left"
-            )
-        )
-        addCursorRect(
-            CGRect(
-                x: bounds.maxX - cornerSize,
-                y: bounds.maxY - cornerSize,
-                width: cornerSize,
-                height: cornerSize
-            ),
-            cursor: Self.diagonalResizeCursor(
-                symbolName: "arrow.up.left.and.arrow.down.right"
-            )
-        )
-    }
-
-    override func mouseMoved(with event: NSEvent) {
-        guard isAdjustable else { return }
-        let adjustment = adjustment(
-            at: convert(event.locationInWindow, from: nil)
-        )
-        guard adjustment != hoveredAdjustment else { return }
+    func setHoveredAdjustment(_ adjustment: CaptureFrameAdjustment?) {
+        guard hoveredAdjustment != adjustment else { return }
         hoveredAdjustment = adjustment
         needsDisplay = true
     }
 
-    override func mouseExited(with event: NSEvent) {
-        hoveredAdjustment = nil
+    func setActiveAdjustment(_ adjustment: CaptureFrameAdjustment?) {
+        guard activeAdjustment != adjustment else { return }
+        activeAdjustment = adjustment
         needsDisplay = true
-    }
-
-    override func mouseDown(with event: NSEvent) {
-        guard isAdjustable else {
-            super.mouseDown(with: event)
-            return
-        }
-
-        window?.makeFirstResponder(self)
-        lastMouseLocation = NSEvent.mouseLocation
-        activeAdjustment = adjustment(at: convert(event.locationInWindow, from: nil))
-        if case .some(.move) = activeAdjustment {
-            NSCursor.closedHand.set()
-        }
-        needsDisplay = true
-    }
-
-    override func mouseDragged(with event: NSEvent) {
-        guard isAdjustable,
-              let lastMouseLocation,
-              let activeAdjustment
-        else {
-            super.mouseDragged(with: event)
-            return
-        }
-
-        let currentMouseLocation = NSEvent.mouseLocation
-        let delta = CGPoint(
-            x: currentMouseLocation.x - lastMouseLocation.x,
-            y: currentMouseLocation.y - lastMouseLocation.y
-        )
-        guard delta != .zero else { return }
-
-        onAdjust(activeAdjustment, delta)
-        self.lastMouseLocation = currentMouseLocation
-    }
-
-    override func mouseUp(with event: NSEvent) {
-        defer {
-            lastMouseLocation = nil
-            activeAdjustment = nil
-            if isAdjustable {
-                window?.invalidateCursorRects(for: self)
-            }
-            needsDisplay = true
-        }
-        super.mouseUp(with: event)
-    }
-
-    private func adjustment(at point: CGPoint) -> CaptureFrameAdjustment {
-        let edgeLength = min(
-            Metrics.resizeHitTarget,
-            min(bounds.width, bounds.height) / 2
-        )
-        let isWest = point.x <= bounds.minX + edgeLength
-        let isEast = point.x >= bounds.maxX - edgeLength
-        let isSouth = point.y <= bounds.minY + edgeLength
-        let isNorth = point.y >= bounds.maxY - edgeLength
-
-        switch (isNorth, isSouth, isEast, isWest) {
-        case (true, false, true, false):
-            return CaptureFrameAdjustment.resize(.northEast)
-        case (true, false, false, true):
-            return CaptureFrameAdjustment.resize(.northWest)
-        case (false, true, true, false):
-            return CaptureFrameAdjustment.resize(.southEast)
-        case (false, true, false, true):
-            return CaptureFrameAdjustment.resize(.southWest)
-        case (true, false, false, false):
-            return CaptureFrameAdjustment.resize(.north)
-        case (false, true, false, false):
-            return CaptureFrameAdjustment.resize(.south)
-        case (false, false, true, false):
-            return CaptureFrameAdjustment.resize(.east)
-        case (false, false, false, true):
-            return CaptureFrameAdjustment.resize(.west)
-        default:
-            return CaptureFrameAdjustment.move
-        }
     }
 
     override func draw(_ dirtyRect: NSRect) {
         super.draw(dirtyRect)
 
         let lineWidth = max(1.0 / max(displayScale, 1), 1)
+        let frame = selectionRect
+        if activeAdjustment == .move {
+            Self.selectionColor.withAlphaComponent(0.055).setFill()
+            NSBezierPath(
+                rect: frame.insetBy(dx: lineWidth, dy: lineWidth)
+            ).fill()
+        }
+
         NSColor.white.withAlphaComponent(0.88).setStroke()
         let contrastPath = NSBezierPath(
-            rect: bounds.insetBy(dx: lineWidth, dy: lineWidth)
+            rect: frame.insetBy(dx: lineWidth, dy: lineWidth)
         )
         contrastPath.lineWidth = lineWidth + 2
         contrastPath.stroke()
 
         Self.selectionColor.setStroke()
         let path = NSBezierPath(
-            rect: bounds.insetBy(dx: lineWidth / 2, dy: lineWidth / 2)
+            rect: frame.insetBy(dx: lineWidth / 2, dy: lineWidth / 2)
         )
-        path.lineWidth = lineWidth
+        path.lineWidth = activeAdjustment == nil ? lineWidth : lineWidth + 1
         path.stroke()
 
         guard isAdjustable else { return }
 
         drawResizeHandles()
+        drawMoveGrip()
+        drawDimensionBadge()
         if showsCoach {
             drawCoach()
         }
     }
 
     private func drawResizeHandles() {
-        guard bounds.width >= Metrics.highlightedHandleSize + 4,
-              bounds.height >= Metrics.highlightedHandleSize + 4
+        let frame = selectionRect
+        guard frame.width >= Metrics.highlightedCornerHandleSize + 4,
+              frame.height >= Metrics.highlightedCornerHandleSize + 4
         else {
             return
         }
 
-        let inset = Metrics.highlightedHandleSize / 2
-        var descriptors: [(CGPoint, CaptureFrameAdjustment)] = [
+        var descriptors: [
             (
-                CGPoint(x: inset, y: inset),
-                .resize(.southWest)
+                center: CGPoint,
+                adjustment: CaptureFrameAdjustment,
+                visual: HandleVisual
+            )
+        ] = [
+            (
+                CGPoint(x: frame.minX, y: frame.minY),
+                .resize(.southWest),
+                .corner
             ),
             (
-                CGPoint(x: bounds.maxX - inset, y: inset),
-                .resize(.southEast)
+                CGPoint(x: frame.maxX, y: frame.minY),
+                .resize(.southEast),
+                .corner
             ),
             (
-                CGPoint(x: inset, y: bounds.maxY - inset),
-                .resize(.northWest)
+                CGPoint(x: frame.minX, y: frame.maxY),
+                .resize(.northWest),
+                .corner
             ),
             (
-                CGPoint(x: bounds.maxX - inset, y: bounds.maxY - inset),
-                .resize(.northEast)
+                CGPoint(x: frame.maxX, y: frame.maxY),
+                .resize(.northEast),
+                .corner
             ),
         ]
 
-        if bounds.width >= 72,
-           hoveredAdjustment == .resize(.south)
-            || activeAdjustment == .resize(.south)
-        {
+        if frame.width >= 72 {
             descriptors.append(
-                (CGPoint(x: bounds.midX, y: inset), .resize(.south))
+                (
+                    CGPoint(x: frame.midX, y: frame.minY),
+                    .resize(.south),
+                    .horizontalRail
+                )
+            )
+            descriptors.append(
+                (
+                    CGPoint(x: frame.midX, y: frame.maxY),
+                    .resize(.north),
+                    .horizontalRail
+                )
             )
         }
-        if bounds.width >= 72,
-           hoveredAdjustment == .resize(.north)
-            || activeAdjustment == .resize(.north)
-        {
+        if frame.height >= 72 {
             descriptors.append(
-                (CGPoint(x: bounds.midX, y: bounds.maxY - inset), .resize(.north))
+                (
+                    CGPoint(x: frame.minX, y: frame.midY),
+                    .resize(.west),
+                    .verticalRail
+                )
             )
-        }
-        if bounds.height >= 72,
-           hoveredAdjustment == .resize(.west)
-            || activeAdjustment == .resize(.west)
-        {
             descriptors.append(
-                (CGPoint(x: inset, y: bounds.midY), .resize(.west))
-            )
-        }
-        if bounds.height >= 72,
-           hoveredAdjustment == .resize(.east)
-            || activeAdjustment == .resize(.east)
-        {
-            descriptors.append(
-                (CGPoint(x: bounds.maxX - inset, y: bounds.midY), .resize(.east))
+                (
+                    CGPoint(x: frame.maxX, y: frame.midY),
+                    .resize(.east),
+                    .verticalRail
+                )
             )
         }
 
-        for (center, adjustment) in descriptors {
+        for descriptor in descriptors {
+            let center = descriptor.center
+            let adjustment = descriptor.adjustment
             let highlighted = activeAdjustment == adjustment
                 || hoveredAdjustment == adjustment
-            let size = highlighted
-                ? Metrics.highlightedHandleSize
-                : Metrics.handleSize
+            let size: CGSize
+            switch descriptor.visual {
+            case .corner:
+                let length = highlighted
+                    ? Metrics.highlightedCornerHandleSize
+                    : Metrics.cornerHandleSize
+                size = CGSize(width: length, height: length)
+            case .horizontalRail:
+                size = CGSize(
+                    width: highlighted
+                        ? Metrics.highlightedEdgeHandleLength
+                        : Metrics.edgeHandleLength,
+                    height: highlighted
+                        ? Metrics.highlightedEdgeHandleThickness
+                        : Metrics.edgeHandleThickness
+                )
+            case .verticalRail:
+                size = CGSize(
+                    width: highlighted
+                        ? Metrics.highlightedEdgeHandleThickness
+                        : Metrics.edgeHandleThickness,
+                    height: highlighted
+                        ? Metrics.highlightedEdgeHandleLength
+                        : Metrics.edgeHandleLength
+                )
+            }
             let handleRect = CGRect(
-                x: center.x - size / 2,
-                y: center.y - size / 2,
-                width: size,
-                height: size
+                x: center.x - size.width / 2,
+                y: center.y - size.height / 2,
+                width: size.width,
+                height: size.height
             )
 
-            Self.selectionColor.setFill()
+            if highlighted {
+                Self.selectionColor.setFill()
+            } else {
+                NSColor.windowBackgroundColor
+                    .withAlphaComponent(0.98)
+                    .setFill()
+            }
+            let radius = min(size.width, size.height) / 2
             let handle = NSBezierPath(
                 roundedRect: handleRect,
-                xRadius: highlighted ? 2 : 1.5,
-                yRadius: highlighted ? 2 : 1.5
+                xRadius: radius,
+                yRadius: radius
             )
             handle.fill()
 
-            NSColor.white.withAlphaComponent(0.92).setStroke()
+            (
+                highlighted
+                    ? NSColor.white.withAlphaComponent(0.95)
+                    : Self.selectionColor
+            ).setStroke()
             let outline = NSBezierPath(
                 roundedRect: handleRect.insetBy(dx: 0.5, dy: 0.5),
-                xRadius: highlighted ? 1.5 : 1,
-                yRadius: highlighted ? 1.5 : 1
+                xRadius: max(0, radius - 0.5),
+                yRadius: max(0, radius - 0.5)
             )
-            outline.lineWidth = 1
+            outline.lineWidth = highlighted ? 1 : 1.5
             outline.stroke()
         }
     }
 
+    private func drawMoveGrip() {
+        let frame = selectionRect
+        guard frame.width >= 90,
+              frame.height >= 70
+        else {
+            return
+        }
+
+        let gripRect = RecordingFrameInteractionGeometry.moveHandleVisualRect(
+            in: frame
+        )
+        let highlighted = hoveredAdjustment == .move
+            || activeAdjustment == .move
+        if highlighted {
+            Self.selectionColor.setFill()
+        } else {
+            NSColor.windowBackgroundColor.withAlphaComponent(0.94).setFill()
+        }
+        NSBezierPath(
+            roundedRect: gripRect,
+            xRadius: 7,
+            yRadius: 7
+        ).fill()
+
+        (
+            highlighted
+                ? NSColor.white.withAlphaComponent(0.9)
+                : Self.selectionColor.withAlphaComponent(0.9)
+        ).setStroke()
+        let outline = NSBezierPath(
+            roundedRect: gripRect.insetBy(dx: 0.5, dy: 0.5),
+            xRadius: 6.5,
+            yRadius: 6.5
+        )
+        outline.lineWidth = 1
+        outline.stroke()
+
+        let symbolColor = highlighted
+            ? NSColor.white
+            : Self.selectionColor
+        let configuration = NSImage.SymbolConfiguration(
+            pointSize: 11,
+            weight: .semibold
+        ).applying(
+            NSImage.SymbolConfiguration(paletteColors: [symbolColor])
+        )
+        guard let symbol = NSImage(
+            systemSymbolName: "arrow.up.and.down.and.arrow.left.and.right",
+            accessibilityDescription: "Move frame"
+        )?.withSymbolConfiguration(configuration) else {
+            return
+        }
+        let symbolSize = CGSize(width: 13, height: 13)
+        symbol.draw(
+            in: CGRect(
+                x: gripRect.midX - symbolSize.width / 2,
+                y: gripRect.midY - symbolSize.height / 2,
+                width: symbolSize.width,
+                height: symbolSize.height
+            )
+        )
+    }
+
+    private func drawDimensionBadge() {
+        guard !showsCoach,
+              let visibleAdjustment = activeAdjustment ?? hoveredAdjustment,
+              case .resize = visibleAdjustment,
+              let outputDimensions
+        else {
+            return
+        }
+
+        let frame = selectionRect
+        let text = "\(outputDimensions.width) × \(outputDimensions.height) px"
+        let font = NSFont.monospacedSystemFont(
+            ofSize: 11,
+            weight: .semibold
+        )
+        let paragraph = NSMutableParagraphStyle()
+        paragraph.alignment = .center
+        let attributes: [NSAttributedString.Key: Any] = [
+            .font: font,
+            .foregroundColor: NSColor.labelColor,
+            .paragraphStyle: paragraph,
+        ]
+        let measured = (text as NSString).size(withAttributes: attributes)
+        let badgeWidth = measured.width
+            + Metrics.dimensionBadgeHorizontalPadding * 2
+        guard frame.width >= badgeWidth + Metrics.dimensionBadgeInset * 2,
+              frame.height >= Metrics.dimensionBadgeHeight
+                + Metrics.dimensionBadgeInset * 2
+        else {
+            return
+        }
+
+        let badgeRect = CGRect(
+            x: frame.midX - badgeWidth / 2,
+            y: frame.minY + Metrics.dimensionBadgeInset,
+            width: badgeWidth,
+            height: Metrics.dimensionBadgeHeight
+        )
+        NSColor.windowBackgroundColor.withAlphaComponent(0.96).setFill()
+        NSBezierPath(
+            roundedRect: badgeRect,
+            xRadius: 7,
+            yRadius: 7
+        ).fill()
+
+        Self.selectionColor.withAlphaComponent(0.75).setStroke()
+        let outline = NSBezierPath(
+            roundedRect: badgeRect.insetBy(dx: 0.5, dy: 0.5),
+            xRadius: 6.5,
+            yRadius: 6.5
+        )
+        outline.lineWidth = 1
+        outline.stroke()
+
+        let textRect = CGRect(
+            x: badgeRect.minX + Metrics.dimensionBadgeHorizontalPadding,
+            y: badgeRect.midY - measured.height / 2,
+            width: badgeRect.width
+                - Metrics.dimensionBadgeHorizontalPadding * 2,
+            height: measured.height
+        )
+        (text as NSString).draw(in: textRect, withAttributes: attributes)
+    }
+
     private func drawCoach() {
-        let text = "Drag inside to move  ·  Pull a corner to resize"
+        let frame = selectionRect
+        let text = "Drag the move handle  ·  Pull a rail or corner to resize"
         let font = NSFont.systemFont(ofSize: 11, weight: .medium)
         let paragraph = NSMutableParagraphStyle()
         paragraph.alignment = .center
@@ -1000,17 +1483,17 @@ private final class RecordingBorderView: NSView {
         let measured = (text as NSString).size(withAttributes: attributes)
         let width = min(
             measured.width + Metrics.coachHorizontalPadding * 2,
-            bounds.width - Metrics.coachInset * 2
+            frame.width - Metrics.coachInset * 2
         )
         guard width >= 180,
-              bounds.height >= Metrics.coachHeight + Metrics.coachInset * 2
+              frame.height >= Metrics.coachHeight + Metrics.coachInset * 2
         else {
             return
         }
 
         let coachRect = CGRect(
-            x: Metrics.coachInset,
-            y: bounds.maxY - Metrics.coachInset - Metrics.coachHeight,
+            x: frame.midX - width / 2,
+            y: frame.minY + Metrics.coachInset,
             width: width,
             height: Metrics.coachHeight
         )
@@ -1037,22 +1520,6 @@ private final class RecordingBorderView: NSView {
         )
         (text as NSString).draw(in: textRect, withAttributes: attributes)
         NSGraphicsContext.current?.restoreGraphicsState()
-    }
-
-    private static func diagonalResizeCursor(symbolName: String) -> NSCursor {
-        guard let image = NSImage(
-            systemSymbolName: symbolName,
-            accessibilityDescription: "Resize"
-        )?.withSymbolConfiguration(
-            NSImage.SymbolConfiguration(pointSize: 15, weight: .medium)
-        ) else {
-            return .crosshair
-        }
-        image.size = CGSize(width: 18, height: 18)
-        return NSCursor(
-            image: image,
-            hotSpot: CGPoint(x: image.size.width / 2, y: image.size.height / 2)
-        )
     }
 
     private func updateAccessibilityValue() {
@@ -1188,6 +1655,10 @@ private struct RecordingHUDView: View {
         .onExitCommand {
             if coordinator.state == .readyToRecord {
                 coordinator.cancelPendingRecording()
+            } else if coordinator.state == .completed
+                || coordinator.state == .failed
+            {
+                coordinator.dismissResult()
             }
         }
     }
@@ -1205,6 +1676,7 @@ private struct RecordingHUDView: View {
                     .font(.system(size: 12, weight: .semibold))
                     .foregroundStyle(Color.primary)
                     .lineLimit(1)
+                    .help(primaryText)
 
                 if coordinator.state == .recording {
                     Text(elapsedTime)
@@ -1238,6 +1710,23 @@ private struct RecordingHUDView: View {
                     NSWorkspace.shared.activateFileViewerSelecting([outputURL])
                 }
                 .buttonStyle(GifJotDarkQuietButtonStyle())
+            } else if coordinator.state == .failed {
+                Button("Retry") {
+                    coordinator.begin(
+                        configuration: settings.recordingConfiguration()
+                    )
+                }
+                .buttonStyle(GifJotDarkQuietButtonStyle())
+                .accessibilityHint("Select another area and try recording again")
+
+                Button {
+                    coordinator.dismissResult()
+                } label: {
+                    Image(systemName: "xmark")
+                        .accessibilityLabel("Dismiss recording error")
+                }
+                .buttonStyle(RegionReadyIconButtonStyle())
+                .keyboardShortcut(.cancelAction)
             }
         }
         .frame(height: RecordingHUDMetrics.controlHeight)
@@ -1278,15 +1767,36 @@ private struct RecordingHUDView: View {
                     Label("Cancel selection", systemImage: "xmark")
                 }
             } label: {
-                Image(systemName: "ellipsis")
-                    .accessibilityLabel("More recording options")
+                ZStack(alignment: .topTrailing) {
+                    Image(systemName: "cursorarrow")
+                        .opacity(settings.includeCursor ? 1 : 0.4)
+
+                    if !settings.includeCursor {
+                        Capsule()
+                            .fill(Color.primary)
+                            .frame(width: 16, height: 1.5)
+                            .rotationEffect(.degrees(-45))
+                            .offset(x: -4, y: 8)
+                    }
+
+                    Text("\(settings.countdown.rawValue)")
+                        .font(.system(size: 8, weight: .bold, design: .rounded))
+                        .foregroundStyle(Color.white)
+                        .frame(minWidth: 13, minHeight: 13)
+                        .background(GifJotDesign.canvasIndigo)
+                        .clipShape(Circle())
+                        .offset(x: 5, y: -5)
+                }
+                .frame(width: 24, height: 24)
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel(moreOptionsSummary)
             }
             .buttonStyle(RegionReadyIconButtonStyle())
             .menuStyle(.borderlessButton)
             .menuIndicator(.hidden)
-            .help("Cursor, countdown, and cancel")
+            .help(moreOptionsSummary)
             .accessibilityHint(
-                "Shows cursor, countdown, and cancel options"
+                "Change cursor, countdown, or cancel the selection"
             )
 
             Button {
@@ -1456,7 +1966,7 @@ private struct RecordingHUDView: View {
         case .exporting:
             "Saving…"
         case .completed:
-            coordinator.warningMessage ?? "Saved and copied"
+            coordinator.warningMessage ?? "Copied—ready to paste"
         case .failed:
             coordinator.errorMessage ?? "Recording failed"
         default:
@@ -1468,5 +1978,13 @@ private struct RecordingHUDView: View {
         let minutes = coordinator.elapsedSeconds / 60
         let seconds = coordinator.elapsedSeconds % 60
         return String(format: "%02d:%02d", minutes, seconds)
+    }
+
+    private var moreOptionsSummary: String {
+        let cursor = settings.includeCursor ? "Cursor on" : "Cursor off"
+        let countdown = settings.countdown == .off
+            ? "no countdown"
+            : "\(settings.countdown.displayName) countdown"
+        return "\(cursor) · \(countdown)"
     }
 }

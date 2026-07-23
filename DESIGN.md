@@ -194,28 +194,39 @@ the capture boundary itself.
 ## Shapes
 
 Controls use gently rounded rectangles in the 8–12 pt range. The selection uses
-four persistent corner grips with generous invisible hit areas; edge grips
-appear only on hover, focus, or active resize. Grips are small light squares
-with an indigo outline so they read as editor handles rather than annotation
-points.
+four persistent corner grips and four short edge rails. Their visible geometry
+stays compact, but the interaction window extends 14 pt beyond the crop so the
+pointer can approach each control from either side. A dedicated four-way move
+handle inside the frame owns repositioning; the rest of the captured area stays
+click-through so people can prepare the interface underneath.
 
 The frame outline is crisp and continuous. It does not use glow, dotted borders,
-or eight permanently visible circular nodes.
+or oversized control nodes.
 
 ## Components
 
 ### Selection Frame
 
 - **Outline:** Canvas Indigo over a subtle white contrast stroke.
-- **Handles:** Four persistent 7 pt corner squares. A hovered or active handle
-  grows to 10 pt; each edge and corner has a 20 pt invisible hit target.
-- **Movement:** Drag anywhere inside the frame. Arrow keys nudge 1 pt; Shift +
-  arrow nudges 10 pt. Option + arrow makes the area narrower, wider, taller, or
-  shorter.
+- **Handles:** Four persistent 12 pt corner grips use 32 pt invisible targets.
+  Four 24 × 6 pt edge rails use 28 pt grab belts. Hover and active states grow
+  the engaged control without increasing resting clutter.
+- **Outside approach:** The transparent interaction surface extends 14 pt
+  beyond the precise crop boundary; this improves targeting without adding
+  pixels to the GIF.
+- **Movement:** Drag the visible 36 × 28 pt move handle, backed by a 44 × 36 pt
+  hit target. The frame adds a quiet indigo wash and stronger outline while
+  moving. Every other point inside the capture area passes clicks through to
+  the interface underneath. Arrow keys nudge 1 pt; Shift + arrow nudges 10 pt.
+  Option + arrow makes the area narrower, wider, taller, or shorter.
+- **Resize feedback:** Hovering or dragging a rail or corner reveals the exact
+  exported GIF dimensions inside the frame, next to the manipulation rather
+  than only in the inspector.
 - **Accessibility:** The frame exposes its exact GIF output dimensions and named
   VoiceOver actions for movement, width, and height.
-- **Coaching:** `Drag inside to move  ·  Pull a corner to resize` appears once
-  and is permanently dismissed after the first successful move or resize.
+- **Coaching:** `Drag the move handle  ·  Pull a rail or corner to resize`
+  appears once and is permanently dismissed after the first successful move or
+  resize.
 
 ### Ready Inspector
 

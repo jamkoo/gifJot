@@ -66,6 +66,7 @@ Record the Mac model, processor, macOS version, GifJot commit, display arrangeme
 
 - Menu action and `Option-Command-G` both start, confirm, stop, and cancel at the correct states.
 - Countdown, Starting Recording, Recording, Processing, and Complete states appear in order.
+- Cursor and countdown state are visible on the ready inspector before recording begins.
 - Cursor on and off settings match the output.
 - Original, 1280, 960, and 640 width settings produce correct aspect-preserving output.
 - A static interval preserves elapsed time without redundant visible frames.
@@ -73,11 +74,23 @@ Record the Mac model, processor, macOS version, GifJot commit, display arrangeme
 - Repeated recordings use collision-safe filenames and keep the latest valid output available.
 - Cancellation and failure remove temporary frames and hidden export working files.
 
+### Accessibility and appearance
+
+- VoiceOver reaches the menu, selection, ready inspector, recording controls, result, and failure recovery in a logical order.
+- VoiceOver frame actions move and resize the region and announce updated output dimensions.
+- Pointer-only frame hit areas are not announced as unusable buttons.
+- The complete flow works keyboard-only, including retry, dismiss, and focus restoration after terminal states.
+- The largest configured macOS text size does not clip HUD, permission, popover, or Settings content.
+- Light and Dark appearances preserve hierarchy and AA text contrast.
+- Increase Contrast and Reduce Transparency preserve visible boundaries and legibility.
+- Reduce Motion removes nonessential fades without hiding state changes.
+
 ### Failure and endurance coverage
 
 - Unavailable or read-only destination reports failure and leaves no partial final GIF.
 - Low-disk or write failure does not overwrite an existing GIF.
 - Clipboard failure still preserves the saved GIF and reports the copy problem.
+- Recording failure remains visible until the tester chooses Retry, Dismiss, or Escape.
 - Repeated short recordings do not leave capture active, orphan overlays, or stale HUDs.
 - A longer recording keeps memory bounded and reports dropped frames rather than growing without limit.
 
@@ -123,3 +136,9 @@ it. Success writes a GIF to `~/GifJot` by default, copies its file URL, and logs
 ## Reporting verification
 
 Pull requests and release notes must state exactly which Windows checks, macOS CI jobs, and manual rows passed. Use **not run** or **unverified** for anything that was not actually exercised.
+
+For a Developer ID-signed release candidate, copy
+[`RELEASE_TEST_REPORT_TEMPLATE.md`](RELEASE_TEST_REPORT_TEMPLATE.md), record
+each physical-Mac result, and retain the completed report with the release
+artifacts. No required `unverified` or `fail` row may remain when declaring a
+normal-user test release ready.

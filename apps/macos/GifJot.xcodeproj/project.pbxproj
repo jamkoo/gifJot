@@ -44,6 +44,7 @@
 		C00000000000000000000026 /* ApplicationRelauncherTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000026 /* ApplicationRelauncherTests.swift */; };
 		C00000000000000000000027 /* RecentOutputStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000027 /* RecentOutputStore.swift */; };
 		C00000000000000000000028 /* RecentOutputStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000028 /* RecentOutputStoreTests.swift */; };
+		C00000000000000000000029 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000029 /* Assets.xcassets */; };
 		D624BC0C09A5AF99230619F2 /* GIFFileExporterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88757E36953D20F46D92EA68 /* GIFFileExporterTests.swift */; };
 		D68AD8C8F891FE09C4A7AD05 /* GIFEncoding.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0EDCE2C5F9BAD4A364F5F5D /* GIFEncoding.swift */; };
 		DFB54B12136FEA1B6CBD8CB6 /* RegionSelectionGeometry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92E0EA6C4061226F68BDD6C8 /* RegionSelectionGeometry.swift */; };
@@ -105,6 +106,7 @@
 		B00000000000000000000026 /* ApplicationRelauncherTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationRelauncherTests.swift; sourceTree = "<group>"; };
 		B00000000000000000000027 /* RecentOutputStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentOutputStore.swift; sourceTree = "<group>"; };
 		B00000000000000000000028 /* RecentOutputStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentOutputStoreTests.swift; sourceTree = "<group>"; };
+		B00000000000000000000029 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		D0EDCE2C5F9BAD4A364F5F5D /* GIFEncoding.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GIFEncoding.swift; sourceTree = "<group>"; };
 		DC5C51DF1D9196242783FF4D /* RegionSelectionGeometryTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RegionSelectionGeometryTests.swift; sourceTree = "<group>"; };
 		F41DB9C4DEC6D0B34D47B7B9 /* GIFFrameTiming.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GIFFrameTiming.swift; sourceTree = "<group>"; };
@@ -154,6 +156,7 @@
 				A00000000000000000000009 /* Capture */,
 				A00000000000000000000006 /* Recording */,
 				A00000000000000000000007 /* Settings */,
+				A0000000000000000000000A /* Resources */,
 				B00000000000000000000010 /* Info.plist */,
 				B00A637057BDACFF173AED93 /* Export */,
 			);
@@ -174,6 +177,14 @@
 				B00000000000000000000025 /* ApplicationRelauncher.swift */,
 			);
 			path = App;
+			sourceTree = "<group>";
+		};
+		A0000000000000000000000A /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				B00000000000000000000029 /* Assets.xcassets */,
+			);
+			path = Resources;
 			sourceTree = "<group>";
 		};
 		A00000000000000000000006 /* Recording */ = {
@@ -327,6 +338,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C00000000000000000000029 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -510,6 +522,7 @@
 		H00000000000000000000011 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
@@ -532,6 +545,7 @@
 		H00000000000000000000012 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;

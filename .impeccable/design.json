@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-07-23T14:41:20Z",
+  "generatedAt": "2026-07-23T16:10:59Z",
   "title": "Design System: GifJot",
   "extensions": {
     "colorMeta": {
@@ -72,9 +72,9 @@
     {
       "name": "Selection Frame",
       "kind": "custom",
-      "description": "A crisp Canvas Indigo boundary with four persistent square handles, direct manipulation, and keyboard or VoiceOver adjustment.",
-      "html": "<div class=\"ds-selection-frame\"><i class=\"ds-handle ds-nw\"></i><i class=\"ds-handle ds-ne\"></i><i class=\"ds-handle ds-sw\"></i><i class=\"ds-handle ds-se\"></i><span class=\"ds-coach\">Drag inside to move&nbsp; · &nbsp;Pull a corner to resize</span></div>",
-      "css": ".ds-selection-frame { position: relative; width: 360px; height: 200px; border: 1px solid #6758E8; box-shadow: 0 0 0 1px rgba(255,255,255,.88) inset; } .ds-handle { position: absolute; width: 7px; height: 7px; border-radius: 2px; background: #6758E8; box-shadow: 0 0 0 1px rgba(255,255,255,.92) inset; transition: width 100ms, height 100ms; } .ds-handle:hover { width: 10px; height: 10px; } .ds-nw { left: -4px; top: -4px; } .ds-ne { right: -4px; top: -4px; } .ds-sw { left: -4px; bottom: -4px; } .ds-se { right: -4px; bottom: -4px; } .ds-coach { position: absolute; top: 12px; left: 12px; padding: 8px 11px; border-radius: 8px; background: rgba(252,252,253,.96); color: #1D1D20; box-shadow: 0 2px 8px rgba(0,0,0,.18); font: 500 11px -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif; }"
+      "description": "A crisp Canvas Indigo boundary with four generous corner grips, four edge rails, a dedicated move handle, a click-through capture interior, outside-the-crop grab space, live dimensions, and keyboard or VoiceOver adjustment.",
+      "html": "<div class=\"ds-selection-frame\"><i class=\"ds-corner ds-nw\"></i><i class=\"ds-corner ds-ne\"></i><i class=\"ds-corner ds-sw\"></i><i class=\"ds-corner ds-se\"></i><i class=\"ds-rail ds-n\"></i><i class=\"ds-rail ds-e\"></i><i class=\"ds-rail ds-s\"></i><i class=\"ds-rail ds-w\"></i><button class=\"ds-move\" aria-label=\"Move frame\">✥</button><output>1280 × 720 px</output></div>",
+      "css": ".ds-selection-frame { position: relative; width: 360px; height: 200px; border: 1px solid #6758E8; box-shadow: 0 0 0 1px rgba(255,255,255,.88) inset; pointer-events: none; } .ds-corner,.ds-rail { position: absolute; box-sizing: border-box; background: #FCFCFD; border: 1.5px solid #6758E8; pointer-events: auto; } .ds-corner { width: 12px; height: 12px; border-radius: 50%; } .ds-rail { width: 24px; height: 6px; border-radius: 3px; } .ds-nw { left: -6px; top: -6px; } .ds-ne { right: -6px; top: -6px; } .ds-sw { left: -6px; bottom: -6px; } .ds-se { right: -6px; bottom: -6px; } .ds-n,.ds-s { left: calc(50% - 12px); } .ds-n { top: -3px; } .ds-s { bottom: -3px; } .ds-e,.ds-w { width: 6px; height: 24px; top: calc(50% - 12px); } .ds-e { right: -3px; } .ds-w { left: -3px; } .ds-move { position: absolute; top: 18px; left: calc(50% - 18px); width: 36px; height: 28px; border: 1px solid #6758E8; border-radius: 7px; background: rgba(252,252,253,.94); color: #6758E8; pointer-events: auto; } .ds-selection-frame output { position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%); padding: 5px 9px; border: 1px solid rgba(103,88,232,.75); border-radius: 7px; background: rgba(252,252,253,.96); font: 600 11px ui-monospace, 'SF Mono', monospace; }"
     },
     {
       "name": "Frame Size Trigger",

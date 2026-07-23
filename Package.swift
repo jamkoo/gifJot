@@ -20,6 +20,7 @@ let package = Package(
                 "Recording/OutputDimensions.swift",
                 "Recording/RecordingFramePipeline.swift",
                 "Recording/TemporaryRecordingStore.swift",
+                "Resources",
                 "Settings",
             ],
             sources: [
