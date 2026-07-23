@@ -171,7 +171,7 @@ struct GifJotKeycap: View {
 
     var body: some View {
         Text(text)
-            .font(.system(size: 10, weight: .semibold, design: .monospaced))
+            .font(.caption2.monospaced().weight(.semibold))
             .tracking(-0.2)
             .foregroundStyle(
                 inverted
@@ -230,7 +230,7 @@ struct GifJotPrimaryButtonStyle: ButtonStyle {
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(.system(size: 13, weight: .semibold))
+            .font(.body.weight(.semibold))
             .foregroundStyle(Color.white)
             .padding(.horizontal, 14)
             .frame(minHeight: 36)
@@ -265,7 +265,7 @@ struct GifJotSignalButtonStyle: ButtonStyle {
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(.system(size: 12, weight: .semibold))
+            .font(.callout.weight(.semibold))
             .foregroundStyle(GifJotDesign.warmChalk)
             .padding(.horizontal, 12)
             .frame(minHeight: 36)
@@ -294,7 +294,7 @@ struct GifJotSignalButtonStyle: ButtonStyle {
 struct GifJotDarkQuietButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(.system(size: 12, weight: .semibold))
+            .font(.callout.weight(.semibold))
             .foregroundStyle(Color.primary)
             .padding(.horizontal, 12)
             .frame(minHeight: 36)
@@ -322,7 +322,7 @@ struct GifJotDarkQuietButtonStyle: ButtonStyle {
 struct GifJotInlineActionButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(.system(size: 11, weight: .medium))
+            .font(.caption.weight(.medium))
             .foregroundStyle(.primary)
             .frame(maxWidth: .infinity, minHeight: 32)
             .background(
@@ -338,7 +338,7 @@ struct GifJotQuietButtonStyle: ButtonStyle {
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(.system(size: 12, weight: .medium))
+            .font(.callout.weight(.medium))
             .foregroundStyle(.primary)
             .padding(.horizontal, 11)
             .frame(minHeight: 32)
@@ -367,7 +367,7 @@ struct GifJotQuietButtonStyle: ButtonStyle {
 struct GifJotIconButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(.system(size: 13, weight: .medium))
+            .font(.body.weight(.medium))
             .foregroundStyle(.secondary)
             .frame(width: 30, height: 30)
             .background(

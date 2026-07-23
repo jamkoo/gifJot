@@ -45,15 +45,15 @@ struct SettingsView: View {
 
             VStack(alignment: .leading, spacing: 3) {
                 Text("GIFJOT / CAPTURE DEFAULTS")
-                    .font(.system(size: 9, weight: .semibold, design: .monospaced))
+                    .font(.caption2.monospaced().weight(.semibold))
                     .tracking(0.8)
                     .foregroundStyle(.secondary)
 
                 Text("Capture defaults")
-                    .font(.system(size: 20, weight: .semibold))
+                    .font(.title2.weight(.semibold))
 
                 Text("Set your defaults once. Recording stays immediate.")
-                    .font(.system(size: 12))
+                    .font(.callout)
                     .foregroundStyle(.secondary)
             }
 
@@ -132,16 +132,16 @@ struct SettingsView: View {
         ) {
             HStack(spacing: 12) {
                 Image(systemName: "folder")
-                    .font(.system(size: 15, weight: .semibold))
+                    .font(.body.weight(.semibold))
                     .foregroundStyle(GifJotDesign.signal)
                     .frame(width: 22)
 
                 VStack(alignment: .leading, spacing: 3) {
                     Text("Save recordings to")
-                        .font(.system(size: 11, weight: .semibold))
+                        .font(.callout.weight(.semibold))
 
                     Text(settings.outputDirectoryDisplayPath)
-                        .font(.system(size: 11, design: .monospaced))
+                        .font(.caption.monospaced())
                         .foregroundStyle(.secondary)
                         .lineLimit(1)
                         .truncationMode(.middle)
@@ -163,16 +163,16 @@ struct SettingsView: View {
     private var privacyNotice: some View {
         HStack(alignment: .top, spacing: 12) {
             Image(systemName: "lock.shield")
-                .font(.system(size: 16, weight: .semibold))
+                .font(.title3.weight(.semibold))
                 .foregroundStyle(.secondary)
                 .frame(width: 22)
 
             VStack(alignment: .leading, spacing: 4) {
                 Text("Private by default")
-                    .font(.system(size: 13, weight: .semibold))
+                    .font(.headline)
 
                 Text("Recordings stay on this Mac. GifJot has no accounts, uploads, advertising, or telemetry.")
-                    .font(.system(size: 12))
+                    .font(.callout)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
@@ -191,7 +191,7 @@ struct SettingsView: View {
     private var footer: some View {
         HStack {
             Text("Changes apply to your next recording.")
-                .font(.system(size: 11))
+                .font(.caption)
                 .foregroundStyle(.secondary)
 
             Spacer()
@@ -254,15 +254,15 @@ private struct SettingsSection<Content: View>: View {
         VStack(alignment: .leading, spacing: 9) {
             HStack(alignment: .firstTextBaseline, spacing: 10) {
                 Text(index)
-                    .font(.system(size: 10, weight: .semibold, design: .monospaced))
+                    .font(.caption2.monospaced().weight(.semibold))
                     .foregroundStyle(GifJotDesign.signal)
 
                 VStack(alignment: .leading, spacing: 3) {
                     Text(title)
-                        .font(.system(size: 13, weight: .semibold))
+                        .font(.headline)
 
                     Text(detail)
-                        .font(.system(size: 11))
+                        .font(.caption)
                         .foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
@@ -288,7 +288,7 @@ private struct SettingsRow<Control: View>: View {
     var body: some View {
         HStack(spacing: 16) {
             Text(title)
-                .font(.system(size: 11, weight: .semibold))
+                .font(.callout.weight(.semibold))
 
             Spacer()
 

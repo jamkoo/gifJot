@@ -26,7 +26,7 @@ struct CapturePermissionView: View {
                 .padding(.top, 20)
         }
         .padding(24)
-        .frame(width: 500)
+        .frame(minWidth: 500, idealWidth: 500)
         .background(GifJotDesign.opticalBody)
         .tint(GifJotDesign.canvasIndigo)
     }
@@ -44,17 +44,17 @@ struct CapturePermissionView: View {
 
             VStack(alignment: .leading, spacing: 1) {
                 Text("GifJot")
-                    .font(.system(size: 14, weight: .semibold))
+                    .font(.headline)
 
                 Text("Screen Recording")
-                    .font(.system(size: 11))
+                    .font(.caption)
                     .foregroundStyle(.secondary)
             }
 
             Spacer()
 
             Label("Local only", systemImage: "lock.fill")
-                .font(.system(size: 11, weight: .medium))
+                .font(.caption.weight(.medium))
                 .foregroundStyle(.secondary)
         }
     }
@@ -78,14 +78,14 @@ struct CapturePermissionView: View {
 
             VStack(alignment: .leading, spacing: 7) {
                 Text(title)
-                    .font(.system(size: 22, weight: .bold))
+                    .font(.title2.weight(.bold))
                     .tracking(-0.4)
 
                 Text(message)
-                    .font(.system(size: 13))
+                    .font(.body)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
-                    .frame(maxWidth: 360, alignment: .leading)
+                    .frame(maxWidth: .infinity, alignment: .leading)
             }
 
             Spacer(minLength: 0)
@@ -104,7 +104,7 @@ struct CapturePermissionView: View {
                     + "GIFs stay on this Mac—no account, upload, audio, "
                     + "or Accessibility permission."
             )
-            .font(.system(size: 12))
+            .font(.callout)
             .foregroundStyle(.secondary)
             .fixedSize(horizontal: false, vertical: true)
 

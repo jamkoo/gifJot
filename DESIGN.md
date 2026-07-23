@@ -62,7 +62,7 @@ components:
     backgroundColor: "{colors.hud-surface-light}"
     rounded: "{rounded.panel}"
     padding: "{spacing.toolbar-inset}"
-    size: "310px 50px"
+    size: "310px 50px minimum; scales with preferred text size up to 1.35x"
   frame-size-trigger:
     backgroundColor: "{colors.hud-control-light}"
     textColor: "{colors.graphite}"
@@ -169,8 +169,9 @@ internal capture terminology never appears in the primary path.
 The selected region is the spatial anchor. Its inspector docks to the nearest
 available horizontal edge and feels attached without covering the content. It
 may move with the region and flip above or below it to remain on-screen.
-The inspector sits exactly 6 pt from the frame, stays 310 × 50 pt through every
-state, and uses a 12 pt minimum screen inset.
+The inspector sits exactly 6 pt from the frame, uses 310 × 50 pt at the
+standard macOS text size, and scales proportionally with preferred text metrics
+up to 1.35×. It uses a 12 pt minimum screen inset.
 
 The inspector is one compact group: measurement or preset first, optional
 capture choices second, destructive dismissal quiet, and Record last. Secondary
@@ -234,8 +235,10 @@ or oversized control nodes.
   it stays within the 12 pt screen inset and moves with the selection.
 - **Layering:** Always remains above the draggable selection frame, including
   when Full Screen places the inspector inside the selected region.
-- **Size and shape:** 310 × 50 pt, 14 pt continuous corners, 7 pt internal
-  inset, adaptive HUD surface, hairline outline, and one native panel shadow.
+- **Size and shape:** 310 × 50 pt at standard text size, scaling proportionally
+  up to 1.35× for preferred text metrics; 14 pt continuous corners, proportional
+  internal inset, adaptive HUD surface, hairline outline, and one native panel
+  shadow.
 - **Order:** Exact exported GIF dimensions and frame menu, More, then Record.
 - **Keyboard:** Return starts recording. Escape cancels the selection.
 
@@ -266,8 +269,9 @@ or oversized control nodes.
 
 ### Recording Status
 
-- **Surface:** The same 310 × 50 pt adaptive inspector used while ready. Every
-  state uses a centered 36 pt control lane with 7 pt top and bottom insets.
+- **Surface:** The same adaptive inspector used while ready. At standard text
+  size it is 310 × 50 pt with a centered 36 pt control lane and 7 pt top and
+  bottom insets; preferred text metrics scale the whole lane proportionally.
 - **Alignment:** Status symbols occupy a fixed 16 pt column so labels do not
   shift between starting, recording, processing, success, and failure.
 - **Contents:** A 9 pt recording-red dot, state label, and monospaced elapsed
@@ -280,6 +284,8 @@ or oversized control nodes.
 - **Structure:** A 500 pt-wide adaptive panel with 24 pt content inset, one
   current-state headline, one short explanation, one privacy note, and the
   next action.
+- **Adaptivity:** Semantic text styles drive type. The window can expand from
+  its 500 pt minimum width so enlarged content wraps instead of clipping.
 - **Recovery:** Denied access offers Check Again and Open System Settings.
   Authorized access offers Record an Area; a restart is requested only when
   macOS has just granted access to the running process.

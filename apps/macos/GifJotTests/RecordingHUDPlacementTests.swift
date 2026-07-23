@@ -73,11 +73,46 @@ final class RecordingHUDPlacementTests: XCTestCase {
             RecordingHUDMetrics.controlHeight
                 + RecordingHUDMetrics.verticalInset * 2
         )
-        XCTAssertEqual(
-            RecordingHUDMetrics.panelSize,
-            CGSize(width: 310, height: 50)
+        XCTAssertGreaterThanOrEqual(
+            RecordingHUDMetrics.panelSize.width,
+            310
         )
-        XCTAssertEqual(RecordingHUDMetrics.statusSymbolWidth, 16)
+        XCTAssertLessThanOrEqual(
+            RecordingHUDMetrics.panelSize.width,
+            419
+        )
+        XCTAssertGreaterThanOrEqual(
+            RecordingHUDMetrics.panelSize.height,
+            50
+        )
+        XCTAssertGreaterThanOrEqual(
+            RecordingHUDMetrics.statusSymbolWidth,
+            16
+        )
+        XCTAssertGreaterThanOrEqual(
+            RecordingHUDMetrics.recordButtonWidth,
+            86
+        )
+    }
+
+    func testHUDPreferredTextScaleHasStableBounds() {
+        XCTAssertEqual(
+            RecordingHUDMetrics.scale(forPreferredPointSize: 10),
+            1
+        )
+        XCTAssertEqual(
+            RecordingHUDMetrics.scale(forPreferredPointSize: 13),
+            1
+        )
+        XCTAssertEqual(
+            RecordingHUDMetrics.scale(forPreferredPointSize: 17.55),
+            1.35,
+            accuracy: 0.0001
+        )
+        XCTAssertEqual(
+            RecordingHUDMetrics.scale(forPreferredPointSize: 26),
+            1.35
+        )
     }
 
     func testFrameOverlayAddsGrabSpaceOutsideTheCaptureBoundary() {

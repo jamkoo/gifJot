@@ -24,9 +24,10 @@ final class CapturePermissionWindowController: NSWindowController {
 
         let window = NSWindow(contentViewController: hostingController)
         window.title = "Screen Recording Access"
-        window.styleMask = [.titled, .closable]
+        window.styleMask = [.titled, .closable, .resizable]
         window.isReleasedWhenClosed = false
         window.collectionBehavior = [.moveToActiveSpace]
+        window.contentMinSize = CGSize(width: 500, height: 300)
 
         super.init(window: window)
 

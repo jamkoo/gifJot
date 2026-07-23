@@ -67,12 +67,27 @@ enum RecordingHUDWindowLevels {
 }
 
 enum RecordingHUDMetrics {
-    static let panelSize = CGSize(width: 310, height: 50)
-    static let controlHeight: CGFloat = 36
-    static let verticalInset: CGFloat = 7
-    static let readyHorizontalInset: CGFloat = 7
-    static let compactHorizontalInset: CGFloat = 12
-    static let statusSymbolWidth: CGFloat = 16
+    private static let baseCalloutPointSize: CGFloat = 13
+    private static let contentScale = scale(
+        forPreferredPointSize: NSFont.preferredFont(
+            forTextStyle: .callout
+        ).pointSize
+    )
+
+    static let controlHeight = ceil(36 * contentScale)
+    static let verticalInset = ceil(7 * contentScale)
+    static let readyHorizontalInset = ceil(7 * contentScale)
+    static let compactHorizontalInset = ceil(12 * contentScale)
+    static let statusSymbolWidth = ceil(16 * contentScale)
+    static let recordButtonWidth = ceil(86 * contentScale)
+    static let panelSize = CGSize(
+        width: ceil(310 * contentScale),
+        height: controlHeight + verticalInset * 2
+    )
+
+    static func scale(forPreferredPointSize pointSize: CGFloat) -> CGFloat {
+        min(max(pointSize / baseCalloutPointSize, 1), 1.35)
+    }
 }
 
 enum RecordingFrameInteractionGeometry {
@@ -1558,9 +1573,12 @@ private struct RegionReadyRecordButtonStyle: ButtonStyle {
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(.system(size: 12, weight: .semibold))
+            .font(.callout.weight(.semibold))
             .foregroundStyle(Color.white)
-            .frame(width: 86, height: 36)
+            .frame(
+                width: RecordingHUDMetrics.recordButtonWidth,
+                height: RecordingHUDMetrics.controlHeight
+            )
             .background(
                 RoundedRectangle(
                     cornerRadius: GifJotDesign.controlRadius,
@@ -1589,9 +1607,12 @@ private struct RegionReadyRecordButtonStyle: ButtonStyle {
 private struct RegionReadyIconButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(.system(size: 12, weight: .semibold))
+            .font(.callout.weight(.semibold))
             .foregroundStyle(Color.primary)
-            .frame(width: 36, height: 36)
+            .frame(
+                width: RecordingHUDMetrics.controlHeight,
+                height: RecordingHUDMetrics.controlHeight
+            )
             .background(
                 RoundedRectangle(
                     cornerRadius: GifJotDesign.controlRadius,
@@ -1673,14 +1694,14 @@ private struct RecordingHUDView: View {
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(primaryText)
-                    .font(.system(size: 12, weight: .semibold))
+                    .font(.callout.weight(.semibold))
                     .foregroundStyle(Color.primary)
                     .lineLimit(1)
                     .help(primaryText)
 
                 if coordinator.state == .recording {
                     Text(elapsedTime)
-                        .font(.system(size: 11, weight: .medium, design: .monospaced))
+                        .font(.caption.monospaced().weight(.medium))
                         .monospacedDigit()
                         .foregroundStyle(Color.secondary)
                 }
@@ -1837,7 +1858,7 @@ private struct RecordingHUDView: View {
         } label: {
             HStack(spacing: 6) {
                 Text(selectedRegionDimensions)
-                    .font(.system(size: 12, weight: .semibold, design: .monospaced))
+                    .font(.callout.monospaced().weight(.semibold))
                     .monospacedDigit()
                     .lineLimit(1)
 
@@ -1848,7 +1869,7 @@ private struct RecordingHUDView: View {
             }
             .foregroundStyle(Color.primary)
             .padding(.horizontal, 10)
-            .frame(height: 36)
+            .frame(height: RecordingHUDMetrics.controlHeight)
             .background(
                 RoundedRectangle(
                     cornerRadius: GifJotDesign.controlRadius,
