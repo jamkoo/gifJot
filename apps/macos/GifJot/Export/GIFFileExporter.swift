@@ -6,13 +6,10 @@ struct GIFExportPlan: Equatable, Sendable {
 }
 
 enum GIFFileExporterError: Error, LocalizedError, Sendable {
-    case downloadsDirectoryUnavailable
     case destinationAlreadyExists
 
     var errorDescription: String? {
         switch self {
-        case .downloadsDirectoryUnavailable:
-            "GifJot could not find the Downloads folder."
         case .destinationAlreadyExists:
             "A file appeared at the selected GIF destination. Please try again."
         }
@@ -74,9 +71,9 @@ final class GIFFileExporter {
         self.fileManager = fileManager
 
         if let destinationDirectory {
-            self.destinationDirectory = destinationDirectory
+            self.destinationDirectory = destinationDirectory.standardizedFileURL
         } else {
-            self.destinationDirectory = try Self.defaultDestinationDirectory(
+            self.destinationDirectory = Self.defaultDestinationDirectory(
                 fileManager: fileManager
             )
         }
@@ -117,14 +114,9 @@ final class GIFFileExporter {
     ) {
         let directory: URL
         if let destinationDirectory {
-            directory = destinationDirectory
+            directory = destinationDirectory.standardizedFileURL
         } else {
-            guard let defaultDirectory = try? defaultDestinationDirectory(
-                fileManager: fileManager
-            ) else {
-                return
-            }
-            directory = defaultDirectory
+            directory = defaultDestinationDirectory(fileManager: fileManager)
         }
 
         guard let contents = try? fileManager.contentsOfDirectory(
@@ -139,16 +131,12 @@ final class GIFFileExporter {
         }
     }
 
-    private static func defaultDestinationDirectory(
-        fileManager: FileManager
-    ) throws -> URL {
-        guard let downloads = fileManager.urls(
-            for: .downloadsDirectory,
-            in: .userDomainMask
-        ).first else {
-            throw GIFFileExporterError.downloadsDirectoryUnavailable
-        }
-        return downloads.appendingPathComponent("GifJot", isDirectory: true)
+    static func defaultDestinationDirectory(
+        fileManager: FileManager = .default
+    ) -> URL {
+        fileManager.homeDirectoryForCurrentUser
+            .appendingPathComponent("GifJot", isDirectory: true)
+            .standardizedFileURL
     }
 
     private static func isWorkingFile(_ url: URL) -> Bool {

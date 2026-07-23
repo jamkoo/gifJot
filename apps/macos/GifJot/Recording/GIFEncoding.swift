@@ -22,7 +22,7 @@ enum GIFEncodingError: Error, LocalizedError, Sendable {
     }
 }
 
-protocol GIFEncoding: AnyObject {
+protocol GIFEncoding: AnyObject, Sendable {
     func encode(frames: [GIFFrame], to destinationURL: URL) throws
 }
 
@@ -75,7 +75,7 @@ final class ImageIOGIFEncoder: GIFEncoding {
     }
 }
 
-final class GIFEncodingWorker: @unchecked Sendable {
+final class GIFEncodingWorker: Sendable {
     private let queue = DispatchQueue(
         label: "com.gifjot.gif-encoding",
         qos: .userInitiated

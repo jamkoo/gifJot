@@ -2,35 +2,60 @@ import AppKit
 import SwiftUI
 
 enum GifJotDesign {
-    static let signal = color(242, 74, 29)
-    static let deepSignal = color(225, 65, 25)
-    static let pressedSignal = color(201, 52, 22)
+    static let canvasIndigoNS = nsColor(103, 88, 232)
+    static let recordingRedNS = nsColor(209, 61, 67)
+
+    static let canvasIndigo = Color(nsColor: canvasIndigoNS)
+    static let pressedIndigo = color(85, 70, 215)
+    static let recordingRed = Color(nsColor: recordingRedNS)
+    static let pressedRecordingRed = color(184, 47, 54)
+    static let indigoTint = adaptiveColor(
+        light: nsColor(238, 236, 255),
+        dark: nsColor(50, 45, 91)
+    )
+
+    // Compatibility names used by the existing menu and settings surfaces.
+    static let signal = canvasIndigo
+    static let deepSignal = pressedIndigo
+    static let pressedSignal = pressedIndigo
 
     static let opticalBody = adaptiveColor(
-        light: nsColor(252, 248, 238),
-        dark: nsColor(45, 44, 41)
+        light: nsColor(249, 249, 251),
+        dark: nsColor(31, 31, 34)
     )
     static let vellum = adaptiveColor(
-        light: nsColor(242, 238, 227),
-        dark: nsColor(37, 36, 33)
+        light: nsColor(241, 241, 244),
+        dark: nsColor(42, 42, 46)
     )
     static let shellHighlight = adaptiveColor(
-        light: nsColor(255, 253, 247),
-        dark: nsColor(52, 50, 47)
+        light: nsColor(255, 255, 255),
+        dark: nsColor(50, 50, 54)
     )
     static let opticalHairline = adaptiveColor(
-        light: nsColor(216, 209, 196),
-        dark: nsColor(71, 68, 62)
+        light: nsColor(218, 218, 224),
+        dark: nsColor(67, 67, 72)
     )
     static let mutedInk = adaptiveColor(
-        light: nsColor(112, 109, 101),
-        dark: nsColor(183, 178, 168)
+        light: nsColor(93, 93, 102),
+        dark: nsColor(174, 174, 183)
+    )
+    static let hudSurface = adaptiveColor(
+        light: nsColor(252, 252, 253),
+        dark: nsColor(38, 38, 41)
+    )
+    static let hudControl = adaptiveColor(
+        light: nsColor(242, 242, 245),
+        dark: nsColor(53, 53, 57)
+    )
+    static let hudHairline = adaptiveColor(
+        light: nsColor(215, 215, 221),
+        dark: nsColor(74, 74, 80)
     )
 
-    static let graphite = color(37, 36, 33)
-    static let cameraBlack = color(23, 23, 22)
-    static let warmChalk = color(248, 244, 234)
-    static let mutedChalk = color(183, 178, 168)
+    static let graphite = color(29, 29, 32)
+    static let cameraBlack = color(29, 29, 32)
+    static let warmChalk = color(250, 250, 252)
+    static let mutedChalk = color(182, 182, 190)
     static let success = adaptiveColor(
         light: nsColor(46, 125, 76),
         dark: nsColor(90, 166, 111)
@@ -45,17 +70,17 @@ enum GifJotDesign {
     static let softPaper = warmChalk
 
     static let panelWidth: CGFloat = 344
-    static let controlRadius: CGFloat = 7
-    static let surfaceRadius: CGFloat = 10
-    static let panelRadius: CGFloat = 16
+    static let controlRadius: CGFloat = 8
+    static let surfaceRadius: CGFloat = 12
+    static let panelRadius: CGFloat = 14
     static let shutterSize: CGFloat = 46
 
     static func actionFill(for colorScheme: ColorScheme) -> Color {
-        colorScheme == .dark ? warmChalk : graphite
+        canvasIndigo
     }
 
     static func actionForeground(for colorScheme: ColorScheme) -> Color {
-        colorScheme == .dark ? cameraBlack : warmChalk
+        .white
     }
 
     private static func color(_ red: Int, _ green: Int, _ blue: Int) -> Color {
@@ -202,22 +227,17 @@ struct GifJotShutterRowButtonStyle: ButtonStyle {
 
 struct GifJotPrimaryButtonStyle: ButtonStyle {
     @Environment(\.isEnabled) private var isEnabled
-    @Environment(\.colorScheme) private var colorScheme
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(.system(size: 13, weight: .semibold))
-            .foregroundStyle(GifJotDesign.actionForeground(for: colorScheme))
+            .foregroundStyle(Color.white)
             .padding(.horizontal, 14)
             .frame(minHeight: 36)
             .background(
                 configuration.isPressed
-                    ? (
-                        colorScheme == .dark
-                            ? GifJotDesign.warmChalk.opacity(0.82)
-                            : GifJotDesign.cameraBlack
-                    )
-                    : GifJotDesign.actionFill(for: colorScheme)
+                    ? GifJotDesign.pressedIndigo
+                    : GifJotDesign.canvasIndigo
             )
             .clipShape(
                 RoundedRectangle(
@@ -230,7 +250,7 @@ struct GifJotPrimaryButtonStyle: ButtonStyle {
                     cornerRadius: GifJotDesign.controlRadius,
                     style: .continuous
                 )
-                .stroke(GifJotDesign.opticalHairline.opacity(0.55))
+                .stroke(Color.white.opacity(0.12))
             }
             .opacity(isEnabled ? 1 : 0.48)
             .animation(
@@ -251,8 +271,8 @@ struct GifJotSignalButtonStyle: ButtonStyle {
             .frame(minHeight: 36)
             .background(
                 configuration.isPressed
-                    ? GifJotDesign.pressedSignal
-                    : GifJotDesign.signal
+                    ? GifJotDesign.pressedRecordingRed
+                    : GifJotDesign.recordingRed
             )
             .clipShape(
                 RoundedRectangle(
@@ -265,7 +285,7 @@ struct GifJotSignalButtonStyle: ButtonStyle {
                     cornerRadius: GifJotDesign.controlRadius,
                     style: .continuous
                 )
-                .stroke(GifJotDesign.pressedSignal)
+                .stroke(Color.black.opacity(0.12))
             }
             .opacity(isEnabled ? 1 : 0.48)
     }
@@ -275,20 +295,20 @@ struct GifJotDarkQuietButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(.system(size: 12, weight: .semibold))
-            .foregroundStyle(GifJotDesign.warmChalk)
+            .foregroundStyle(Color.primary)
             .padding(.horizontal, 12)
             .frame(minHeight: 34)
             .background(
-                GifJotDesign.warmChalk.opacity(
-                    configuration.isPressed ? 0.2 : 0.1
-                )
+                configuration.isPressed
+                    ? GifJotDesign.indigoTint
+                    : GifJotDesign.hudControl
             )
             .overlay {
                 RoundedRectangle(
                     cornerRadius: GifJotDesign.controlRadius,
                     style: .continuous
                 )
-                .stroke(GifJotDesign.warmChalk.opacity(0.16))
+                .stroke(GifJotDesign.hudHairline)
             }
             .clipShape(
                 RoundedRectangle(

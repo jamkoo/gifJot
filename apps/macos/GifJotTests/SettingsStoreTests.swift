@@ -14,6 +14,10 @@ final class SettingsStoreTests: XCTestCase {
             XCTAssertTrue(store.includeCursor)
             XCTAssertEqual(store.countdown, .oneSecond)
             XCTAssertTrue(store.copyAfterRecording)
+            XCTAssertEqual(
+                store.outputDirectoryURL,
+                GIFFileExporter.defaultDestinationDirectory()
+            )
         }
     }
 
@@ -26,6 +30,9 @@ final class SettingsStoreTests: XCTestCase {
             store?.includeCursor = false
             store?.countdown = .off
             store?.copyAfterRecording = false
+            let outputDirectory = FileManager.default.temporaryDirectory
+                .appendingPathComponent("GifJotCustomOutput", isDirectory: true)
+            store?.setOutputDirectory(outputDirectory)
 
             store = SettingsStore(defaults: defaults)
 
@@ -35,6 +42,7 @@ final class SettingsStoreTests: XCTestCase {
             XCTAssertEqual(store?.includeCursor, false)
             XCTAssertEqual(store?.countdown, .off)
             XCTAssertEqual(store?.copyAfterRecording, false)
+            XCTAssertEqual(store?.outputDirectoryURL, outputDirectory)
         }
     }
 
@@ -80,6 +88,7 @@ final class SettingsStoreTests: XCTestCase {
             store.includeCursor = false
             store.countdown = .threeSeconds
             store.copyAfterRecording = false
+            store.setOutputDirectory(FileManager.default.temporaryDirectory)
 
             store.restoreDefaults()
 
@@ -89,6 +98,22 @@ final class SettingsStoreTests: XCTestCase {
             XCTAssertTrue(store.includeCursor)
             XCTAssertEqual(store.countdown, .oneSecond)
             XCTAssertTrue(store.copyAfterRecording)
+            XCTAssertEqual(
+                store.outputDirectoryURL,
+                GIFFileExporter.defaultDestinationDirectory()
+            )
+        }
+    }
+
+    func testOutputDirectoryDisplayPathAbbreviatesHomeDirectory() {
+        withIsolatedDefaults { defaults in
+            let store = SettingsStore(defaults: defaults)
+            let outputDirectory = FileManager.default.homeDirectoryForCurrentUser
+                .appendingPathComponent("Recordings/GifJot", isDirectory: true)
+
+            store.setOutputDirectory(outputDirectory)
+
+            XCTAssertEqual(store.outputDirectoryDisplayPath, "~/Recordings/GifJot")
         }
     }
 

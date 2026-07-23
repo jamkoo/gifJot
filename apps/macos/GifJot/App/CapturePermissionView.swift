@@ -10,106 +10,120 @@ struct CapturePermissionView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            HStack {
-                Text("GIFJOT / CAPTURE ACCESS")
-                    .font(.system(size: 9, weight: .semibold, design: .monospaced))
-                    .tracking(0.8)
-                    .foregroundStyle(.secondary)
+            header
 
-                Spacer()
+            Divider()
+                .overlay(GifJotDesign.opticalHairline)
+                .padding(.top, 18)
 
-                HStack(spacing: 5) {
-                    Image(systemName: "lock.fill")
-                        .font(.system(size: 8, weight: .semibold))
-                    Text("LOCAL")
-                        .font(.system(size: 9, weight: .semibold, design: .monospaced))
-                        .tracking(0.5)
-                }
-                .foregroundStyle(.secondary)
-            }
+            statusMessage
+                .padding(.top, 24)
 
-            HStack(alignment: .top, spacing: 24) {
-                ZStack {
-                    RoundedRectangle(
-                        cornerRadius: GifJotDesign.surfaceRadius,
-                        style: .continuous
-                    )
-                    .fill(GifJotDesign.cameraBlack)
-
-                    CaptureFrameMark(
-                        color: iconColor,
-                        isActive: permissionService.status == .authorized
-                            && !permissionService.restartRecommended,
-                        lineWidth: 2
-                    )
-                    .frame(width: 58, height: 58)
-
-                    Image(systemName: iconName)
-                        .font(.system(size: 21, weight: .semibold))
-                        .foregroundStyle(iconColor)
-                        .symbolRenderingMode(.hierarchical)
-                }
-                .frame(width: 84, height: 84)
-                .overlay {
-                    RoundedRectangle(
-                        cornerRadius: GifJotDesign.surfaceRadius,
-                        style: .continuous
-                    )
-                    .stroke(GifJotDesign.warmChalk.opacity(0.09))
-                }
-                .accessibilityHidden(true)
-
-                VStack(alignment: .leading, spacing: 7) {
-                    Text(title)
-                        .font(.system(size: 28, weight: .bold))
-                        .tracking(-0.65)
-
-                    Text(message)
-                        .font(.system(size: 13))
-                        .foregroundStyle(.secondary)
-                        .fixedSize(horizontal: false, vertical: true)
-                        .frame(maxWidth: 330, alignment: .leading)
-                }
-
-                Spacer(minLength: 0)
-            }
-            .padding(.top, 22)
-
-            PermissionStepRail(currentStep: currentStep)
-                .padding(.top, 26)
-
-            HStack(alignment: .top, spacing: 11) {
-                Image(systemName: "lock.shield")
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundStyle(.secondary)
-                    .frame(width: 20)
-
-                Text("GifJot records only when you press the shutter. Everything stays on this Mac. Accessibility access is never requested.")
-                    .font(.system(size: 12))
-                    .foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
-
-                Spacer(minLength: 0)
-            }
-            .padding(14)
-            .gifJotGroupSurface()
-            .padding(.top, 22)
+            privacyNote
+                .padding(.top, 22)
 
             actionButtons
-                .padding(.top, 16)
+                .padding(.top, 20)
         }
-        .padding(28)
-        .frame(width: 560)
+        .padding(24)
+        .frame(width: 500)
         .background(GifJotDesign.opticalBody)
-        .tint(GifJotDesign.signal)
+        .tint(GifJotDesign.canvasIndigo)
+    }
+
+    private var header: some View {
+        HStack(spacing: 10) {
+            CaptureFrameMark(
+                color: GifJotDesign.canvasIndigo,
+                isActive: permissionService.status == .authorized
+                    && !permissionService.restartRecommended,
+                lineWidth: 1.75
+            )
+            .frame(width: 24, height: 24)
+            .accessibilityHidden(true)
+
+            VStack(alignment: .leading, spacing: 1) {
+                Text("GifJot")
+                    .font(.system(size: 14, weight: .semibold))
+
+                Text("Screen Recording")
+                    .font(.system(size: 11))
+                    .foregroundStyle(.secondary)
+            }
+
+            Spacer()
+
+            Label("Local only", systemImage: "lock.fill")
+                .font(.system(size: 11, weight: .medium))
+                .foregroundStyle(.secondary)
+        }
+    }
+
+    private var statusMessage: some View {
+        HStack(alignment: .top, spacing: 16) {
+            ZStack {
+                RoundedRectangle(
+                    cornerRadius: 12,
+                    style: .continuous
+                )
+                .fill(statusTint)
+
+                Image(systemName: iconName)
+                    .font(.system(size: 20, weight: .semibold))
+                    .foregroundStyle(iconColor)
+                    .symbolRenderingMode(.hierarchical)
+            }
+            .frame(width: 52, height: 52)
+            .accessibilityHidden(true)
+
+            VStack(alignment: .leading, spacing: 7) {
+                Text(title)
+                    .font(.system(size: 22, weight: .bold))
+                    .tracking(-0.4)
+
+                Text(message)
+                    .font(.system(size: 13))
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .frame(maxWidth: 360, alignment: .leading)
+            }
+
+            Spacer(minLength: 0)
+        }
+    }
+
+    private var privacyNote: some View {
+        HStack(alignment: .top, spacing: 10) {
+            Image(systemName: "hand.raised.fill")
+                .font(.system(size: 13, weight: .semibold))
+                .foregroundStyle(GifJotDesign.canvasIndigo)
+                .frame(width: 18)
+
+            Text(
+                "GifJot captures only after you press Record. "
+                    + "GIFs stay on this Mac—no account, upload, audio, "
+                    + "or Accessibility permission."
+            )
+            .font(.system(size: 12))
+            .foregroundStyle(.secondary)
+            .fixedSize(horizontal: false, vertical: true)
+
+            Spacer(minLength: 0)
+        }
+        .padding(13)
+        .background(GifJotDesign.indigoTint.opacity(0.62))
+        .clipShape(
+            RoundedRectangle(
+                cornerRadius: GifJotDesign.surfaceRadius,
+                style: .continuous
+            )
+        )
     }
 
     private var actionButtons: some View {
         HStack(spacing: 10) {
-            if !permissionService.restartRecommended {
-                Button("Not Now", action: onDismiss)
-                    .buttonStyle(GifJotQuietButtonStyle())
-            }
+            Button("Not Now", action: onDismiss)
+                .buttonStyle(GifJotQuietButtonStyle())
 
             Spacer()
 
@@ -122,6 +136,11 @@ struct CapturePermissionView: View {
                 .keyboardShortcut(.defaultAction)
 
             case .denied:
+                Button("Check Again") {
+                    permissionService.refreshStatus()
+                }
+                .buttonStyle(GifJotQuietButtonStyle())
+
                 Button("Open System Settings") {
                     permissionService.openSystemSettings()
                 }
@@ -131,10 +150,10 @@ struct CapturePermissionView: View {
             case .authorized:
                 if permissionService.restartRecommended {
                     Button("Quit and Reopen GifJot", action: onRestart)
-                    .buttonStyle(GifJotPrimaryButtonStyle())
-                    .keyboardShortcut(.defaultAction)
+                        .buttonStyle(GifJotPrimaryButtonStyle())
+                        .keyboardShortcut(.defaultAction)
                 } else {
-                    Button("Start Recording", action: onStartRecording)
+                    Button("Record an Area", action: onStartRecording)
                         .buttonStyle(GifJotPrimaryButtonStyle())
                         .keyboardShortcut(.defaultAction)
                 }
@@ -145,39 +164,39 @@ struct CapturePermissionView: View {
     private var title: String {
         switch permissionService.status {
         case .notDetermined:
-            "Allow Screen Recording"
+            "Allow screen recording"
         case .denied:
-            "Screen Recording Is Off"
+            "Screen recording is off"
         case .authorized:
             permissionService.restartRecommended
-                ? "Restart GifJot to Finish"
-                : "Ready to Record"
+                ? "One quick restart"
+                : "You’re ready"
         }
     }
 
     private var message: String {
         switch permissionService.status {
         case .notDetermined:
-            "macOS requires permission before GifJot can capture the area you select."
+            "macOS needs your permission before GifJot can capture an area of your screen."
         case .denied:
-            "Enable GifJot in System Settings, Privacy & Security, Screen & System Audio Recording."
+            "Turn on GifJot in Privacy & Security → Screen & System Audio Recording, then return here."
         case .authorized:
             permissionService.restartRecommended
-                ? "Permission is enabled. Reopen GifJot once so macOS can finish applying it."
-                : "Screen Recording access is enabled. Start now, or use the GifJot menu-bar icon anytime."
+                ? "Permission is on. Reopen GifJot once so macOS can apply it to this app."
+                : "Choose an area, adjust the frame directly, and press Record."
         }
     }
 
     private var iconName: String {
         switch permissionService.status {
         case .notDetermined:
-            "rectangle.dashed"
+            "rectangle.inset.filled"
         case .denied:
-            "exclamationmark.triangle"
+            "exclamationmark.triangle.fill"
         case .authorized:
             permissionService.restartRecommended
                 ? "arrow.clockwise"
-                : "checkmark.circle"
+                : "checkmark"
         }
     }
 
@@ -188,7 +207,7 @@ struct CapturePermissionView: View {
 
         switch permissionService.status {
         case .notDetermined:
-            return GifJotDesign.signal
+            return GifJotDesign.canvasIndigo
         case .denied:
             return GifJotDesign.warning
         case .authorized:
@@ -196,79 +215,18 @@ struct CapturePermissionView: View {
         }
     }
 
-    private var currentStep: Int {
+    private var statusTint: Color {
+        if permissionService.restartRecommended {
+            return GifJotDesign.warning.opacity(0.12)
+        }
+
         switch permissionService.status {
-        case .notDetermined, .denied:
-            0
+        case .notDetermined:
+            return GifJotDesign.indigoTint
+        case .denied:
+            return GifJotDesign.warning.opacity(0.12)
         case .authorized:
-            permissionService.restartRecommended ? 1 : 2
+            return GifJotDesign.success.opacity(0.12)
         }
-    }
-}
-
-private struct PermissionStepRail: View {
-    let currentStep: Int
-
-    var body: some View {
-        HStack(spacing: 0) {
-            step(index: 0, label: "ALLOW")
-            connector(after: 0)
-            step(index: 1, label: "REOPEN")
-            connector(after: 1)
-            step(index: 2, label: "RECORD")
-        }
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel("Permission setup, step \(currentStep + 1) of 3")
-    }
-
-    private func step(index: Int, label: String) -> some View {
-        VStack(spacing: 7) {
-            ZStack {
-                RoundedRectangle(cornerRadius: 5, style: .continuous)
-                    .fill(stepFill(index))
-                    .frame(width: 22, height: 22)
-
-                if index < currentStep {
-                    Image(systemName: "checkmark")
-                        .font(.system(size: 9, weight: .bold))
-                        .foregroundStyle(GifJotDesign.softPaper)
-                } else {
-                    Text("\(index + 1)")
-                        .font(.system(size: 9, weight: .bold, design: .monospaced))
-                        .foregroundStyle(
-                            index == currentStep
-                                ? GifJotDesign.softPaper
-                                : Color.secondary
-                        )
-                }
-            }
-
-            Text(label)
-                .font(.system(size: 9, weight: .semibold, design: .monospaced))
-                .tracking(0.55)
-                .foregroundStyle(index <= currentStep ? Color.primary : Color.secondary)
-        }
-        .frame(width: 62)
-    }
-
-    private func connector(after index: Int) -> some View {
-        Rectangle()
-            .fill(
-                index < currentStep
-                    ? GifJotDesign.success
-                    : GifJotDesign.opticalHairline
-            )
-            .frame(height: 1)
-            .offset(y: -8)
-    }
-
-    private func stepFill(_ index: Int) -> Color {
-        if index < currentStep {
-            return GifJotDesign.success
-        }
-        if index == currentStep {
-            return GifJotDesign.signal
-        }
-        return GifJotDesign.vellum
     }
 }

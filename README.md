@@ -29,7 +29,7 @@ Windows can run repository preflight checks and a shared package of platform-neu
 - Protocol-backed Image I/O GIF encoding with presentation-time-based frame delays.
 - Automatic exact-frame coalescing that turns unchanged screen periods into longer frame delays instead of redundant GIF frames.
 - Bounded capture and processing queues that drop and report frames instead of growing memory without limit.
-- Collision-safe saves to `~/Downloads/GifJot`.
+- Collision-safe saves to `~/GifJot` by default, with a configurable recording folder.
 - Optional clipboard copy as a GIF file URL.
 - Temporary-frame cleanup after success, cancellation, failure, and the next launch.
 - Deterministic tests for state transitions, coordinates, timing, sizing, settings, filenames, encoding, export, and cleanup.
@@ -102,6 +102,20 @@ xcodebuild \
 
 Development builds require no repository secrets, signing certificates, or network service.
 
+For repeated physical-Mac testing, use a trusted local development identity
+instead of installing ad-hoc-signed builds. Once the `GifJot Local Development`
+identity is installed in the login keychain, this command builds, signs,
+verifies, installs, and launches the app while preserving a stable macOS
+designated requirement:
+
+```sh
+./scripts/install-macos-local.sh
+```
+
+The identity is intentionally local to the development Mac and must never be
+committed or exported with the repository. This workflow is for local testing
+only; public builds still require Developer ID signing and notarization.
+
 ### Windows preflight and shared core tests
 
 Windows cannot compile the macOS application, but it can validate repository integrity and run platform-neutral production logic through Swift Package Manager:
@@ -127,11 +141,11 @@ Select **Desktop development with C++** in the Visual Studio Installer. Administ
 3. If prompted, choose **Quit and Reopen GifJot**. Confirm the menu-bar icon returns and the panel says **Ready to Record**.
 4. Choose **Start Recording**, choose **Record Area** from the menu-bar panel, or press `Option-Command-G`.
 5. Drag a region entirely within one display. Press Escape to cancel selection.
-6. Confirm GifJot does not record yet. Drag inside the orange frame to reposition it, or drag an edge or corner to resize it. Then use the nearby controller to choose output size and whether to include the cursor.
+6. Confirm GifJot does not record yet. Drag the dimensions in the nearby controller or use the arrow keys to reposition the frame, and drag an edge or corner to resize it. Confirm the controller reports the live dimensions and whether the cursor is visible.
 7. Press **Record** in the nearby controller, use the menu-bar panel, or press `Option-Command-G` again.
 8. Confirm the detached HUD changes from countdown to **Starting recording** and then **Recording**.
 9. Stop from the detached recording HUD, the menu-bar panel, or `Option-Command-G`.
-10. Confirm the GIF appears in `~/Downloads/GifJot`, loops at the expected speed, and pastes into another application.
+10. Confirm the GIF appears in `~/GifJot` (or the folder selected in **Settings > Storage**), loops at the expected speed, and pastes into another application.
 11. Start and cancel a second recording, then confirm the previous GIF remains available through **Open**, **Copy**, and **Reveal** in the menu-bar panel.
 
 Debug builds also provide isolated region-selection and five-second frame-delivery diagnostics in the menu.

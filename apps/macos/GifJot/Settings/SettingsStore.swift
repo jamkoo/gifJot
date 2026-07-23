@@ -10,6 +10,7 @@ final class SettingsStore: ObservableObject {
         case includeCursor
         case countdown
         case copyAfterRecording
+        case outputDirectoryPath
     }
 
     private let defaults: UserDefaults
@@ -46,6 +47,15 @@ final class SettingsStore: ObservableObject {
 
     @Published var copyAfterRecording: Bool {
         didSet { defaults.set(copyAfterRecording, forKey: Key.copyAfterRecording.rawValue) }
+    }
+
+    @Published private(set) var outputDirectoryURL: URL {
+        didSet {
+            defaults.set(
+                outputDirectoryURL.path,
+                forKey: Key.outputDirectoryPath.rawValue
+            )
+        }
     }
 
     init(defaults: UserDefaults = .standard) {
@@ -87,7 +97,27 @@ final class SettingsStore: ObservableObject {
             defaults: defaults
         )
 
+        outputDirectoryURL = Self.outputDirectoryURL(defaults: defaults)
+
         synchronizePresetWithRecordingOptions()
+    }
+
+    var outputDirectoryDisplayPath: String {
+        let outputPath = outputDirectoryURL.path
+        let homePath = FileManager.default.homeDirectoryForCurrentUser.path
+
+        if outputPath == homePath {
+            return "~"
+        }
+        if outputPath.hasPrefix(homePath + "/") {
+            return "~" + outputPath.dropFirst(homePath.count)
+        }
+        return outputPath
+    }
+
+    func setOutputDirectory(_ url: URL) {
+        guard url.isFileURL else { return }
+        outputDirectoryURL = url.standardizedFileURL
     }
 
     func restoreDefaults() {
@@ -97,6 +127,7 @@ final class SettingsStore: ObservableObject {
         includeCursor = true
         countdown = .oneSecond
         copyAfterRecording = true
+        outputDirectoryURL = GIFFileExporter.defaultDestinationDirectory()
     }
 
     func recordingConfiguration() -> RecordingConfiguration {
@@ -153,5 +184,16 @@ final class SettingsStore: ObservableObject {
     ) -> Bool {
         guard defaults.object(forKey: key) != nil else { return defaultValue }
         return defaults.bool(forKey: key)
+    }
+
+    private static func outputDirectoryURL(defaults: UserDefaults) -> URL {
+        guard let path = defaults.string(forKey: Key.outputDirectoryPath.rawValue),
+              !path.isEmpty,
+              (path as NSString).isAbsolutePath
+        else {
+            return GIFFileExporter.defaultDestinationDirectory()
+        }
+
+        return URL(fileURLWithPath: path, isDirectory: true).standardizedFileURL
     }
 }

@@ -8,6 +8,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     let settings: SettingsStore
 #if DEBUG
     let diagnosticCaptureService: ScreenCaptureDiagnosticService
+    private static let recordingSmokeTestNotification = Notification.Name(
+        "com.gifjot.debug.runRecordingSmokeTest"
+    )
+    private var recordingSmokeTestObserver: NSObjectProtocol?
+    private var recordingSmokeTestTask: Task<Void, Never>?
 #endif
 
     private lazy var permissionWindowController = CapturePermissionWindowController(
@@ -42,7 +47,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         self.settings = settings
         recordingCoordinator = RecordingCoordinator(
             permissionService: permissionService,
-            regionSelectionService: regionSelectionService
+            regionSelectionService: regionSelectionService,
+            exporterFactory: {
+                try GIFFileExporter(
+                    destinationDirectory: settings.outputDirectoryURL
+                )
+            }
         )
 #if DEBUG
         diagnosticCaptureService = ScreenCaptureDiagnosticService(
@@ -54,7 +64,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         TemporaryRecordingStore.removeAbandonedSessions()
-        GIFFileExporter.removeAbandonedWorkingFiles()
+        let outputDirectoryURL = settings.outputDirectoryURL
+        Task.detached(priority: .utility) {
+            GIFFileExporter.removeAbandonedWorkingFiles(
+                destinationDirectory: outputDirectoryURL
+            )
+        }
         menuBarController.start()
         recordingHUDController.start()
         let shortcutRegistered = globalShortcutService.start { [weak self] in
@@ -63,6 +78,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         if !shortcutRegistered {
             NSLog("GifJot could not register the %@ shortcut.", GlobalShortcutService.displayName)
         }
+
+#if DEBUG
+        recordingSmokeTestObserver = DistributedNotificationCenter.default().addObserver(
+            forName: Self.recordingSmokeTestNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor [weak self] in
+                self?.runRecordingSmokeTest()
+            }
+        }
+#endif
 
         if permissionService.refreshStatus() != .authorized
             || permissionService.showReadyOnLaunch
@@ -76,6 +103,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func applicationWillTerminate(_ notification: Notification) {
+#if DEBUG
+        if let recordingSmokeTestObserver {
+            DistributedNotificationCenter.default().removeObserver(
+                recordingSmokeTestObserver
+            )
+            self.recordingSmokeTestObserver = nil
+        }
+        recordingSmokeTestTask?.cancel()
+#endif
         globalShortcutService.stop()
         menuBarController.stop()
         recordingHUDController.stop()
@@ -114,4 +150,118 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             configuration: settings.recordingConfiguration()
         )
     }
+
+#if DEBUG
+    private func runRecordingSmokeTest() {
+        guard recordingSmokeTestTask == nil else {
+            NSLog("GIFJOT_SMOKE_TEST_FAIL reason=already_running")
+            return
+        }
+        guard !recordingCoordinator.isBusy else {
+            NSLog("GIFJOT_SMOKE_TEST_FAIL reason=recording_workflow_busy")
+            return
+        }
+
+        recordingSmokeTestTask = Task { [weak self] in
+            guard let self else { return }
+            await performRecordingSmokeTest()
+            recordingSmokeTestTask = nil
+        }
+    }
+
+    private func performRecordingSmokeTest() async {
+        guard permissionService.refreshStatus() == .authorized else {
+            NSLog("GIFJOT_SMOKE_TEST_FAIL reason=screen_recording_permission_required")
+            return
+        }
+        guard !permissionService.restartRecommended else {
+            NSLog("GIFJOT_SMOKE_TEST_FAIL reason=restart_required")
+            return
+        }
+
+        let displayID = CGMainDisplayID()
+        guard let screen = NSScreen.screens.first(where: { screen in
+            let key = NSDeviceDescriptionKey("NSScreenNumber")
+            return (screen.deviceDescription[key] as? NSNumber)?.uint32Value
+                == displayID
+        }) else {
+            NSLog("GIFJOT_SMOKE_TEST_FAIL reason=main_display_unavailable")
+            return
+        }
+
+        let displaySize = screen.frame.size
+        let captureSize = CGSize(
+            width: min(640, displaySize.width),
+            height: min(360, displaySize.height)
+        )
+        let region = CaptureRegion(
+            displayID: displayID,
+            sourceRect: CGRect(
+                x: max(0, (displaySize.width - captureSize.width) / 2),
+                y: max(0, (displaySize.height - captureSize.height) / 2),
+                width: captureSize.width,
+                height: captureSize.height
+            ),
+            displayScale: screen.backingScaleFactor
+        )
+        let session = ScreenCaptureRecordingSession()
+        var exporter: GIFFileExporter?
+        var exportPlan: GIFExportPlan?
+
+        do {
+            let output = try await session.start(
+                region: region,
+                configuration: ScreenCaptureRecordingConfiguration(
+                    framesPerSecond: 10,
+                    includeCursor: false,
+                    maximumOutputWidth: 640
+                )
+            )
+            try await ContinuousClock().sleep(for: .seconds(2))
+            let capture = try await session.stop()
+
+            let createdExporter = try GIFFileExporter(
+                destinationDirectory: settings.outputDirectoryURL
+            )
+            let plan = try createdExporter.prepare()
+            exporter = createdExporter
+            exportPlan = plan
+            try await GIFEncodingWorker().encode(
+                frames: capture.frames,
+                to: plan.workingURL
+            )
+            let outputURL = try createdExporter.commit(plan)
+            exportPlan = nil
+            let copied = MacFileClipboardWriter().writeFile(at: outputURL)
+            await session.cleanupTemporaryFrames()
+            guard copied else {
+                NSLog(
+                    "GIFJOT_SMOKE_TEST_FAIL reason=clipboard_write_failed output=%@",
+                    outputURL.path
+                )
+                return
+            }
+
+            NSLog(
+                "GIFJOT_SMOKE_TEST_PASS output=%@ width=%d height=%d frames=%d dropped=%d duplicates=%d clipboard=%@",
+                outputURL.path,
+                output.width,
+                output.height,
+                capture.frames.count,
+                capture.droppedFrames,
+                capture.duplicateFrames,
+                "true"
+            )
+        } catch {
+            if let exporter, let exportPlan {
+                exporter.discard(exportPlan)
+            }
+            await session.cancel()
+            NSLog(
+                "GIFJOT_SMOKE_TEST_FAIL reason=%@",
+                error.localizedDescription
+            )
+        }
+    }
+#endif
 }

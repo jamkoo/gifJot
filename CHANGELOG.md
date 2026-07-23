@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Added
 
 - Native macOS menu-bar application shell and typed settings.
+- Configurable recording-folder selection in Settings.
 - Screen Recording permission guidance and development-only capture diagnostics.
 - Single-display region-selection overlays with coordinate-conversion tests.
 - Bounded ScreenCaptureKit frame processing and temporary-frame storage.
@@ -28,6 +29,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Changed
 
 - Declared the project license as GNU AGPL version 3 or later.
+- Changed the default recording folder from `~/Downloads/GifJot` to `~/GifJot`.
 - Rebuilt the menu-bar panel, permission guidance, settings, region selector, and recording HUD around the Pocket Capture Camera visual system.
 - Introduced an adaptive optical-ivory camera body, circular signal shutter, graphite status well, open viewfinder corners, and measured state readouts.
 - Added an explicit region-ready step with a low-footprint single-row controller, hover help, frame presets (including Full Screen), output-size choices, cursor visibility, direct Settings access, and a terminal-right cancellation control before capture begins.

@@ -299,14 +299,11 @@ private struct RecordingPanel: View {
         } label: {
             HStack(spacing: 12) {
                 ZStack {
-                    Circle()
-                        .fill(
-                            coordinator.primaryActionEnabled
-                                ? GifJotDesign.signal
-                                : GifJotDesign.mutedInk
-                        )
-                    Circle()
-                        .stroke(GifJotDesign.pressedSignal, lineWidth: 1)
+                    RoundedRectangle(
+                        cornerRadius: 10,
+                        style: .continuous
+                    )
+                    .fill(primaryActionAccent)
 
                     primaryActionMark
                 }
@@ -315,17 +312,10 @@ private struct RecordingPanel: View {
                     height: GifJotDesign.shutterSize
                 )
 
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(coordinator.primaryActionTitle)
-                        .font(.system(size: 13, weight: .bold))
-                        .tracking(-0.1)
-                        .foregroundStyle(.primary)
-
-                    Text(compactConfigurationSummary)
-                        .font(.system(size: 8, weight: .medium, design: .monospaced))
-                        .tracking(0.35)
-                        .foregroundStyle(GifJotDesign.mutedInk)
-                }
+                Text(coordinator.primaryActionTitle)
+                    .font(.system(size: 13, weight: .semibold))
+                    .tracking(-0.1)
+                    .foregroundStyle(.primary)
 
                 Spacer()
 
@@ -342,6 +332,15 @@ private struct RecordingPanel: View {
         .buttonStyle(GifJotShutterRowButtonStyle())
         .disabled(!coordinator.primaryActionEnabled)
         .accessibilityHint("Starts, cancels, or stops the current recording")
+    }
+
+    private var primaryActionAccent: Color {
+        guard coordinator.primaryActionEnabled else {
+            return GifJotDesign.mutedInk
+        }
+        return coordinator.state == .recording
+            ? GifJotDesign.recordingRed
+            : GifJotDesign.canvasIndigo
     }
 
     @ViewBuilder
@@ -382,22 +381,15 @@ private struct RecordingPanel: View {
                 .padding(.top, 20)
 
             VStack(alignment: .leading, spacing: 0) {
-                Text("CAPTURE STATUS")
-                    .font(.system(size: 8, weight: .semibold, design: .monospaced))
-                    .tracking(0.8)
-                    .foregroundStyle(GifJotDesign.mutedChalk)
+                Text("Recording status")
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundStyle(.secondary)
 
                 Text(coordinator.statusText)
                     .font(.system(size: 13, weight: .semibold))
-                    .foregroundStyle(GifJotDesign.warmChalk)
+                    .foregroundStyle(.primary)
                     .fixedSize(horizontal: false, vertical: true)
                     .padding(.top, 6)
-
-                Text(configurationSummary)
-                    .font(.system(size: 9, weight: .medium, design: .monospaced))
-                    .tracking(0.35)
-                    .foregroundStyle(GifJotDesign.mutedChalk)
-                    .padding(.top, 7)
 
                 if coordinator.droppedFrames > 0 {
                     Text("Skipped \(coordinator.droppedFrames) frames while keeping the app responsive.")
@@ -412,7 +404,7 @@ private struct RecordingPanel: View {
                 {
                     Text("Merged \(coordinator.optimizedFrameCount) unchanged frames automatically.")
                         .font(.system(size: 11))
-                        .foregroundStyle(GifJotDesign.mutedChalk)
+                        .foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
                         .padding(.top, 6)
                 }
@@ -422,13 +414,13 @@ private struct RecordingPanel: View {
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 13)
-        .background(GifJotDesign.cameraBlack)
+        .background(GifJotDesign.vellum)
         .overlay {
             RoundedRectangle(
                 cornerRadius: GifJotDesign.surfaceRadius,
                 style: .continuous
             )
-            .stroke(GifJotDesign.warmChalk.opacity(0.09))
+            .stroke(GifJotDesign.opticalHairline)
         }
         .clipShape(
             RoundedRectangle(
@@ -443,14 +435,14 @@ private struct RecordingPanel: View {
         switch coordinator.state {
         case .recording:
             RoundedRectangle(cornerRadius: 1.5, style: .continuous)
-                .fill(GifJotDesign.signal)
+                .fill(GifJotDesign.recordingRed)
                 .frame(width: 8, height: 8)
                 .accessibilityLabel("Recording")
         case .startingCapture, .finishingCapture, .encoding, .exporting,
              .requestingPermission:
             ProgressView()
                 .controlSize(.small)
-                .tint(GifJotDesign.warmChalk)
+                .tint(GifJotDesign.canvasIndigo)
                 .accessibilityLabel("Working")
         case .completed:
             Image(systemName: "checkmark.circle.fill")
@@ -460,11 +452,11 @@ private struct RecordingPanel: View {
                 .foregroundStyle(GifJotDesign.warning)
         case .canceled:
             Image(systemName: "xmark.circle")
-                .foregroundStyle(GifJotDesign.mutedChalk)
+                .foregroundStyle(.secondary)
         default:
             Image(systemName: "circle")
                 .font(.system(size: 8, weight: .semibold))
-                .foregroundStyle(GifJotDesign.mutedChalk)
+                .foregroundStyle(.secondary)
         }
     }
 
@@ -540,9 +532,8 @@ private struct RecordingPanel: View {
                 .frame(width: 20, height: 20)
 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("OUTPUT / LATEST CAPTURE")
-                        .font(.system(size: 9, weight: .semibold, design: .monospaced))
-                        .tracking(0.6)
+                    Text("Latest GIF")
+                        .font(.system(size: 11, weight: .semibold))
                         .foregroundStyle(.secondary)
 
                     Text(outputURL.lastPathComponent)
@@ -619,9 +610,8 @@ private struct RecordingPanel: View {
                 .font(.system(size: 11, weight: .medium))
                 .foregroundStyle(.secondary)
 
-            Text("LOCAL ONLY")
-                .font(.system(size: 9, weight: .semibold, design: .monospaced))
-                .tracking(0.65)
+            Text("Local only")
+                .font(.system(size: 11, weight: .medium))
                 .foregroundStyle(GifJotDesign.mutedInk)
 
             Spacer()
@@ -640,17 +630,6 @@ private struct RecordingPanel: View {
     private var needsPermissionAttention: Bool {
         permissionService.status != .authorized
             || permissionService.restartRecommended
-    }
-
-    private var configurationSummary: String {
-        let cursor = settings.includeCursor ? "Cursor on" : "Cursor off"
-        return "\(settings.maximumOutputWidth.displayName) / \(settings.framesPerSecond.displayName) / \(cursor)"
-            .uppercased()
-    }
-
-    private var compactConfigurationSummary: String {
-        let cursor = settings.includeCursor ? "CURSOR ON" : "CURSOR OFF"
-        return "\(settings.framesPerSecond.rawValue) FPS · \(cursor)"
     }
 
     private func performPrimaryAction() {

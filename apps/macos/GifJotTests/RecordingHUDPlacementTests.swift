@@ -22,7 +22,7 @@ final class RecordingHUDPlacementTests: XCTestCase {
             panelSize: CGSize(width: 278, height: 48)
         )
 
-        XCTAssertEqual(result, CGPoint(x: 261, y: 510))
+        XCTAssertEqual(result, CGPoint(x: 261, y: 506))
     }
 
     func testPlacesRegionReadyControllerBesideSelection() {
@@ -32,7 +32,7 @@ final class RecordingHUDPlacementTests: XCTestCase {
             panelSize: CGSize(width: 344, height: 52)
         )
 
-        XCTAssertEqual(result, CGPoint(x: 228, y: 510))
+        XCTAssertEqual(result, CGPoint(x: 228, y: 506))
     }
 
     func testFallsBelowSelectionNearTopOfScreen() {
@@ -42,7 +42,7 @@ final class RecordingHUDPlacementTests: XCTestCase {
             panelSize: CGSize(width: 278, height: 48)
         )
 
-        XCTAssertEqual(result, CGPoint(x: 261, y: 542))
+        XCTAssertEqual(result, CGPoint(x: 261, y: 546))
     }
 
     func testClampsHUDToAvailableHorizontalFrame() {

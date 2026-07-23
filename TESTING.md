@@ -90,6 +90,36 @@ Record the Mac model, processor, macOS version, GifJot commit, display arrangeme
 - Confirm the app launches from `/Applications`, requests only Screen Recording, records, saves, and copies.
 - Repeat clean-install testing with normal double-click launch once Developer ID signing and notarization are added.
 
+## Debug live-recording smoke test
+
+For repeated local testing on one Mac, install the app with the stable local
+development identity:
+
+```sh
+./scripts/install-macos-local.sh
+```
+
+The script requires a valid `GifJot Local Development` code-signing identity in
+the login keychain. It binds the installed app's designated requirement to both
+`com.gifjot.GifJot` and that certificate, verifies the signature before
+installation, preserves the previous app in `/tmp`, and launches the new build.
+The certificate and private key remain local to the Mac and are not repository
+assets. The first transition from an ad-hoc build requires Screen Recording
+approval once; later builds signed by this identity should retain it.
+
+After granting Screen Recording access to a running Debug build, exercise the
+native capture, frame pipeline, GIF encoder, file exporter, and clipboard
+writer without automating macOS input:
+
+```sh
+swift -e 'import Foundation; DistributedNotificationCenter.default().postNotificationName(Notification.Name("com.gifjot.debug.runRecordingSmokeTest"), object: nil)'
+```
+
+The test records the centered 640-by-360-point region of the main display for
+two seconds. Put non-sensitive test content in that region before triggering
+it. Success writes a GIF to `~/GifJot` by default, copies its file URL, and logs
+`GIFJOT_SMOKE_TEST_PASS`. Release builds ignore this notification.
+
 ## Reporting verification
 
 Pull requests and release notes must state exactly which Windows checks, macOS CI jobs, and manual rows passed. Use **not run** or **unverified** for anything that was not actually exercised.

@@ -7,6 +7,15 @@ import XCTest
 #endif
 
 final class GIFFileExporterTests: XCTestCase {
+    func testDefaultDestinationIsVisibleFolderInHomeDirectory() {
+        XCTAssertEqual(
+            GIFFileExporter.defaultDestinationDirectory(),
+            FileManager.default.homeDirectoryForCurrentUser
+                .appendingPathComponent("GifJot", isDirectory: true)
+                .standardizedFileURL
+        )
+    }
+
     func testCommitsWorkingFileWithoutOverwritingCollision() throws {
         let root = FileManager.default.temporaryDirectory.appendingPathComponent(
             "GifJotExporterTests-\(UUID().uuidString)",

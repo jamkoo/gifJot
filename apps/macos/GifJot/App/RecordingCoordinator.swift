@@ -133,7 +133,7 @@ final class RecordingCoordinator: ObservableObject {
         case .encoding:
             "Encoding GIF..."
         case .exporting:
-            "Saving to Downloads/GifJot..."
+            "Saving GIF..."
         case .completed:
             warningMessage ?? "Saved and copied to the clipboard."
         case .canceled:
@@ -263,7 +263,9 @@ final class RecordingCoordinator: ObservableObject {
             }
 
             try transition(to: .selectingRegion)
-            guard let region = await regionSelectionService.selectRegion() else {
+            guard let region = await regionSelectionService.selectRegion(
+                maximumOutputWidth: activeConfiguration?.maximumOutputWidth
+            ) else {
                 try transition(to: .canceled)
                 workflowTask = nil
                 return
@@ -372,7 +374,7 @@ final class RecordingCoordinator: ObservableObject {
             {
                 warningMessage = "Saved, but GifJot could not copy the GIF."
             } else if activeConfiguration?.copyAfterRecording == false {
-                warningMessage = "Saved to Downloads/GifJot."
+                warningMessage = "Saved to \(finalURL.deletingLastPathComponent().lastPathComponent)."
             }
 
             await session.cleanupTemporaryFrames()

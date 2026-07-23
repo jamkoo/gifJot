@@ -15,6 +15,7 @@ struct SettingsView: View {
                 VStack(spacing: 20) {
                     recordingSection
                     behaviorSection
+                    storageSection
                     privacyNotice
                 }
                 .padding(20)
@@ -24,7 +25,7 @@ struct SettingsView: View {
 
             footer
         }
-        .frame(width: 520, height: 560)
+        .frame(width: 520, height: 620)
         .background(GifJotDesign.opticalBody)
         .tint(GifJotDesign.signal)
     }
@@ -118,6 +119,42 @@ struct SettingsView: View {
         }
     }
 
+    private var storageSection: some View {
+        SettingsSection(
+            index: "03",
+            title: "Storage",
+            detail: "Recordings stay in the folder you choose."
+        ) {
+            HStack(spacing: 12) {
+                Image(systemName: "folder")
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundStyle(GifJotDesign.signal)
+                    .frame(width: 22)
+
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("Save recordings to")
+                        .font(.system(size: 11, weight: .semibold))
+
+                    Text(settings.outputDirectoryDisplayPath)
+                        .font(.system(size: 11, design: .monospaced))
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                        .truncationMode(.middle)
+                        .help(settings.outputDirectoryURL.path)
+                }
+
+                Spacer(minLength: 12)
+
+                Button("Choose…") {
+                    chooseOutputDirectory()
+                }
+                .accessibilityHint("Selects the folder used for future GIF recordings.")
+            }
+            .padding(.horizontal, 12)
+            .frame(minHeight: 54)
+        }
+    }
+
     private var privacyNotice: some View {
         HStack(alignment: .top, spacing: 12) {
             Image(systemName: "lock.shield")
@@ -148,7 +185,7 @@ struct SettingsView: View {
 
     private var footer: some View {
         HStack {
-            Text("GIFs save to Downloads/GifJot")
+            Text("Changes apply to your next recording.")
                 .font(.system(size: 11))
                 .foregroundStyle(.secondary)
 
@@ -161,6 +198,32 @@ struct SettingsView: View {
         }
         .padding(.horizontal, 20)
         .padding(.vertical, 12)
+    }
+
+    private func chooseOutputDirectory() {
+        let panel = NSOpenPanel()
+        panel.title = "Choose Recording Folder"
+        panel.message = "GifJot will save future GIF recordings in this folder."
+        panel.prompt = "Choose"
+        panel.canChooseDirectories = true
+        panel.canChooseFiles = false
+        panel.canCreateDirectories = true
+        panel.allowsMultipleSelection = false
+
+        var isDirectory: ObjCBool = false
+        if FileManager.default.fileExists(
+            atPath: settings.outputDirectoryURL.path,
+            isDirectory: &isDirectory
+        ), isDirectory.boolValue {
+            panel.directoryURL = settings.outputDirectoryURL
+        } else {
+            panel.directoryURL = settings.outputDirectoryURL.deletingLastPathComponent()
+        }
+
+        guard panel.runModal() == .OK, let selectedURL = panel.url else {
+            return
+        }
+        settings.setOutputDirectory(selectedURL)
     }
 }
 
@@ -242,7 +305,7 @@ final class SettingsWindowController: NSWindowController {
             rootView: SettingsView(settings: settings)
         )
         let window = NSWindow(
-            contentRect: CGRect(origin: .zero, size: CGSize(width: 520, height: 560)),
+            contentRect: CGRect(origin: .zero, size: CGSize(width: 520, height: 620)),
             styleMask: [.titled, .closable, .miniaturizable],
             backing: .buffered,
             defer: false
@@ -251,7 +314,7 @@ final class SettingsWindowController: NSWindowController {
         window.contentViewController = hostingController
         window.isReleasedWhenClosed = false
         window.collectionBehavior = [.moveToActiveSpace]
-        window.setContentSize(CGSize(width: 520, height: 560))
+        window.setContentSize(CGSize(width: 520, height: 620))
 
         super.init(window: window)
     }

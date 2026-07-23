@@ -165,7 +165,7 @@ final class RecordingFramePipeline: @unchecked Sendable {
         await withCheckedContinuation { continuation in
             stateLock.lock()
             acceptingFrames = false
-            processingQueue.async { [store] in
+            processingQueue.async { [self] in
                 store.cleanup()
                 continuation.resume()
             }
