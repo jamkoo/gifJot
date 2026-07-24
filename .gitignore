@@ -1,0 +1,6 @@
+.DS_Store
+*.dmg
+*.app.zip
+BUILD-INFO.txt
+SHA256SUMS.txt
+/artifacts/

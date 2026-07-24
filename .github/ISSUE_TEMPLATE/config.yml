@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/jamkoo/gifJot/security/advisories/new
+    about: Report security or privacy vulnerabilities privately.

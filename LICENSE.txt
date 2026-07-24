@@ -1,0 +1,52 @@
+GifJot Freeware License
+
+Copyright (c) 2026 James Koo. All rights reserved.
+
+By downloading, installing, or using GifJot, you agree to these terms.
+
+1. License grant
+
+You may download, install, and use unmodified compiled releases of GifJot at no
+charge on devices that you own or control, for personal or commercial use.
+
+2. Restrictions
+
+You may not:
+
+- copy or redistribute GifJot to others;
+- sell, rent, lease, sublicense, or commercially distribute GifJot;
+- modify GifJot or create derivative works from it;
+- reverse engineer, decompile, or disassemble GifJot, except to the limited
+  extent that applicable law expressly permits despite this restriction;
+- remove or alter copyright, trademark, or other proprietary notices; or
+- represent that GifJot or its source code is open source.
+
+You may share a link to the official GifJot download page.
+
+3. Ownership
+
+GifJot is licensed, not sold. James Koo retains all right, title, and interest
+in GifJot, its source code, designs, branding, and documentation. This license
+does not grant access to or rights in the source code.
+
+4. Updates and availability
+
+Updates, support, and continued availability are not guaranteed. A future
+release may be offered under different terms, but any change will apply
+prospectively to that release.
+
+5. Disclaimer of warranty
+
+GIFJOT IS PROVIDED "AS IS" AND "AS AVAILABLE", WITHOUT WARRANTIES OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+PARTICULAR PURPOSE, TITLE, AND NON-INFRINGEMENT.
+
+6. Limitation of liability
+
+TO THE MAXIMUM EXTENT PERMITTED BY LAW, THE COPYRIGHT HOLDER WILL NOT BE LIABLE
+FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, EXEMPLARY, OR PUNITIVE
+DAMAGES, OR FOR LOSS OF DATA, PROFITS, OR BUSINESS, ARISING FROM OR RELATED TO
+GIFJOT OR ITS USE.
+
+If any restriction in this license is unenforceable under applicable law, the
+remaining terms continue in effect.
