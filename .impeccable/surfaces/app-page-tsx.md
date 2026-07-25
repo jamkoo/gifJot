@@ -15,4 +15,5 @@ related_targets: ["app/globals.css","app/layout.tsx","components/CaptureDemo.tsx
 - Constraints: Use only claims supported by the public repository; do not invent adoption metrics, quotes, or compatibility promises.
 - Chosen direction: Interactive capture lab. The hero turns the product’s selection frame into the defining visual system, while the workflow demo moves from Select to Record to Paste.
 - Memorable moment: The indigo capture frame transforms a selected screen region into a compact GIF result that is ready to paste.
-- Unresolved proof need: Replace the illustrative workflow with a real GifJot recording once a polished product capture is available.
+- Product fidelity: The illustrative workflow now mirrors the source-verified native selection handles, recording frame, 440×50 control HUD, and ready/recording/completed state language.
+- Unresolved proof need: Add a polished real-world GifJot recording when one is available; the simulated content inside the source-accurate capture controls remains illustrative.

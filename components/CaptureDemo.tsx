@@ -17,6 +17,74 @@ const steps = [
   },
 ] as const;
 
+function ChevronDownIcon() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 12 12">
+      <path d="m3 4.75 3 3 3-3" />
+    </svg>
+  );
+}
+
+function CursorIcon({ clicks = false }: { clicks?: boolean }) {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 18 18">
+      {clicks && (
+        <>
+          <path d="M11.4 2.5a5.2 5.2 0 0 1 4.1 4.1" />
+          <path d="M12.1 5.3a2.3 2.3 0 0 1 1.6 1.6" />
+        </>
+      )}
+      <path d="m3.1 2.2 8.5 8.1-4.1.3-2.3 3.5Z" />
+      <path d="m8.4 9.9 2.6 4" />
+    </svg>
+  );
+}
+
+function PinIcon() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 18 18">
+      <path d="m6.1 2.8 5.8 1.6-1.7 2.1.6 3.1-3.2-.9-2.5 1.2Z" />
+      <path d="m7.8 8.8-2 6.4" />
+    </svg>
+  );
+}
+
+function CloseIcon() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 16 16">
+      <path d="m4.5 4.5 7 7m0-7-7 7" />
+    </svg>
+  );
+}
+
+function MoveIcon() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 18 18">
+      <path d="M9 2.3v13.4M2.3 9h13.4" />
+      <path d="M6.8 4.5 9 2.3l2.2 2.2M6.8 13.5 9 15.7l2.2-2.2M4.5 6.8 2.3 9l2.2 2.2M13.5 6.8 15.7 9l-2.2 2.2" />
+    </svg>
+  );
+}
+
+function CheckIcon() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 18 18">
+      <circle cx="9" cy="9" r="7" />
+      <path d="m5.8 9.1 2 2 4.4-4.4" />
+    </svg>
+  );
+}
+
+function DragDots() {
+  return (
+    <span className="hud-dots" aria-hidden="true">
+      {Array.from({ length: 6 }, (_, index) => (
+        <i key={index} />
+      ))}
+    </span>
+  );
+}
+
 export function CaptureDemo() {
   const [activeStep, setActiveStep] = useState(0);
 
@@ -79,34 +147,85 @@ export function CaptureDemo() {
         </div>
 
         <div className="selection-frame" aria-hidden="true">
-          <span className="capture-corner top-left" />
-          <span className="capture-corner top-right" />
-          <span className="capture-corner bottom-right" />
-          <span className="capture-corner bottom-left" />
-          <span className="selection-size">688 × 388</span>
-        </div>
-
-        <div className="record-controller" aria-hidden="true">
-          <span className="record-state">
-            <span className="record-dot" />
-            <span className="stop-mark" />
+          <span className="frame-handle frame-corner frame-north-west" />
+          <span className="frame-handle frame-rail frame-north" />
+          <span className="frame-handle frame-corner frame-north-east" />
+          <span className="frame-handle frame-rail frame-east" />
+          <span className="frame-handle frame-corner frame-south-east" />
+          <span className="frame-handle frame-rail frame-south" />
+          <span className="frame-handle frame-corner frame-south-west" />
+          <span className="frame-handle frame-rail frame-west" />
+          <span className="frame-move-grip">
+            <MoveIcon />
           </span>
-          <span className="record-time">
-            {activeStep === 0 ? "Ready" : activeStep === 1 ? "00:06" : "Done"}
-          </span>
-          <span className="controller-rule" />
-          <span className="finish-label">
-            {activeStep === 2 ? "Copied" : "Finish"}
+          <span className="selection-size">
+            <i />
+            688 × 388 px
           </span>
         </div>
 
-        <div className="paste-result" aria-hidden="true">
-          <span className="paste-check">✓</span>
-          <span>
-            <strong>GIF ready to paste</strong>
-            <small>Saved locally · 688 × 388</small>
+        <div className="hud-shell hud-ready" aria-hidden="true">
+          <span className="hud-options">
+            <span className="hud-size-segment">
+              688 × 388 px
+              <ChevronDownIcon />
+            </span>
+            <i className="hud-divider" />
+            <span className="hud-option is-selected">
+              <CursorIcon />
+            </span>
+            <i className="hud-divider" />
+            <span className="hud-option hud-clicks">
+              <CursorIcon clicks />
+            </span>
+            <i className="hud-divider hud-clicks" />
+            <span className="hud-countdown">Off</span>
+            <i className="hud-divider hud-pin-divider" />
+            <span className="hud-option hud-pin">
+              <PinIcon />
+            </span>
           </span>
-          <kbd>⌘V</kbd>
+
+          <span className="hud-drag-surface">
+            <DragDots />
+          </span>
+
+          <span className="hud-actions">
+            <span className="hud-icon-button">
+              <CloseIcon />
+            </span>
+            <span className="hud-record-button">
+              <i />
+              Record
+            </span>
+          </span>
+        </div>
+
+        <div className="hud-shell hud-recording" aria-hidden="true">
+          <span className="hud-status-symbol hud-live-dot" />
+          <span className="hud-status-copy">
+            <strong>Recording</strong>
+            <small>00:06</small>
+          </span>
+          <span className="hud-status-spacer" />
+          <span className="hud-stop-button">
+            <i />
+            Stop
+          </span>
+          <span className="hud-icon-button">
+            <CloseIcon />
+          </span>
+        </div>
+
+        <div className="hud-shell hud-complete" aria-hidden="true">
+          <span className="hud-status-symbol hud-check">
+            <CheckIcon />
+          </span>
+          <span className="hud-status-copy hud-complete-copy">
+            <strong>Copied. Press ⌘V to paste</strong>
+          </span>
+          <span className="hud-status-spacer" />
+          <span className="hud-quiet-button">Reveal</span>
         </div>
       </div>
 

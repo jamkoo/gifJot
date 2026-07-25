@@ -215,10 +215,23 @@ the identity and primary download action remain.
 
 ### Capture Instrument
 
-The signature component combines a selected rectangle, live corner marks,
-recording control, shortcut notation, output state, and paste destination. It
-must demonstrate the actual four-step mechanism without inventing product
-capabilities.
+The signature component mirrors the native macOS capture UI rather than using a
+marketing approximation:
+
+- **Adjustable frame:** a 1px Canvas Indigo boundary with a 2px white contrast
+  edge, four 12px circular corner handles, four 24×6px edge rails, and a
+  centered 36×28px move grip.
+- **Recording frame:** the boundary thickens to 3px, the handles and move grip
+  disappear, and Canvas Indigo washes the area outside the capture at 16%.
+- **Control HUD:** a 440×50px Shell Highlight panel with a 14px corner radius,
+  Optical Hairline border, 7px inset, and 36px controls.
+- **State language:** ready shows dimensions, pointer/click/countdown/pin
+  options, and Record; recording shows a 9px live signal, timer, and Stop;
+  completion says “Copied. Press ⌘V to paste” with a Reveal action.
+
+The web demo may responsively omit secondary pointer options when space is
+constrained, but it must preserve the native frame geometry, control hierarchy,
+state language, and three-step mechanism without inventing product capabilities.
 
 ## Do's and Don'ts
 
