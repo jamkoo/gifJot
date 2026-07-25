@@ -14,8 +14,8 @@ stop, and your GIF is saved locally and ready to paste.
 - Records one selected screen region.
 - Saves GIFs locally to `~/GifJot` by default.
 - Optionally copies the completed GIF to the clipboard.
-- Provides configurable output size, frame rate, countdown, cursor visibility,
-  recording folder, and global shortcut.
+- Provides configurable output size, frame rate, countdown, cursor and click
+  visibility, recording folder, and global shortcut.
 - Runs without accounts, uploads, telemetry, advertising, or watermarks.
 
 ## Requirements
