@@ -71,7 +71,7 @@ hosted in the public GitHub Releases repository.
 - Public product documentation: `README.md`, `PRIVACY.md`, `SUPPORT.md`,
   `SECURITY.md`, and `CHANGELOG.md`.
 - App icon: `assets/GifJot-Icon.png`.
-- Public release: GifJot 0.1.0.
+- Public release: GifJot 0.1.2.
 - Private native source provides verified interface language and tokens but is
   not published through this repository.
 - There are no public testimonials, customer logos, usage benchmarks, or

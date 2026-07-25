@@ -9,6 +9,10 @@ GifJot currently keeps first-GIF completion on the Mac. It is not transmitted
 because the product promises that the app has no telemetry. Do not report
 website clicks or downloads as activated users.
 
+**Decision:** preserve the no-telemetry product boundary. Measure activation
+through the first 25 personally onboarded users using the
+[first-25 activation playbook](FIRST-25.md).
+
 ## Current measurable funnel
 
 | Stage | Event or source | Meaning |
@@ -27,7 +31,7 @@ Review the previous seven days every Monday:
 2. `product_proof_viewed`
 3. `download_click`
 4. GitHub `GifJot.dmg` download count
-5. First-GIF confirmations from directly onboarded beta users
+5. First-GIF confirmations from directly onboarded users
 6. Users who made another GIF or replied that they still use GifJot
 
 Calculate:
@@ -37,8 +41,8 @@ Calculate:
 - **Release request rate:** new DMG download requests / visitors
 - **Observed activation rate:** confirmed first GIFs / directly onboarded users
 
-The first target cohort is 100 qualified visits, 25 download intents, 10
-confirmed first GIFs, and 5 people still using GifJot seven days later.
+The first target cohort is 25 onboarding attempts, 15 installs, 10 confirmed
+first GIFs, and 5 people still using GifJot seven days later.
 
 ## Privacy boundary
 

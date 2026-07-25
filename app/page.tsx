@@ -11,6 +11,7 @@ import appIcon from "@/assets/GifJot-Icon.png";
 import { CaptureDemo } from "@/components/CaptureDemo";
 import { DownloadLink } from "@/components/DownloadLink";
 import { FeedbackLink } from "@/components/FeedbackLink";
+import { FounderSetupLink } from "@/components/FounderSetupLink";
 import { FunnelAnalytics } from "@/components/FunnelAnalytics";
 import { MotionSystem } from "@/components/MotionSystem";
 
@@ -131,6 +132,7 @@ export default function Home() {
           <p className="compatibility">
             macOS 14+ · Apple silicon & Intel · Version 0.1.2
           </p>
+          <FounderSetupLink className="founder-setup" />
         </div>
 
         <div className="hero-demo-stage">
