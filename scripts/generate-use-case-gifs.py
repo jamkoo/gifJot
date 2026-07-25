@@ -13,6 +13,7 @@ WIDTH = 640
 HEIGHT = 400
 FRAME_COUNT = 40
 FRAME_DURATION_MS = 80
+CURSOR_SCALE = 4
 
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT_DIR = ROOT / "public" / "demos"
@@ -130,26 +131,36 @@ def cursor(
             width=3,
         )
 
-    outer = [
-        (x, y),
-        (x + 3, y + 30),
-        (x + 10, y + 23),
-        (x + 18, y + 39),
-        (x + 26, y + 35),
-        (x + 18, y + 20),
-        (x + 29, y + 18),
+    cursor_points = [
+        (3, 2),
+        (4, 30),
+        (11, 23),
+        (18, 38),
+        (24, 35),
+        (17, 21),
+        (29, 21),
     ]
-    inner = [
-        (x + 3, y + 4),
-        (x + 6, y + 24),
-        (x + 11, y + 18),
-        (x + 19, y + 34),
-        (x + 22, y + 32),
-        (x + 14, y + 16),
-        (x + 23, y + 15),
+    scaled_points = [
+        (point_x * CURSOR_SCALE, point_y * CURSOR_SCALE)
+        for point_x, point_y in cursor_points
     ]
-    draw.polygon(outer, fill=(255, 255, 255, 255))
-    draw.polygon(inner, fill=(29, 29, 32, 255))
+    cursor_size = (34 * CURSOR_SCALE, 44 * CURSOR_SCALE)
+    cursor_layer = Image.new("RGBA", cursor_size, (0, 0, 0, 0))
+    cursor_draw = ImageDraw.Draw(cursor_layer)
+
+    cursor_draw.polygon(scaled_points, fill=(24, 24, 27, 255))
+    cursor_draw.line(
+        [*scaled_points, scaled_points[0]],
+        fill=(255, 255, 255, 255),
+        width=2 * CURSOR_SCALE,
+        joint="curve",
+    )
+
+    cursor_layer = cursor_layer.resize(
+        (cursor_size[0] // CURSOR_SCALE, cursor_size[1] // CURSOR_SCALE),
+        Image.Resampling.LANCZOS,
+    )
+    layer.alpha_composite(cursor_layer, (round(x), round(y)))
     image.alpha_composite(layer)
 
 
