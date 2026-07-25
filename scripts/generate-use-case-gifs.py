@@ -4,6 +4,9 @@
 from __future__ import annotations
 
 import math
+import subprocess
+import tempfile
+from functools import lru_cache
 from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
@@ -13,7 +16,6 @@ WIDTH = 640
 HEIGHT = 400
 FRAME_COUNT = 40
 FRAME_DURATION_MS = 80
-CURSOR_SCALE = 4
 
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT_DIR = ROOT / "public" / "demos"
@@ -112,6 +114,40 @@ def label(draw: ImageDraw.ImageDraw, x: int, y: int, value: str) -> None:
     draw.text((x, y), value, fill=MUTED, font=font(11, True))
 
 
+@lru_cache(maxsize=1)
+def system_cursor() -> Image.Image:
+    swift_source = """
+import AppKit
+
+_ = NSApplication.shared
+let image = NSCursor.arrow.image
+
+guard
+    let tiff = image.tiffRepresentation,
+    let bitmap = NSBitmapImageRep(data: tiff),
+    let png = bitmap.representation(using: .png, properties: [:])
+else {
+    fatalError("Unable to render the macOS arrow cursor.")
+}
+
+try png.write(to: URL(fileURLWithPath: CommandLine.arguments[1]))
+"""
+
+    with tempfile.TemporaryDirectory(prefix="gifjot-cursor-") as directory:
+        cursor_path = Path(directory) / "macos-arrow.png"
+        subprocess.run(
+            ["xcrun", "swift", "-e", swift_source, str(cursor_path)],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        with Image.open(cursor_path) as cursor_image:
+            return cursor_image.convert("RGBA").resize(
+                (56, 80),
+                Image.Resampling.LANCZOS,
+            )
+
+
 def cursor(
     image: Image.Image,
     x: float,
@@ -121,46 +157,27 @@ def cursor(
 ) -> None:
     layer = Image.new("RGBA", image.size, (0, 0, 0, 0))
     draw = ImageDraw.Draw(layer)
+    cursor_image = system_cursor()
+    cursor_x = round(x)
+    cursor_y = round(y)
+    hotspot_x = cursor_x + 10
+    hotspot_y = cursor_y + 10
 
     if click_amount > 0:
         radius = 12 + click_amount * 14
         alpha = int(120 * (1 - click_amount))
         draw.ellipse(
-            (x - radius, y - radius, x + radius, y + radius),
+            (
+                hotspot_x - radius,
+                hotspot_y - radius,
+                hotspot_x + radius,
+                hotspot_y + radius,
+            ),
             outline=(103, 88, 232, alpha),
             width=3,
         )
 
-    cursor_points = [
-        (3, 2),
-        (4, 30),
-        (11, 23),
-        (18, 38),
-        (24, 35),
-        (17, 21),
-        (29, 21),
-    ]
-    scaled_points = [
-        (point_x * CURSOR_SCALE, point_y * CURSOR_SCALE)
-        for point_x, point_y in cursor_points
-    ]
-    cursor_size = (34 * CURSOR_SCALE, 44 * CURSOR_SCALE)
-    cursor_layer = Image.new("RGBA", cursor_size, (0, 0, 0, 0))
-    cursor_draw = ImageDraw.Draw(cursor_layer)
-
-    cursor_draw.polygon(scaled_points, fill=(24, 24, 27, 255))
-    cursor_draw.line(
-        [*scaled_points, scaled_points[0]],
-        fill=(255, 255, 255, 255),
-        width=2 * CURSOR_SCALE,
-        joint="curve",
-    )
-
-    cursor_layer = cursor_layer.resize(
-        (cursor_size[0] // CURSOR_SCALE, cursor_size[1] // CURSOR_SCALE),
-        Image.Resampling.LANCZOS,
-    )
-    layer.alpha_composite(cursor_layer, (round(x), round(y)))
+    layer.alpha_composite(cursor_image, (cursor_x, cursor_y))
     image.alpha_composite(layer)
 
 
