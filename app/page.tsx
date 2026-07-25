@@ -11,6 +11,7 @@ import appIcon from "@/assets/GifJot-Icon.png";
 import { CaptureDemo } from "@/components/CaptureDemo";
 import { DownloadLink } from "@/components/DownloadLink";
 import { FeedbackLink } from "@/components/FeedbackLink";
+import { FunnelAnalytics } from "@/components/FunnelAnalytics";
 import { MotionSystem } from "@/components/MotionSystem";
 
 const workflow = [
@@ -53,7 +54,7 @@ const faqs = [
   {
     question: "Is GifJot free?",
     answer:
-      "Yes. GifJot 0.1.0 is free proprietary software for personal or commercial use under the GifJot Freeware License.",
+      "Yes. GifJot 0.1.2 is free proprietary software for personal or commercial use under the GifJot Freeware License.",
   },
   {
     question: "What does it require?",
@@ -75,6 +76,7 @@ const faqs = [
 export default function Home() {
   return (
     <main>
+      <FunnelAnalytics />
       <MotionSystem />
 
       <header className="site-header">
@@ -127,7 +129,7 @@ export default function Home() {
             </a>
           </div>
           <p className="compatibility">
-            macOS 14+ · Apple silicon & Intel · Version 0.1.0
+            macOS 14+ · Apple silicon & Intel · Version 0.1.2
           </p>
         </div>
 
