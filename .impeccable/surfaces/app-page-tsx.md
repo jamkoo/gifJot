@@ -17,7 +17,7 @@ related_targets: ["app/globals.css","app/layout.tsx","components/CaptureDemo.tsx
 - Memorable moment: The indigo capture frame transforms a selected screen region into a compact GIF result that is ready to paste.
 - Product fidelity: The illustrative workflow now mirrors the source-verified native selection handles, recording frame, 440×50 control HUD, and ready/recording/completed state language.
 - Use-case imagery: The bug report, product update, and support reply examples
-  use direct action-to-outcome storyboards rather than image placeholders or
-  fake message threads. Each headline and scene must describe the same concrete
-  action and visible result.
+  use lightweight looping GIFs rather than explanatory diagrams or fake message
+  threads. Each asset must visibly show the cursor action and state change with
+  no surrounding paragraph required.
 - Unresolved proof need: Add a polished real-world GifJot recording when one is available; the simulated content inside the source-accurate capture controls remains illustrative.

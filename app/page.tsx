@@ -31,120 +31,23 @@ const workflow = [
 const useCases = [
   {
     label: "Bug report",
-    title: "Show the exact click that triggers the bug.",
-    file: "dropdown-closes.gif",
-    scene: "dropdown",
+    title: "Catch the bug.",
+    image: "/demos/bug-report.gif",
+    alt: "A short looping GIF showing a priority dropdown selection disappear instead of saving.",
   },
   {
     label: "Product update",
-    title: "Demo the new flow in a few seconds.",
-    file: "new-filter-flow.gif",
-    scene: "filter",
+    title: "Demo the update.",
+    image: "/demos/product-update.gif",
+    alt: "A short looping GIF showing an Open filter update a list of customer requests.",
   },
   {
     label: "Support reply",
-    title: "Show exactly which setting to change.",
-    file: "change-setting.gif",
-    scene: "settings",
+    title: "Show the setting.",
+    image: "/demos/support-reply.gif",
+    alt: "A short looping GIF showing the Copy after recording setting switched on.",
   },
 ] as const;
-
-type UseCaseScene = (typeof useCases)[number]["scene"];
-
-function UseCasePreview({ scene }: { scene: UseCaseScene }) {
-  if (scene === "dropdown") {
-    return (
-      <div className="storyboard storyboard-dropdown">
-        <div className="story-step story-action">
-          <span className="story-label">Action</span>
-          <div className="story-control story-select">
-            <span>Priority</span>
-            <strong>
-              High <span aria-hidden="true">⌄</span>
-            </strong>
-          </div>
-          <span className="mini-cursor" aria-hidden="true">
-            ↖
-          </span>
-        </div>
-        <div className="story-connector" aria-hidden="true">
-          ↓
-        </div>
-        <div className="story-step story-outcome">
-          <span className="story-label">What the GIF shows</span>
-          <div className="story-result story-result-problem">
-            <i aria-hidden="true">!</i>
-            <strong>The choice disappears instead of saving.</strong>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (scene === "filter") {
-    return (
-      <div className="storyboard storyboard-filter">
-        <div className="story-step story-action">
-          <span className="story-label">Action</span>
-          <div className="story-filters">
-            <span>All</span>
-            <span className="is-active">Open</span>
-            <span>Closed</span>
-          </div>
-          <span className="mini-cursor" aria-hidden="true">
-            ↖
-          </span>
-        </div>
-        <div className="story-connector" aria-hidden="true">
-          ↓
-        </div>
-        <div className="story-step story-outcome">
-          <span className="story-label">What the GIF shows</span>
-          <div className="story-filter-result">
-            <strong>Only open requests remain.</strong>
-            <div className="story-filter-items">
-              <span>
-                <i />
-                Keyboard shortcuts
-              </span>
-              <span>
-                <i />
-                Export location
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="storyboard storyboard-settings">
-      <div className="story-step story-action">
-        <span className="story-label">Action</span>
-        <div className="story-setting">
-          <span>Copy after recording</span>
-          <i className="story-toggle">
-            <b />
-          </i>
-        </div>
-        <span className="mini-cursor" aria-hidden="true">
-          ↖
-        </span>
-      </div>
-      <div className="story-connector" aria-hidden="true">
-        ↓
-      </div>
-      <div className="story-step story-outcome">
-        <span className="story-label">What the GIF shows</span>
-        <div className="story-result story-result-success">
-          <i aria-hidden="true">✓</i>
-          <strong>Finished GIFs copy automatically.</strong>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 const faqs = [
   {
@@ -299,10 +202,6 @@ export default function Home() {
         <div className="use-case-intro section-shell">
           <p className="section-label">Made for real work</p>
           <h2>When a screenshot is too still and a video is too much.</h2>
-          <p>
-            Capture a few seconds once. Paste the answer into the issue,
-            announcement, or reply.
-          </p>
         </div>
 
         <div className="use-case-stage">
@@ -312,23 +211,16 @@ export default function Home() {
                 <span>{useCase.label}</span>
                 <h3>{useCase.title}</h3>
               </div>
-              <div className="example-clip" aria-hidden="true">
-                <div className="clip-bar">
-                  <span className="clip-play">
-                    <i>▶</i>
-                    GIF preview
-                  </span>
-                  <span>0:04</span>
-                </div>
-                <UseCasePreview scene={useCase.scene} />
-                <div className="clip-file">
-                  <Image src={appIcon} alt="" width={24} height={24} />
-                  <div>
-                    <strong>{useCase.file}</strong>
-                    <small>Ready to paste</small>
-                  </div>
-                </div>
-              </div>
+              <figure className="use-case-media">
+                <Image
+                  src={useCase.image}
+                  alt={useCase.alt}
+                  width={640}
+                  height={400}
+                  sizes="(max-width: 700px) calc(100vw - 40px), (max-width: 1080px) 58vw, 390px"
+                  unoptimized
+                />
+              </figure>
             </article>
           ))}
         </div>

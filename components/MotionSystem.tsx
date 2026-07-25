@@ -170,29 +170,14 @@ export function MotionSystem() {
           },
         });
 
-        useCaseTimeline
-          .from(".example-clip", {
-            autoAlpha: 0,
-            clearProps: "transform,opacity,visibility",
-            duration: 0.58,
-            ease: "power3.out",
-            stagger: 0.09,
-            y: 20,
-          })
-          .from(
-            ".mini-cursor",
-            {
-              autoAlpha: 0,
-              clearProps: "transform,opacity,visibility",
-              duration: 0.72,
-              ease: "expo.out",
-              rotation: -30,
-              stagger: 0.1,
-              x: (index) => [-62, -46, -58][index] ?? -52,
-              y: (index) => [-36, -28, -32][index] ?? -32,
-            },
-            "-=0.34",
-          );
+        useCaseTimeline.from(".use-case-media", {
+          autoAlpha: 0,
+          clearProps: "transform,opacity,visibility",
+          duration: 0.58,
+          ease: "power3.out",
+          stagger: 0.09,
+          y: 20,
+        });
 
         const privacyTimeline = gsap.timeline({
           scrollTrigger: {

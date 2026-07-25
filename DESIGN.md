@@ -207,9 +207,9 @@ for compact status text, never for primary buttons or containers.
 - **Shadow Strategy:** tonal by default; panel depth only on the main demo.
 - **Border:** optical hairline when a control boundary needs definition.
 - **Use-case previews:** secondary examples are composed, scenario-specific
-  action-to-outcome storyboards with real labels and interaction states. The
-  visual must explain the headline without a surrounding fake message thread
-  or generic interface chrome.
+  looping GIFs that show the cursor action and resulting state change. The
+  motion asset must do the explaining; surrounding copy stays to a label and
+  short headline.
 
 ### Navigation
 
