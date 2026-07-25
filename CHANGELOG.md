@@ -1,5 +1,15 @@
 # GifJot Changelog
 
+## 0.1.2 — 2026-07-25
+
+- Reworked the region-ready inspector with direct Pointer and Click Marker
+  controls plus an explicit Move control for repositioning the capture area.
+- Simplified inspector placement and improved movement guidance and
+  accessibility.
+- Kept the recording HUD active while transient popup and submenu windows are
+  open.
+- Fixed the About panel so it reports the installed app version.
+
 ## 0.1.1 — 2026-07-25
 
 - Added optional click indicators that appear in completed recordings.
