@@ -2,25 +2,28 @@
 
 ## 1. Outcome and thresholds
 
-Personally help 25 people try GifJot on a real task without adding telemetry to
-the Mac app.
+Recruit 25 people to try GifJot independently on a real task. There are no setup
+meetings and no telemetry in the Mac app.
 
 Count a user as:
 
-- **Installed** only after they open GifJot and grant Screen Recording access.
-- **Activated** only after they create and paste or share their first real GIF.
-- **Retained at day 7** only after they make another GIF or explicitly confirm
-  that they used GifJot again.
+- **Cohort entrant** after they agree to try GifJot on their own.
+- **Installed** after they confirm that they opened GifJot and granted Screen
+  Recording access.
+- **Activated** after they confirm that they created and pasted or shared their
+  first real GIF.
+- **Retained at day 7** after they make another GIF or explicitly confirm that
+  they used GifJot again.
 
-The first threshold is 25 onboarding attempts, 15 installs, 10 activations, and
-5 retained users. Do not mistake a site visit or download for activation.
+The first threshold is 25 cohort entrants, 15 installs, 10 activations, and 5
+retained users. Do not mistake a site visit or download for activation.
 
 ## 2. Cohort tracker
 
-Use only a pseudonymous ID in this public repository. Keep names and email
-addresses in the private email thread, never in this file.
+Use only a pseudonymous ID in this public repository. Keep names and contact
+details in the private email or message thread, never in this file.
 
-| ID | Source | Real use case | Contacted | Installed | First GIF | Day 7 | Friction / quote |
+| ID | Source | Real use case | Agreed | Installed | First GIF | Day 7 | Friction / quote |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | U01 | — | — | — | — | — | — | — |
 | U02 | — | — | — | — | — | — | — |
@@ -48,20 +51,25 @@ addresses in the private email thread, never in this file.
 | U24 | — | — | — | — | — | — | — |
 | U25 | — | — | — | — | — | — | — |
 
-## 3. Ten-minute onboarding
+## 3. Asynchronous check-in
 
-1. **Minute 0–2 — Find the job.** Ask what they explained recently with too
-   many words and where the explanation needed to go.
-2. **Minute 2–4 — Install.** Let them download, open, and grant permission
-   without taking control of the process.
-3. **Minute 4–7 — Make the real GIF.** They choose the region, record the
-   behavior, stop, and paste the result into its intended destination.
-4. **Minute 7–10 — Diagnose.** Ask: “What nearly stopped you?”, “What did you
-   expect to happen?”, and “Could you make the next one without me?”
+Send the download link and let each person attempt the entire workflow without
+coaching. The product must earn activation by itself.
 
-Record behavior before opinion. If they cannot complete the loop, capture the
-exact step where it broke. Do not coach around product friction before noting
-it.
+After 24 hours, ask for four short answers:
+
+1. Did GifJot open successfully?
+2. Did you make and paste a GIF for a real task?
+3. If not, what exact step stopped you?
+4. What were you trying to show?
+
+Do not ask users to send a GIF that contains private or sensitive material. A
+clear confirmation is enough to count activation.
+
+Exactly seven days after their first GIF, ask:
+
+> Have you used GifJot again since your first GIF? A simple yes or no is
+> perfect. If no, what did you use instead?
 
 ## 4. Recruiting and weekly rhythm
 
@@ -76,10 +84,10 @@ Recruit in this order:
 Use this invitation:
 
 > I made a tiny Mac app that turns a selected part of your screen into a
-> paste-ready GIF. I’m personally helping the first 25 users make one for a
-> real task. If you have ten minutes, bring something you need to show and I’ll
-> help you make the GIF. It’s free, local-only, and has no account or telemetry.
+> paste-ready GIF. Would you try it on one real task by yourself and tell me
+> whether you successfully made and pasted a GIF? It’s free, local-only, and
+> has no account or telemetry: https://gifjot.com
 
-Every Monday, total installed, activated, and day-7 retained users; list the
-three most common blockers; and ship one change that removes the biggest
-activation blocker. Follow up exactly seven days after each first GIF.
+Every Monday, total cohort entrants, installs, activations, and day-7 retained
+users; list the three most common blockers; and ship one change that removes
+the biggest activation blocker.

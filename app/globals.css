@@ -251,24 +251,6 @@ h1 {
   margin: 21px 0 0;
 }
 
-.founder-setup {
-  color: var(--muted-ink);
-  display: inline-block;
-  font-size: 0.8rem;
-  font-weight: 620;
-  margin-top: 14px;
-  text-decoration-color: rgba(103, 88, 232, 0.34);
-  text-underline-offset: 4px;
-  transition:
-    color 160ms ease,
-    text-decoration-color 160ms ease;
-}
-
-.founder-setup:hover {
-  color: var(--graphite);
-  text-decoration-color: var(--canvas-indigo);
-}
-
 .capture-demo {
   align-self: center;
   background: var(--shell-highlight);
