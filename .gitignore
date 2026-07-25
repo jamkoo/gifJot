@@ -7,3 +7,4 @@ node_modules/
 BUILD-INFO.txt
 SHA256SUMS.txt
 /artifacts/
+.env*
