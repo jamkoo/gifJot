@@ -1,6 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useGSAP } from "@gsap/react";
+import gsap from "gsap";
+import { useEffect, useRef, useState } from "react";
+
+gsap.registerPlugin(useGSAP);
 
 const steps = [
   {
@@ -87,6 +91,8 @@ function DragDots() {
 
 export function CaptureDemo() {
   const [activeStep, setActiveStep] = useState(0);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const isInitialState = useRef(true);
 
   useEffect(() => {
     const reduceMotion = window.matchMedia(
@@ -104,8 +110,58 @@ export function CaptureDemo() {
     return () => window.clearInterval(interval);
   }, []);
 
+  useGSAP(
+    () => {
+      if (isInitialState.current) {
+        isInitialState.current = false;
+        return;
+      }
+
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        return;
+      }
+
+      const stateSelector =
+        activeStep === 0
+          ? ".hud-ready"
+          : activeStep === 1
+            ? ".hud-recording"
+            : ".hud-complete";
+
+      gsap.fromTo(
+        `${stateSelector} > *`,
+        {
+          autoAlpha: 0,
+          y: 5,
+        },
+        {
+          autoAlpha: 1,
+          clearProps: "transform,opacity,visibility",
+          duration: 0.28,
+          ease: "power3.out",
+          stagger: 0.025,
+        },
+      );
+
+      if (activeStep === 0) {
+        gsap.from(".frame-handle, .frame-move-grip, .selection-size", {
+          autoAlpha: 0,
+          clearProps: "opacity,visibility",
+          duration: 0.26,
+          ease: "power2.out",
+          stagger: 0.02,
+        });
+      }
+    },
+    {
+      dependencies: [activeStep],
+      revertOnUpdate: true,
+      scope: rootRef,
+    },
+  );
+
   return (
-    <div className="capture-demo" data-step={activeStep}>
+    <div className="capture-demo" data-step={activeStep} ref={rootRef}>
       <div className="demo-chrome" aria-hidden="true">
         <span className="traffic-light red" />
         <span className="traffic-light yellow" />

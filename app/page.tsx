@@ -11,6 +11,7 @@ import appIcon from "@/assets/GifJot-Icon.png";
 import { CaptureDemo } from "@/components/CaptureDemo";
 import { DownloadLink } from "@/components/DownloadLink";
 import { FeedbackLink } from "@/components/FeedbackLink";
+import { MotionSystem } from "@/components/MotionSystem";
 
 const workflow = [
   {
@@ -71,6 +72,8 @@ const faqs = [
 export default function Home() {
   return (
     <main>
+      <MotionSystem />
+
       <header className="site-header">
         <a className="brand" href="#top" aria-label="GifJot home">
           <Image
@@ -125,7 +128,9 @@ export default function Home() {
           </p>
         </div>
 
-        <CaptureDemo />
+        <div className="hero-demo-stage">
+          <CaptureDemo />
+        </div>
       </section>
 
       <section className="trust-strip" aria-label="Product commitments">

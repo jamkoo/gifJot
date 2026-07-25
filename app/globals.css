@@ -168,6 +168,16 @@ summary:focus-visible {
   padding: 28px 0 56px;
 }
 
+.hero-demo-stage {
+  align-self: center;
+  min-width: 0;
+  transform-origin: 50% 52%;
+}
+
+.hero-demo-stage .capture-demo {
+  width: 100%;
+}
+
 .hero-note {
   align-items: center;
   color: var(--muted-ink);
@@ -1055,10 +1065,30 @@ h1 {
 }
 
 .workflow-list {
+  --motion-progress: 1;
   border-top: 1px solid var(--optical-hairline);
   list-style: none;
   margin: 4px 0 0;
   padding: 0;
+  position: relative;
+}
+
+.workflow-list::after {
+  background: linear-gradient(
+    to bottom,
+    rgba(103, 88, 232, 0),
+    rgba(103, 88, 232, 0.42) 16%,
+    rgba(103, 88, 232, 0.42) 84%,
+    rgba(103, 88, 232, 0)
+  );
+  content: "";
+  left: 20px;
+  position: absolute;
+  top: 38px;
+  bottom: 38px;
+  transform: scaleY(var(--motion-progress));
+  transform-origin: top;
+  width: 1px;
 }
 
 .workflow-list li {
@@ -1068,6 +1098,8 @@ h1 {
   gap: 24px;
   grid-template-columns: 46px 1fr;
   padding: 30px 2px;
+  position: relative;
+  z-index: 1;
 }
 
 .workflow-index {
@@ -1264,6 +1296,39 @@ h1 {
 .privacy-visual {
   min-height: 470px;
   position: relative;
+}
+
+.capture-corner {
+  border-color: var(--canvas-indigo);
+  border-style: solid;
+  height: 20px;
+  pointer-events: none;
+  position: absolute;
+  width: 20px;
+}
+
+.capture-corner.top-left {
+  border-width: 3px 0 0 3px;
+  left: -3px;
+  top: -3px;
+}
+
+.capture-corner.top-right {
+  border-width: 3px 3px 0 0;
+  right: -3px;
+  top: -3px;
+}
+
+.capture-corner.bottom-right {
+  border-width: 0 3px 3px 0;
+  bottom: -3px;
+  right: -3px;
+}
+
+.capture-corner.bottom-left {
+  border-width: 0 0 3px 3px;
+  bottom: -3px;
+  left: -3px;
 }
 
 .privacy-frame {
@@ -1818,6 +1883,12 @@ footer p {
     gap: 14px;
     grid-template-columns: 38px 1fr;
     padding: 24px 0;
+  }
+
+  .workflow-list::after {
+    left: 17px;
+    top: 34px;
+    bottom: 34px;
   }
 
   .workflow-index {

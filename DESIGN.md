@@ -233,6 +233,26 @@ The web demo may responsively omit secondary pointer options when space is
 constrained, but it must preserve the native frame geometry, control hierarchy,
 state language, and three-step mechanism without inventing product capabilities.
 
+## Motion
+
+Motion behaves like a capture operation: acquire, lock, record, and release.
+GSAP owns authored sequencing and ScrollTrigger owns one-shot viewport cues;
+routine hover and focus feedback remains CSS-native.
+
+- **Focal entrance:** the hero copy resolves first, then the capture instrument
+  opens through a bounded clip and its selection frame locks into place.
+- **Continuity:** the workflow rail draws once while its three steps resolve in
+  sequence, making the product loop legible without scroll hijacking.
+- **Product feedback:** capture HUD contents acknowledge each Select, Record,
+  and Paste state change; example cursors traverse their miniature output scenes.
+- **Privacy relationship:** the local capture boundary resolves before the
+  blocked cloud moves away from it.
+- **Budget:** all sequences are one-shot and use transform, opacity, or bounded
+  clip-path work. There is no pinned scrolling, smoothing layer, or persistent
+  decorative loop.
+- **Accessibility:** `prefers-reduced-motion: reduce` bypasses GSAP sequences
+  and the capture demo’s automatic state cycling.
+
 ## Do's and Don'ts
 
 ### Do:
