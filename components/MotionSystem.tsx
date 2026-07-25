@@ -171,7 +171,7 @@ export function MotionSystem() {
         });
 
         useCaseTimeline
-          .from(".message-window", {
+          .from(".example-clip", {
             autoAlpha: 0,
             clearProps: "transform,opacity,visibility",
             duration: 0.58,
@@ -188,8 +188,8 @@ export function MotionSystem() {
               ease: "expo.out",
               rotation: -30,
               stagger: 0.1,
-              x: (index) => [-94, -58, -112][index] ?? -80,
-              y: (index) => [-62, -46, -28][index] ?? -44,
+              x: (index) => [-62, -46, -58][index] ?? -52,
+              y: (index) => [-36, -28, -32][index] ?? -32,
             },
             "-=0.34",
           );

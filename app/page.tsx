@@ -31,26 +31,20 @@ const workflow = [
 const useCases = [
   {
     label: "Bug report",
-    title: "Reproduce the behavior, not the paragraph.",
+    title: "Show the exact click that triggers the bug.",
     file: "dropdown-closes.gif",
-    message: "The priority menu closes before the selection sticks.",
-    author: "K",
     scene: "dropdown",
   },
   {
     label: "Product update",
-    title: "Let the interaction carry the announcement.",
+    title: "Demo the new flow in a few seconds.",
     file: "new-filter-flow.gif",
-    message: "Here’s the new filter flow in four seconds.",
-    author: "M",
     scene: "filter",
   },
   {
     label: "Support reply",
-    title: "Show the answer exactly where it happens.",
+    title: "Show exactly which setting to change.",
     file: "change-setting.gif",
-    message: "Turn this on and the GIF is ready to paste.",
-    author: "A",
     scene: "settings",
   },
 ] as const;
@@ -60,99 +54,94 @@ type UseCaseScene = (typeof useCases)[number]["scene"];
 function UseCasePreview({ scene }: { scene: UseCaseScene }) {
   if (scene === "dropdown") {
     return (
-      <div className="mini-demo mini-demo-dropdown">
-        <div className="preview-topbar">
-          <strong>Issue details</strong>
-          <span className="preview-status">Open</span>
-        </div>
-        <div className="preview-field">
-          <span>Priority</span>
-          <strong>
-            High <span aria-hidden="true">⌄</span>
-          </strong>
-        </div>
-        <div className="preview-menu">
-          <span>
-            <i className="priority-dot priority-low" />
-            Low
-          </span>
-          <span className="is-selected">
-            <i className="priority-dot priority-high" />
-            High
-            <b>✓</b>
-          </span>
-          <span>
-            <i className="priority-dot priority-critical" />
-            Critical
+      <div className="storyboard storyboard-dropdown">
+        <div className="story-step story-action">
+          <span className="story-label">Action</span>
+          <div className="story-control story-select">
+            <span>Priority</span>
+            <strong>
+              High <span aria-hidden="true">⌄</span>
+            </strong>
+          </div>
+          <span className="mini-cursor" aria-hidden="true">
+            ↖
           </span>
         </div>
-        <span className="mini-cursor" aria-hidden="true">
-          ↖
-        </span>
+        <div className="story-connector" aria-hidden="true">
+          ↓
+        </div>
+        <div className="story-step story-outcome">
+          <span className="story-label">What the GIF shows</span>
+          <div className="story-result story-result-problem">
+            <i aria-hidden="true">!</i>
+            <strong>The choice disappears instead of saving.</strong>
+          </div>
+        </div>
       </div>
     );
   }
 
   if (scene === "filter") {
     return (
-      <div className="mini-demo mini-demo-filter">
-        <div className="preview-topbar">
-          <strong>Customer requests</strong>
-          <span className="preview-add">＋</span>
-        </div>
-        <div className="preview-filters">
-          <span>All</span>
-          <span className="is-active">Open</span>
-          <span>Closed</span>
-        </div>
-        <div className="preview-results">
-          <div>
-            <i className="result-dot result-purple" />
-            <span>
-              Keyboard shortcuts
-              <small>Open · today</small>
-            </span>
+      <div className="storyboard storyboard-filter">
+        <div className="story-step story-action">
+          <span className="story-label">Action</span>
+          <div className="story-filters">
+            <span>All</span>
+            <span className="is-active">Open</span>
+            <span>Closed</span>
           </div>
-          <div>
-            <i className="result-dot result-green" />
-            <span>
-              Export location
-              <small>Open · yesterday</small>
-            </span>
+          <span className="mini-cursor" aria-hidden="true">
+            ↖
+          </span>
+        </div>
+        <div className="story-connector" aria-hidden="true">
+          ↓
+        </div>
+        <div className="story-step story-outcome">
+          <span className="story-label">What the GIF shows</span>
+          <div className="story-filter-result">
+            <strong>Only open requests remain.</strong>
+            <div className="story-filter-items">
+              <span>
+                <i />
+                Keyboard shortcuts
+              </span>
+              <span>
+                <i />
+                Export location
+              </span>
+            </div>
           </div>
         </div>
-        <span className="mini-cursor" aria-hidden="true">
-          ↖
-        </span>
       </div>
     );
   }
 
   return (
-    <div className="mini-demo mini-demo-settings">
-      <div className="preview-topbar">
-        <strong>GifJot Settings</strong>
-        <span className="preview-shortcut">⌘,</span>
-      </div>
-      <div className="setting-row">
-        <span>
-          Copy after recording
-          <small>Put every finished GIF on the clipboard.</small>
+    <div className="storyboard storyboard-settings">
+      <div className="story-step story-action">
+        <span className="story-label">Action</span>
+        <div className="story-setting">
+          <span>Copy after recording</span>
+          <i className="story-toggle">
+            <b />
+          </i>
+        </div>
+        <span className="mini-cursor" aria-hidden="true">
+          ↖
         </span>
-        <i className="preview-toggle is-on">
-          <b />
-        </i>
       </div>
-      <div className="setting-row setting-path">
-        <span>
-          Save location
-          <small>~/GifJot</small>
-        </span>
-        <b>Choose…</b>
+      <div className="story-connector" aria-hidden="true">
+        ↓
       </div>
-      <span className="mini-cursor" aria-hidden="true">
-        ↖
-      </span>
+      <div className="story-step story-outcome">
+        <span className="story-label">What the GIF shows</span>
+        <div className="story-result story-result-success">
+          <i aria-hidden="true">✓</i>
+          <strong>Finished GIFs copy automatically.</strong>
+        </div>
+      </div>
     </div>
   );
 }
@@ -310,6 +299,10 @@ export default function Home() {
         <div className="use-case-intro section-shell">
           <p className="section-label">Made for real work</p>
           <h2>When a screenshot is too still and a video is too much.</h2>
+          <p>
+            Capture a few seconds once. Paste the answer into the issue,
+            announcement, or reply.
+          </p>
         </div>
 
         <div className="use-case-stage">
@@ -319,32 +312,20 @@ export default function Home() {
                 <span>{useCase.label}</span>
                 <h3>{useCase.title}</h3>
               </div>
-              <div className="message-window" aria-hidden="true">
-                <div className="message-bar">
-                  <div className="window-controls">
-                    <span />
-                    <span />
-                    <span />
-                  </div>
-                  <strong>Work thread</strong>
-                  <span className="message-status">Delivered</span>
+              <div className="example-clip" aria-hidden="true">
+                <div className="clip-bar">
+                  <span className="clip-play">
+                    <i>▶</i>
+                    GIF preview
+                  </span>
+                  <span>0:04</span>
                 </div>
-                <div className="message-note">
-                  <span className="message-avatar">{useCase.author}</span>
-                  <p>
-                    <strong>{useCase.label}</strong>
-                    <span>{useCase.message}</span>
-                  </p>
-                </div>
-                <div className="gif-attachment">
-                  <UseCasePreview scene={useCase.scene} />
-                  <div className="attachment-meta">
-                    <Image src={appIcon} alt="" width={24} height={24} />
-                    <div>
-                      <strong>{useCase.file}</strong>
-                      <small>GIF · ready to paste</small>
-                    </div>
-                    <span>Ready</span>
+                <UseCasePreview scene={useCase.scene} />
+                <div className="clip-file">
+                  <Image src={appIcon} alt="" width={24} height={24} />
+                  <div>
+                    <strong>{useCase.file}</strong>
+                    <small>Ready to paste</small>
                   </div>
                 </div>
               </div>

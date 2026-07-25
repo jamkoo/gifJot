@@ -207,8 +207,9 @@ for compact status text, never for primary buttons or containers.
 - **Shadow Strategy:** tonal by default; panel depth only on the main demo.
 - **Border:** optical hairline when a control boundary needs definition.
 - **Use-case previews:** secondary examples are composed, scenario-specific
-  product scenes with real labels and interaction states. Never use gray bars
-  or generic rectangles as stand-ins for missing screenshots.
+  action-to-outcome storyboards with real labels and interaction states. The
+  visual must explain the headline without a surrounding fake message thread
+  or generic interface chrome.
 
 ### Navigation
 
