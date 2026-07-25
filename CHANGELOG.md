@@ -5,6 +5,8 @@
 - Added optional click indicators that appear in completed recordings.
 - Added a guided first-run experience for Screen Recording permission, the
   first recording, and the global shortcut.
+- Added clearer hover and active feedback to the recording inspector's drag
+  handle.
 - Improved recording controls and capture startup feedback.
 
 ## 0.1.0 — 2026-07-24
