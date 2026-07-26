@@ -1,10 +1,6 @@
 .DS_Store
-.next/
-.vercel/
-node_modules/
 *.dmg
 *.app.zip
 BUILD-INFO.txt
 SHA256SUMS.txt
 /artifacts/
-.env*
