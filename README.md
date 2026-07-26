@@ -1,64 +1,123 @@
-# GifJot
+<p align="center">
+  <a href="https://gifjot.com">
+    <img src="assets/GifJot-Icon.png" width="112" alt="GifJot app icon">
+  </a>
+</p>
 
-**Turn any part of your Mac screen into a paste-ready GIF.**
+<h1 align="center">GifJot</h1>
 
-GifJot is a lightweight native macOS menu-bar app. Select a region, record,
-stop, and your GIF is saved locally and ready to paste.
+<p align="center">
+  <strong>Show it. Don’t explain it.</strong><br>
+  Turn any part of your Mac screen into a paste-ready GIF.
+</p>
 
-[Download GifJot for macOS](https://github.com/jamkoo/gifJot/releases/latest/download/GifJot.dmg)
+<p align="center">
+  <a href="https://gifjot.com"><strong>Website</strong></a>
+  ·
+  <a href="https://github.com/jamkoo/gifJot/releases/latest/download/GifJot.dmg"><strong>Download for macOS</strong></a>
+  ·
+  <a href="https://github.com/jamkoo/gifJot/releases/latest">Latest release</a>
+  ·
+  <a href="SUPPORT.md">Support</a>
+</p>
 
-![GifJot app icon](assets/GifJot-Icon.png)
+<p align="center">
+  <img alt="macOS 14 or later" src="https://img.shields.io/badge/macOS-14%2B-171717">
+  <img alt="Current version 0.1.2" src="https://img.shields.io/badge/version-0.1.2-6758E8">
+  <img alt="Apple silicon and Intel" src="https://img.shields.io/badge/Mac-Apple_silicon_%26_Intel-171717">
+  <img alt="Local-only processing" src="https://img.shields.io/badge/processing-local_only-6758E8">
+</p>
 
-## What it does
+![GifJot website showing the screen-to-GIF workflow](assets/screenshots/website-desktop.jpg)
 
-- Records one selected screen region.
-- Saves GIFs locally to `~/GifJot` by default.
-- Optionally copies the completed GIF to the clipboard.
-- Provides configurable output size, frame rate, countdown, cursor and click
-  visibility, recording folder, and global shortcut.
-- Runs without accounts, uploads, telemetry, advertising, or watermarks.
+GifJot is a free, lightweight, native macOS menu-bar app. Select a region,
+record a few clear seconds, stop, and your GIF is saved locally and ready to
+paste. There is no account, upload, telemetry, advertising, watermark, or
+third-party runtime dependency.
 
-## Requirements
+## See it in action
+
+| Bug report | Product update | Support reply |
+| :---: | :---: | :---: |
+| ![A priority selection disappears instead of saving](assets/demos/bug-report.gif) | ![An Open filter updates a customer-request list](assets/demos/product-update.gif) | ![The Copy after recording setting is switched on](assets/demos/support-reply.gif) |
+| Catch the bug | Demo the update | Show the setting |
+
+## One clean loop
+
+1. Press `Option-Command-G`, then drag around the part of the screen you want
+   to show.
+2. Adjust the region and choose your output, pointer, click-marker, and
+   countdown options.
+3. Record, then stop from the controls or press `Option-Command-G` again.
+4. Paste the GIF from your clipboard or find it in `~/GifJot`.
+
+## Built for focused screen sharing
+
+- **Local by design.** Recording and GIF creation happen on your Mac.
+- **Paste-ready output.** Save locally and optionally copy the completed GIF
+  straight to the clipboard.
+- **Useful controls.** Configure output size, frame rate, countdown, pointer
+  visibility, click markers, save location, and the global shortcut.
+- **Native and universal.** Runs as a menu-bar app on Apple silicon and Intel
+  Macs.
+- **Small on purpose.** No editor, audio, webcam, cloud sharing, or extra export
+  formats.
+
+## Install
+
+1. Download [`GifJot.dmg`](https://github.com/jamkoo/gifJot/releases/latest/download/GifJot.dmg).
+2. Open the disk image and drag **GifJot** to **Applications**.
+3. Open GifJot. It appears in the menu bar rather than the Dock.
+4. Grant Screen Recording access when macOS asks, then reopen GifJot if
+   prompted.
+
+The public download is a universal app signed with an Apple Developer ID,
+notarized by Apple, and stapled for normal Gatekeeper verification.
+
+### Requirements
 
 - macOS 14 Sonoma or later
 - Apple silicon or Intel Mac
 - Screen Recording permission
 
-## Install
-
-1. Download `GifJot.dmg` from the [latest release](https://github.com/jamkoo/gifJot/releases/latest).
-2. Open the disk image.
-3. Drag **GifJot** to **Applications**.
-4. Open GifJot. It appears in the menu bar rather than the Dock.
-5. Grant Screen Recording access when macOS asks, then reopen GifJot if prompted.
-
-The public download is signed with an Apple Developer ID, notarized by Apple,
-and distributed as a universal app for Apple silicon and Intel Macs.
-
-## Record a GIF
-
-1. Choose **Record Area** from the menu-bar app, or press `Option-Command-G`.
-2. Drag a region on one display and adjust it if needed.
-3. Select **Record**.
-4. Stop from the recording controls or press `Option-Command-G` again.
-5. Find the completed GIF in `~/GifJot`, or the folder chosen in Settings.
-
 ## Privacy
 
-GifJot processes recordings locally. The app does not require an account and
-does not include upload, analytics, advertising, telemetry, or crash-reporting
-services. Read the full [privacy statement](PRIVACY.md).
+GifJot processes recordings locally and works without an account. The Mac app
+does not include uploads, analytics, advertising, telemetry, or crash-reporting
+services. Completed GIFs remain in the folder you choose until you move or
+delete them.
 
-## Support
+Read the complete [privacy statement](PRIVACY.md).
 
-Use [GitHub Issues](https://github.com/jamkoo/gifJot/issues) for reproducible
-bugs and product requests. Do not attach private screen recordings or sensitive
-logs. Report security problems according to [SECURITY.md](SECURITY.md).
+## Project links
+
+- [gifjot.com](https://gifjot.com) — product website and download
+- [Latest release](https://github.com/jamkoo/gifJot/releases/latest) — version,
+  release notes, and alternate download
+- [Changelog](CHANGELOG.md) — product changes by version
+- [Support](SUPPORT.md) — bug reports, requests, and contact
+- [Security policy](SECURITY.md) — private vulnerability reporting
+
+<details>
+<summary>Mobile website preview</summary>
+
+<p align="center">
+  <img src="assets/screenshots/website-mobile.jpg" width="390" alt="GifJot website on a mobile viewport">
+</p>
+
+</details>
+
+## About this repository
+
+This is GifJot’s public download and documentation repository. It contains
+compiled releases, product information, policies, and public issue tracking.
+The application source code is private, so this repository does not accept code
+contributions.
 
 ## License
 
 GifJot is **free proprietary software**. You may download and use the compiled
-app at no charge under the [GifJot Freeware License](LICENSE.txt). The source
-code is not included in this repository, and no source-code rights are granted.
+app at no charge under the [GifJot Freeware License](LICENSE.txt). No
+source-code rights are granted.
 
 Copyright (c) 2026 James Koo. All rights reserved.

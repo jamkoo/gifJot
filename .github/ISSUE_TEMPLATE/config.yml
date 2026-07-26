@@ -1,5 +1,8 @@
 blank_issues_enabled: false
 contact_links:
+  - name: GifJot website and download
+    url: https://gifjot.com
+    about: Visit the product website or download the latest macOS release.
   - name: Security vulnerability
     url: https://github.com/jamkoo/gifJot/security/advisories/new
     about: Report security or privacy vulnerabilities privately.

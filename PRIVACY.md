@@ -59,6 +59,7 @@ running GifJot.
 
 ## Questions
 
-For a privacy question that is not a vulnerability, open a GitHub issue without
-including sensitive recordings or personal information. Report vulnerabilities
-through the private process described in [SECURITY.md](SECURITY.md).
+For a privacy question that is not a vulnerability, email
+[hi@gifjot.com](mailto:hi@gifjot.com) without including sensitive recordings
+or personal information. Report vulnerabilities through the private process
+described in [SECURITY.md](SECURITY.md).
