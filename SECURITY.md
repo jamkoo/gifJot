@@ -13,9 +13,9 @@ Use GitHub's private vulnerability reporting flow:
 
 <https://github.com/jamkoo/gifJot/security/advisories/new>
 
-If that flow is unavailable, contact the repository owner through the contact
-method published at <https://github.com/jamkoo>. Do not include credentials,
-private recordings, or unrelated personal information.
+If that flow is unavailable, email [hi@gifjot.com](mailto:hi@gifjot.com). Do
+not include credentials, private recordings, or unrelated personal
+information.
 
 Useful reports include a concise description, potential impact, affected
 version, reproduction steps using non-sensitive test content, macOS version,
