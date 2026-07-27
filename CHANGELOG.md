@@ -1,5 +1,11 @@
 # GifJot Changelog
 
+## 0.1.4 — 2026-07-27
+
+- Fixed the Screen Recording onboarding handoff after a normal quit and reopen.
+- The next recording step now appears automatically without requiring the
+  global shortcut.
+
 ## 0.1.3 — 2026-07-27
 
 - Fixed Screen Recording recovery after replacing or updating GifJot.

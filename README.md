@@ -23,7 +23,7 @@
 
 <p align="center">
   <img alt="macOS 14 or later" src="https://img.shields.io/badge/macOS-14%2B-171717">
-  <img alt="Current version 0.1.3" src="https://img.shields.io/badge/version-0.1.3-6758E8">
+  <img alt="Current version 0.1.4" src="https://img.shields.io/badge/version-0.1.4-6758E8">
   <img alt="Apple silicon and Intel" src="https://img.shields.io/badge/Mac-Apple_silicon_%26_Intel-171717">
   <img alt="Local-only processing" src="https://img.shields.io/badge/processing-local_only-6758E8">
 </p>
