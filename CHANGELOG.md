@@ -1,5 +1,11 @@
 # GifJot Changelog
 
+## 0.1.3 — 2026-07-27
+
+- Fixed Screen Recording recovery after replacing or updating GifJot.
+- Made **Check Again** actively register and verify the installed build so
+  permission changes no longer leave onboarding stuck.
+
 ## 0.1.2 — 2026-07-25
 
 - Reworked the region-ready inspector with direct Pointer and Click Marker
