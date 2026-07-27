@@ -1,5 +1,12 @@
 # GifJot Changelog
 
+## 0.1.5 — 2026-07-27
+
+- Added a Settings gear to the selected-frame toolbar so Settings remain
+  accessible when macOS has no room for the GifJot menu-bar item.
+- Added the standard `Command-,` Settings shortcut.
+- Reopening a windowless running copy of GifJot now opens Settings.
+
 ## 0.1.4 — 2026-07-27
 
 - Fixed the Screen Recording onboarding handoff after a normal quit and reopen.
