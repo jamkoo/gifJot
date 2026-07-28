@@ -8,13 +8,13 @@
 
 <p align="center">
   <strong>Show it. Don’t explain it.</strong><br>
-  Turn any part of your Mac screen into a paste-ready GIF.
+  Record any part of your Mac screen and paste it as a GIF.
 </p>
 
 <p align="center">
-  <a href="https://gifjot.com"><strong>Website</strong></a>
-  ·
   <a href="https://github.com/jamkoo/gifJot/releases/latest/download/GifJot.dmg"><strong>Download for macOS</strong></a>
+  ·
+  <a href="https://gifjot.com"><strong>Website</strong></a>
   ·
   <a href="https://github.com/jamkoo/gifJot/releases/latest">Latest release</a>
   ·
@@ -22,34 +22,36 @@
 </p>
 
 <p align="center">
-  <img alt="macOS 14 or later" src="https://img.shields.io/badge/macOS-14%2B-171717">
-  <img alt="Current version 0.1.5" src="https://img.shields.io/badge/version-0.1.5-6758E8">
-  <img alt="Apple silicon and Intel" src="https://img.shields.io/badge/Mac-Apple_silicon_%26_Intel-171717">
-  <img alt="Local-only processing" src="https://img.shields.io/badge/processing-local_only-6758E8">
+  <strong>No account</strong> ·
+  <strong>No uploads</strong> ·
+  <strong>No watermark</strong> ·
+  <strong>Local processing</strong>
 </p>
 
-![GifJot website showing the screen-to-GIF workflow](assets/screenshots/website-desktop.jpg)
+<p align="center">
+  macOS 14+ · Apple silicon and Intel · Version 0.1.5
+</p>
+
+![The GifJot website showing its screen-to-GIF workflow and live product example](assets/screenshots/website-desktop.jpg)
 
 GifJot is a free, lightweight, native macOS menu-bar app. Select a region,
-record a few clear seconds, stop, and your GIF is saved locally and ready to
-paste. There is no account, upload, telemetry, advertising, watermark, or
-third-party runtime dependency.
+record a few clear seconds, stop, and paste the finished GIF where your
+explanation belongs. There is no account, upload, telemetry, advertising,
+watermark, or third-party runtime dependency.
 
-## See it in action
+## Made for quick explanations
 
 | Bug report | Product update | Support reply |
 | :---: | :---: | :---: |
 | ![A priority selection disappears instead of saving](assets/demos/bug-report.gif) | ![An Open filter updates a customer-request list](assets/demos/product-update.gif) | ![The Copy after recording setting is switched on](assets/demos/support-reply.gif) |
 | Catch the bug | Demo the update | Show the setting |
 
-## One clean loop
+## A GIF in three steps
 
 1. Press `Option-Command-G`, then drag around the part of the screen you want
    to show.
-2. Adjust the region and choose your output, pointer, click-marker, and
-   countdown options.
-3. Record, then stop from the controls or press `Option-Command-G` again.
-4. Paste the GIF from your clipboard or find it in `~/GifJot`.
+2. Capture a few seconds, then stop when the point is clear.
+3. GifJot saves the GIF locally and can copy it to your clipboard.
 
 ## Built for focused screen sharing
 
@@ -80,7 +82,7 @@ notarized by Apple, and stapled for normal Gatekeeper verification.
 - Apple silicon or Intel Mac
 - Screen Recording permission
 
-## Privacy
+## Your screen stays on your Mac
 
 GifJot processes recordings locally and works without an account. The Mac app
 does not include uploads, analytics, advertising, telemetry, or crash-reporting
@@ -102,7 +104,7 @@ Read the complete [privacy statement](PRIVACY.md).
 <summary>Mobile website preview</summary>
 
 <p align="center">
-  <img src="assets/screenshots/website-mobile.jpg" width="390" alt="GifJot website on a mobile viewport">
+  <img src="assets/screenshots/website-mobile.jpg" width="390" alt="The current GifJot website on a mobile viewport">
 </p>
 
 </details>
