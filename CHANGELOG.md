@@ -1,5 +1,41 @@
 # GifJot Changelog
 
+## 0.1.10 — 2026-07-31
+
+- Region selection now switches to a crosshair as soon as drag-to-select mode
+  begins and restores the previous cursor when selection ends.
+- Release-tag validation is now the authoritative hosted Mac gate; optional
+  branch and Windows checks are available through manual dispatch.
+
+## 0.1.9 — 2026-07-31
+
+- Added draggable GIF and PNG previews to completion notifications and the
+  latest-capture card.
+- Reworked Settings into searchable Capture, GIF, Notifications, Shortcuts,
+  Storage, and Privacy categories.
+- Added a Save only screenshot option that leaves the clipboard unchanged.
+
+## 0.1.8 — 2026-07-30
+
+- Added persistent same-area capture for GIFs and PNGs, including the **R**
+  selection shortcut.
+- Made Jot, Again, and Show in Finder prominent after capture.
+- Improved annotation color and placement previews.
+- Isolated ordinary Debug builds from the production Screen Recording identity.
+
+## 0.1.7 — 2026-07-29
+
+- Added the fast selected-area PNG workflow and post-save Jot action.
+- Unified recent GIF and PNG actions in the menu-bar panel.
+
+## 0.1.6 — 2026-07-29
+
+- Added signed Sparkle updates and update notifications.
+- Added selected-area PNG screenshots and the shared Jot canvas.
+- Added same-capture static annotation compositing for GIFs.
+- Added toolbar pinning and left, bottom, and right docking.
+- Made GIF Stop save and copy immediately, with optional Stop & Jot.
+
 ## 0.1.5 — 2026-07-27
 
 - Added a Settings gear to the selected-frame toolbar so Settings remain
