@@ -8,7 +8,7 @@
 
 <p align="center">
   <strong>Show it. Don’t explain it.</strong><br>
-  Record any part of your Mac screen and paste it as a GIF.
+  Record a GIF or capture a PNG from any part of your Mac, then paste it.
 </p>
 
 <p align="center">
@@ -29,15 +29,15 @@
 </p>
 
 <p align="center">
-  macOS 14+ · Apple silicon and Intel · Version 0.1.5
+  Public beta · macOS 14+ · Apple silicon · Version 0.1.10
 </p>
 
 ![The GifJot website showing its screen-to-GIF workflow and live product example](assets/screenshots/website-desktop.jpg)
 
 GifJot is a free, lightweight, native macOS menu-bar app. Select a region,
-record a few clear seconds, stop, and paste the finished GIF where your
-explanation belongs. There is no account, upload, telemetry, advertising,
-watermark, or third-party runtime dependency.
+record a few clear seconds or capture a still, then paste the finished GIF or
+PNG where your explanation belongs. There is no account, upload, app telemetry,
+advertising, or watermark.
 
 ## Made for quick explanations
 
@@ -46,24 +46,30 @@ watermark, or third-party runtime dependency.
 | ![A priority selection disappears instead of saving](assets/demos/bug-report.gif) | ![An Open filter updates a customer-request list](assets/demos/product-update.gif) | ![The Copy after recording setting is switched on](assets/demos/support-reply.gif) |
 | Catch the bug | Demo the update | Show the setting |
 
-## A GIF in three steps
+## A GIF or PNG in three steps
 
-1. Press `Option-Command-G`, then drag around the part of the screen you want
-   to show.
-2. Capture a few seconds, then stop when the point is clear.
-3. GifJot saves the GIF locally and can copy it to your clipboard.
+1. Press `Option-Command-G` for a GIF or `Option-Command-S` for a PNG, then
+   drag around the part of the screen you want to show.
+2. Record a short loop or freeze a still. Reuse the last area when you need
+   another take.
+3. GifJot saves locally, can copy the result, and offers Jot for lightweight
+   annotations.
 
 ## Built for focused screen sharing
 
 - **Local by design.** Recording and GIF creation happen on your Mac.
-- **Paste-ready output.** Save locally and optionally copy the completed GIF
-  straight to the clipboard.
+- **Paste-ready output.** Save locally and optionally copy the completed GIF or
+  PNG straight to the clipboard.
 - **Useful controls.** Configure output size, frame rate, countdown, pointer
-  visibility, click markers, save location, and the global shortcut.
-- **Native and universal.** Runs as a menu-bar app on Apple silicon and Intel
-  Macs.
-- **Small on purpose.** No editor, audio, webcam, cloud sharing, or extra export
-  formats.
+  visibility, click markers, save location, shortcuts, completion behavior,
+  and same-area capture.
+- **Jot when useful.** Add a pen mark, arrow, rectangle, text, or QA stamp to a
+  completed capture without uploading it.
+- **Apple-silicon public beta.** The universal release includes an Intel slice
+  for compatibility testing, but Apple silicon is the primary validated
+  platform for this beta.
+- **Small on purpose.** No audio, webcam, timeline editor, cloud sharing, or
+  account setup.
 
 ## Install
 
@@ -79,15 +85,21 @@ notarized by Apple, and stapled for normal Gatekeeper verification.
 ### Requirements
 
 - macOS 14 Sonoma or later
-- Apple silicon or Intel Mac
+- Apple silicon Mac for the primary public beta
 - Screen Recording permission
+
+The universal download includes an Intel architecture for compatibility
+testing. Intel users are welcome to try it and report their Mac model and macOS
+version with any issue, but Intel does not yet have equivalent physical-test
+coverage.
 
 ## Your screen stays on your Mac
 
-GifJot processes recordings locally and works without an account. The Mac app
+GifJot processes captures locally and works without an account. The Mac app
 does not include uploads, analytics, advertising, telemetry, or crash-reporting
-services. Completed GIFs remain in the folder you choose until you move or
-delete them.
+services. Completed GIFs and PNGs remain in the folder you choose until you
+move or delete them. The app checks GitHub Releases for signed updates through
+Sparkle; no capture content or usage event is sent with that request.
 
 Read the complete [privacy statement](PRIVACY.md).
 

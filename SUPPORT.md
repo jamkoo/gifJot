@@ -8,6 +8,8 @@ overview.
 - Install the [latest release](https://github.com/jamkoo/gifJot/releases/latest).
 - Restart GifJot after changing Screen Recording permission.
 - Confirm that your Mac is running macOS 14 or later.
+- The primary public-beta platform is Apple silicon. Intel users are welcome to
+  help with compatibility testing; include the Mac model in any report.
 - Reproduce the problem using non-sensitive content.
 
 ## Bug reports

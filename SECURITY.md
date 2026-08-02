@@ -2,7 +2,7 @@
 
 ## Supported versions
 
-Security fixes target the latest public GifJot release.
+GifJot is in public beta. Security fixes target the latest public release.
 
 ## Reporting a vulnerability
 
