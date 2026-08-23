@@ -16,6 +16,8 @@
   ·
   <a href="https://gifjot.com"><strong>Website</strong></a>
   ·
+  <a href="https://gifjot.com/blog"><strong>Guides</strong></a>
+  ·
   <a href="https://github.com/jamkoo/gifJot/releases/latest">Latest release</a>
   ·
   <a href="SUPPORT.md">Support</a>
@@ -29,7 +31,7 @@
 </p>
 
 <p align="center">
-  Public beta · macOS 14+ · Apple silicon · Version 0.1.10
+  Public beta · macOS 14+ · Apple silicon · Version 0.1.15
 </p>
 
 ![The GifJot website showing its screen-to-GIF workflow and live product example](assets/screenshots/website-desktop.jpg)
@@ -45,6 +47,14 @@ advertising, or watermark.
 | :---: | :---: | :---: |
 | ![A priority selection disappears instead of saving](assets/demos/bug-report.gif) | ![An Open filter updates a customer-request list](assets/demos/product-update.gif) | ![The Copy after recording setting is switched on](assets/demos/support-reply.gif) |
 | Catch the bug | Demo the update | Show the setting |
+
+## Practical guides
+
+- [Record your Mac screen as a GIF](https://gifjot.com/blog/record-screen-as-gif-mac)
+- [Add a GIF to a GitHub issue](https://gifjot.com/blog/gif-for-github-issue)
+- [Make a clear bug report on Mac](https://gifjot.com/blog/visual-bug-report-mac)
+- [Choose GIF or video for a bug report](https://gifjot.com/blog/gif-vs-video-bug-report)
+- [Annotate a screenshot on Mac](https://gifjot.com/blog/annotate-screenshot-mac)
 
 ## A GIF or PNG in three steps
 
